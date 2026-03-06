@@ -1,0 +1,58 @@
+[gd_scene load_steps=6 format=3 uid="uid://skdaejm2ow6n"]
+
+[ext_resource type="PackedScene" uid="uid://biigvp1n1fx7f" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/lobby.tscn" id="2_lobby"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_icr5f"]
+size = Vector2(20, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(20, 1, 20)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0wfyh"]
+
+[node name="Main" type="Node3D"]
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("PlaneMesh_icr5f")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Floor"]
+transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 0.25379753, 0.1496954, 5.0186043)
+mesh = SubResource("BoxMesh_0wfyh")
+skeleton = NodePath("../../Player")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Floor"]
+transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 0.25379753, 0.1496954, -3.423232)
+mesh = SubResource("BoxMesh_0wfyh")
+skeleton = NodePath("../../Player")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Floor"]
+transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 4.8478937, 0.1496954, 0.33185887)
+mesh = SubResource("BoxMesh_0wfyh")
+skeleton = NodePath("../../Player")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Floor"]
+transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 4.8478937, 0.1496954, -2.3931243)
+mesh = SubResource("BoxMesh_0wfyh")
+skeleton = NodePath("../../Player")
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Player"]
+transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 0.25379753, 1.5263276, 0.6398382)
+mesh = SubResource("BoxMesh_0wfyh")
+
+[node name="Players" type="Node3D" parent="."]
+
+[node name="Lobby" parent="." instance=ExtResource("2_lobby")]
+visible = false
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
