@@ -8,6 +8,7 @@ const ROTATION_SPEED: float = 4.0
 const STEERING_WALK: float = 50.0  # Rapidez para mudar direcao andando
 const STEERING_SPRINT: float = 8.0  # Mais lento para mudar direcao correndo
 const JUMP_VELOCITY: float = 4.5
+const INTERACT_DISTANCE: float = 2.0
 #const SYNC_INTERVAL = 0.05  # 20 updates per second
 
 # Stamina
@@ -36,6 +37,14 @@ var _current_speed: float = 0.0
 var _stamina: float = MAX_STAMINA
 var _is_sprinting: bool = false
 var _move_direction: Vector3 = Vector3.ZERO  # Direcao atual do movimento
+var _carried_egg: Node3D = null  # Egg sendo carregado
+var _nearby_egg: Node3D = null  # Egg proximo para pegar
+var _is_dead: bool = false
+var _shake_intensity: float = 0.0
+var _shake_duration: float = 0.0
+var _shake_timer: float = 0.0
+
+signal player_died
 
 func _ready() -> void:
 	# TODO: Multiplayer - descomentar quando implementar
@@ -58,10 +67,18 @@ func _ready() -> void:
 	_apply_texture_to_model()
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("toggle_flashlight"):
+	# Lanterna - bloqueada quando carregando egg
+	if event.is_action_pressed("toggle_flashlight") and not is_carrying_egg():
 		_flashlight_on = not _flashlight_on
 		flashlight.visible = _flashlight_on
 		vision_light.visible = not _flashlight_on
+
+	# Interagir - pegar/soltar egg
+	if event.is_action_pressed("interact"):
+		if is_carrying_egg():
+			_drop_egg()
+		elif _nearby_egg:
+			_pickup_egg(_nearby_egg)
 
 func _physics_process(_delta: float) -> void:
 	# TODO: Multiplayer - descomentar quando implementar
@@ -80,7 +97,8 @@ func _physics_process(_delta: float) -> void:
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := Vector3(input_dir.x, 0, input_dir.y).normalized()
 
-	var wants_to_sprint := Input.is_action_pressed("sprint") and direction.length() > 0
+	# Sprint bloqueado quando carregando egg
+	var wants_to_sprint := Input.is_action_pressed("sprint") and direction.length() > 0 and not is_carrying_egg()
 
 	if wants_to_sprint and _stamina > MIN_STAMINA_TO_SPRINT:
 		_is_sprinting = true
@@ -126,7 +144,10 @@ func _physics_process(_delta: float) -> void:
 
 	rotation.y = lerp_angle(rotation.y, _target_rotation, ROTATION_SPEED * _delta)
 
-	camera.global_position = global_position + _camera_offset
+	_update_camera(_delta)
+
+	_detect_nearby_eggs()
+	_update_carried_egg()
 
 	# TODO: Multiplayer - descomentar quando implementar
 	#_sync_timer += delta
@@ -204,3 +225,108 @@ func get_stamina_percent() -> float:
 
 func is_sprinting() -> bool:
 	return _is_sprinting
+
+func is_carrying_egg() -> bool:
+	return _carried_egg != null
+
+func get_carried_egg() -> Node3D:
+	return _carried_egg
+
+func _detect_nearby_eggs() -> void:
+	_nearby_egg = null
+
+	# Busca todos os eggs na cena
+	var eggs := get_tree().get_nodes_in_group("eggs")
+	var closest_distance := INTERACT_DISTANCE
+
+	for egg in eggs:
+		if egg == _carried_egg:
+			continue
+
+		var distance := global_position.distance_to(egg.global_position)
+		if distance < closest_distance:
+			closest_distance = distance
+			_nearby_egg = egg
+
+func _pickup_egg(egg: Node3D) -> void:
+	if _carried_egg:
+		return
+
+	_carried_egg = egg
+
+	# Notifica o egg que foi pego (pode liberar monstro)
+	if egg.has_method("on_picked_up"):
+		egg.on_picked_up()
+
+	if _flashlight_on:
+		_flashlight_on = false
+		flashlight.visible = false
+		vision_light.visible = true
+
+	var egg_parent := egg.get_parent()
+	if egg_parent:
+		egg_parent.remove_child(egg)
+	add_child(egg)
+
+func _drop_egg() -> void:
+	if not _carried_egg:
+		return
+
+	var egg := _carried_egg
+	_carried_egg = null
+
+	remove_child(egg)
+	get_parent().add_child(egg)
+
+	var drop_offset := -global_transform.basis.z * 1.0  
+	egg.global_position = global_position + drop_offset
+	egg.global_position.y = 0.5  # Altura do chao
+
+func _update_carried_egg() -> void:
+	if not _carried_egg:
+		return
+
+	_carried_egg.position = Vector3(0, 0.8, -0.5)
+	_carried_egg.rotation = Vector3.ZERO
+	_carried_egg.scale = Vector3(1, 1, 1)
+
+func die() -> void:
+	if _is_dead:
+		return
+
+	_is_dead = true
+	player_died.emit()
+
+	# Desabilita controles
+	set_physics_process(false)
+	set_process_input(false)
+
+	# Solta egg se estiver carregando
+	if _carried_egg:
+		_drop_egg()
+
+	# TODO: Adicionar animacao de morte ou efeito visual
+
+func is_dead() -> bool:
+	return _is_dead
+
+func shake_camera(intensity: float, duration: float) -> void:
+	_shake_intensity = intensity
+	_shake_duration = duration
+	_shake_timer = 0.0
+
+func _update_camera(delta: float) -> void:
+	var shake_offset := Vector3.ZERO
+
+	if _shake_timer < _shake_duration:
+		_shake_timer += delta
+		var shake_progress := _shake_timer / _shake_duration
+		var current_intensity := _shake_intensity * (1.0 - shake_progress)
+
+		shake_offset = Vector3(
+			randf_range(-current_intensity, current_intensity),
+			randf_range(-current_intensity, current_intensity),
+			randf_range(-current_intensity, current_intensity)
+		)
+
+	camera.global_position = global_position + _camera_offset + shake_offset  

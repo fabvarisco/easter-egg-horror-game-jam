@@ -1,7 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://skdaejm2ow6n"]
+[gd_scene load_steps=9 format=3 uid="uid://skdaejm2ow6n"]
 
+[ext_resource type="Script" uid="uid://cslq5hua2l60f" path="res://scripts/scene_controll.gd" id="1_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://biigvp1n1fx7f" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://c1abc123lobby" path="res://scenes/lobby.tscn" id="2_lobby"]
+[ext_resource type="PackedScene" uid="uid://dr6k67vp3dajy" path="res://scenes/egg.tscn" id="3_sugp2"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_icr5f"]
 size = Vector2(20, 20)
@@ -24,6 +26,7 @@ fog_aerial_perspective = 0.5
 volumetric_fog_enabled = true
 
 [node name="Main" type="Node3D"]
+script = ExtResource("1_jyhfs")
 
 [node name="Floor" type="StaticBody3D" parent="."]
 
@@ -56,6 +59,7 @@ skeleton = NodePath("../../Player")
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+collision_layer = 1
 
 [node name="Players" type="Node3D" parent="."]
 
@@ -71,6 +75,10 @@ shadow_enabled = true
 [node name="FogVolume" type="FogVolume" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3167162, 2.1514935, -0.71403503)
 size = Vector3(14.822998, 2, 15.905487)
+
+[node name="Egg" parent="." instance=ExtResource("3_sugp2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1427298, 0, 2.7376053)
+is_monster = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_0wfyh")
