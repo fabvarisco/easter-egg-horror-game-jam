@@ -1,12 +1,9 @@
 [gd_scene load_steps=4 format=3 uid="uid://biigvp1n1fx7f"]
 
 [ext_resource type="Script" uid="uid://doydjtp6bwfud" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/godot_plush_model.glb" id="2_g2els"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
-radius = 0.4
-height = 1.8
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
 radius = 0.4
 height = 1.8
 
@@ -17,9 +14,8 @@ script = ExtResource("1_player")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-mesh = SubResource("CapsuleMesh_1")
+[node name="model" parent="." instance=ExtResource("2_g2els")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 10, 10)
@@ -27,22 +23,23 @@ projection = 1
 size = 10.0
 
 [node name="VisionLight" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -0.9965457, -0.08304703, 0, 0.08304704, -0.9965457, 0, 1.5, 1.4159772)
-light_color = Color(0.2, 0.22, 0.3, 1)
-light_energy = 1.5
-spot_range = 9.3357725
-spot_attenuation = 0.8
-spot_angle = 22.846352
-spot_angle_attenuation = 0.9
+transform = Transform3D(1, 0, 0, 0, 0.9999266, -0.01211217, 0, 0.01211217, 0.9999266, 0, 4.9512978, 7.2653155)
+light_color = Color(0.35, 0.38, 0.5, 1)
+light_energy = 2.364
+light_volumetric_fog_energy = 2.0
+spot_range = 16.0
+spot_attenuation = 0.5
+spot_angle = 180.0
+spot_angle_attenuation = 0.6
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -0.999717, 0.023791468, 0, -0.023791466, -0.999717, 0, 1.5, 0.55676794)
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0.2, 0.8, 0.3)
 visible = false
 light_color = Color(1, 0.95, 0.8, 1)
 light_energy = 20.0
 light_volumetric_fog_energy = 5.54
 shadow_enabled = true
-spot_range = 12.856
-spot_attenuation = -0.5
-spot_angle = 16.33
-spot_angle_attenuation = 0.7386866
+spot_range = 15.0
+spot_attenuation = 0.5
+spot_angle = 20.0
+spot_angle_attenuation = 0.7
