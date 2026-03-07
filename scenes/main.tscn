@@ -1,7 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://skdaejm2ow6n"]
+[gd_scene load_steps=7 format=3 uid="uid://skdaejm2ow6n"]
 
 [ext_resource type="PackedScene" uid="uid://biigvp1n1fx7f" path="res://scenes/player.tscn" id="1_player"]
-[ext_resource type="PackedScene" path="res://scenes/lobby.tscn" id="2_lobby"]
+[ext_resource type="PackedScene" uid="uid://c1abc123lobby" path="res://scenes/lobby.tscn" id="2_lobby"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_icr5f"]
 size = Vector2(20, 20)
@@ -10,6 +10,21 @@ size = Vector2(20, 20)
 size = Vector3(20, 1, 20)
 
 [sub_resource type="BoxMesh" id="BoxMesh_0wfyh"]
+
+[sub_resource type="Environment" id="Environment_0wfyh"]
+background_mode = 1
+background_color = Color(0.01, 0.01, 0.015, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.02, 0.02, 0.03, 1)
+ambient_light_energy = 0.05
+fog_enabled = true
+fog_light_color = Color(0.01, 0.01, 0.015, 1)
+fog_density = 0.08
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.04
+volumetric_fog_albedo = Color(0.02, 0.02, 0.03, 1)
+volumetric_fog_emission_energy = 0.0
+volumetric_fog_length = 20.0
 
 [node name="Main" type="Node3D"]
 
@@ -45,9 +60,9 @@ skeleton = NodePath("../../Player")
 [node name="Player" parent="." instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="Player"]
-transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 0.25379753, 1.5263276, 0.6398382)
-mesh = SubResource("BoxMesh_0wfyh")
+[node name="FogVolume" type="FogVolume" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.051277876, 1.1514935, 0.04046631)
+size = Vector3(3.614746, 2, 4.19812)
 
 [node name="Players" type="Node3D" parent="."]
 
@@ -56,3 +71,9 @@ visible = false
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
+light_color = Color(0.1, 0.1, 0.15, 1)
+light_energy = 0.05
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_0wfyh")

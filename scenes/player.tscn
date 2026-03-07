@@ -25,3 +25,24 @@ mesh = SubResource("CapsuleMesh_1")
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 10, 10)
 projection = 1
 size = 10.0
+
+[node name="VisionLight" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.9965457, -0.08304703, 0, 0.08304704, -0.9965457, 0, 1.5, 1.4159772)
+light_color = Color(0.2, 0.22, 0.3, 1)
+light_energy = 1.5
+spot_range = 9.3357725
+spot_attenuation = 0.8
+spot_angle = 22.846352
+spot_angle_attenuation = 0.9
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.999717, 0.023791468, 0, -0.023791466, -0.999717, 0, 1.5, 0.55676794)
+visible = false
+light_color = Color(1, 0.95, 0.8, 1)
+light_energy = 20.0
+light_volumetric_fog_energy = 5.54
+shadow_enabled = true
+spot_range = 12.856
+spot_attenuation = -0.5
+spot_angle = 16.33
+spot_angle_attenuation = 0.7386866

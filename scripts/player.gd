@@ -5,6 +5,8 @@ const ROTATION_SPEED = 8.0
 #const SYNC_INTERVAL = 0.05  # 20 updates per second
 
 @onready var camera: Camera3D = $Camera3D
+@onready var flashlight: SpotLight3D = $SpotLight3D
+@onready var vision_light: SpotLight3D = $VisionLight
 #@onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
 
 #var _peer_id: int = 0
@@ -13,6 +15,7 @@ const ROTATION_SPEED = 8.0
 
 var _target_rotation: float = 0.0
 var _camera_offset: Vector3
+var _flashlight_on: bool = false
 
 func _ready() -> void:
 	# TODO: Multiplayer - descomentar quando implementar
@@ -28,6 +31,17 @@ func _ready() -> void:
 	# Salva offset inicial da câmera e remove ela como filha
 	_camera_offset = camera.position
 	camera.top_level = true  # Câmera não herda transform do pai
+
+	# Começa com visão base ligada, lanterna desligada
+	flashlight.visible = false
+	vision_light.visible = true
+	_flashlight_on = false
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_flashlight"):
+		_flashlight_on = not _flashlight_on
+		flashlight.visible = _flashlight_on
+		vision_light.visible = not _flashlight_on
 
 func _physics_process(delta: float) -> void:
 	# TODO: Multiplayer - descomentar quando implementar
