@@ -43,6 +43,12 @@ func _kill_player() -> void:
 		killed_player.die()
 		_play_kill_scene(killed_player)
 
+		if _is_multiplayer_active() and multiplayer.is_server():
+			var host_manager := get_node_or_null("/root/HostManager")
+			if host_manager:
+				var player_id := int(killed_player.name)
+				host_manager.bunny_kill_player(player_id)
+
 	player_killed.emit(killed_player)
 
 	if model:
@@ -51,6 +57,11 @@ func _kill_player() -> void:
 	# Wait a moment then check for more players
 	await get_tree().create_timer(1.0).timeout
 	_hunt_next_player()
+
+
+func _is_multiplayer_active() -> bool:
+	return multiplayer.has_multiplayer_peer() and \
+		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 func _hunt_next_player() -> void:
 	_target_player = null

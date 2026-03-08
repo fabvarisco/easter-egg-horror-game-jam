@@ -181,6 +181,31 @@ func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool) -
 	_current_speed = speed
 	_is_sprinting = sprinting
 
+
+func _sync_pickup_egg(egg_name: String) -> void:
+	if not multiplayer.has_multiplayer_peer():
+		return
+	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+		return
+
+	var host_manager := get_node_or_null("/root/HostManager")
+	if host_manager:
+		var player_id := int(name)
+		host_manager.pickup_egg(egg_name, player_id)
+
+
+func _sync_drop_egg(egg_name: String, drop_pos: Vector3) -> void:
+	if not multiplayer.has_multiplayer_peer():
+		return
+	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+		return
+
+	var host_manager := get_node_or_null("/root/HostManager")
+	if host_manager:
+		var player_id := int(name)
+		host_manager.drop_egg(egg_name, player_id, drop_pos)
+
+
 func _apply_texture_to_model() -> void:
 	if not model or not _texture:
 		return
@@ -268,19 +293,26 @@ func _pickup_egg(egg: Node3D) -> void:
 		egg_parent.remove_child(egg)
 	add_child(egg)
 
+	# Sincronizar em multiplayer
+	_sync_pickup_egg(egg.name)
+
 func _drop_egg() -> void:
 	if not _carried_egg:
 		return
 
 	var egg := _carried_egg
+	var egg_name := egg.name
 	_carried_egg = null
 
 	remove_child(egg)
 	get_parent().add_child(egg)
 
-	var drop_offset := -global_transform.basis.z * 1.0  
+	var drop_offset := -global_transform.basis.z * 1.0
 	egg.global_position = global_position + drop_offset
-	egg.global_position.y = 0.5  # Altura do chao
+	egg.global_position.y = 0.5
+
+	# Sincronizar em multiplayer
+	_sync_drop_egg(egg_name, egg.global_position)
 
 func _update_carried_egg() -> void:
 	if not _carried_egg:

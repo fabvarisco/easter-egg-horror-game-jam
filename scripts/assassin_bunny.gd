@@ -27,6 +27,11 @@ func activate() -> void:
 		_spawn_at_distance(SPAWN_DISTANCE)
 
 func _physics_process(_delta: float) -> void:
+	# Clientes só atualizam visual, não processam IA
+	if _is_multiplayer_active() and not multiplayer.is_server():
+		_update_eyes(_delta)
+		return
+
 	match _state:
 		State.WATCHING:
 			_process_watching(_delta)
@@ -37,6 +42,15 @@ func _physics_process(_delta: float) -> void:
 
 	_update_eyes(_delta)
 	_maintain_fixed_rotation()
+
+
+func _is_multiplayer_active() -> bool:
+	return multiplayer.has_multiplayer_peer() and \
+		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
+
+func set_synced_state(state: int, approach_count: int) -> void:
+	_state = state as State
+	_approach_count = approach_count
 
 func _process_watching(_delta: float) -> void:
 	_find_target_player()

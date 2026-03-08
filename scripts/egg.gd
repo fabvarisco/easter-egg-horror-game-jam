@@ -25,6 +25,16 @@ func on_picked_up() -> void:
 func _release_monster() -> void:
 	monster_released.emit()
 
+	if _is_multiplayer_active():
+		var host_manager := get_node_or_null("/root/HostManager")
+		if host_manager and multiplayer.is_server():
+			host_manager.release_monster(global_position)
+		_play_laugh_sound_global()
+		_break_egg()
+		await get_tree().create_timer(0.3).timeout
+		queue_free()
+		return
+
 	var players := get_tree().get_nodes_in_group("players")
 	for player in players:
 		if player.has_method("shake_camera"):
@@ -36,6 +46,11 @@ func _release_monster() -> void:
 
 	await get_tree().create_timer(0.3).timeout
 	_activate_bunny()
+
+
+func _is_multiplayer_active() -> bool:
+	return multiplayer.has_multiplayer_peer() and \
+		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 func _break_egg() -> void:
 	var mesh := get_node_or_null("MeshInstance3D")

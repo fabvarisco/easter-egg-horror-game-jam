@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 MultiplayerManager="*res://scripts/multiplayer_manager.gd"
+HostManager="*res://scripts/host_manager.gd"
 EOSGRuntime="*res://addons/epic-online-services-godot/runtime.gd"
 HPlatform="*res://addons/epic-online-services-godot/heos/hplatform.gd"
 HAuth="*res://addons/epic-online-services-godot/heos/hauth.gd"
