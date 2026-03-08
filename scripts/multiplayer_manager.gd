@@ -5,6 +5,7 @@ signal player_connected(peer_id: int)
 signal player_disconnected(peer_id: int)
 signal connection_succeeded
 signal connection_failed
+signal server_disconnected
 signal room_created(code: String)
 signal server_found(server_info: Dictionary)
 signal lobby_join_failed(reason: String)
@@ -60,6 +61,7 @@ func _ready() -> void:
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.connection_failed.connect(_on_connection_failed)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 	_check_eos_available()
 
@@ -306,12 +308,12 @@ func join_game_eos(code: String) -> void:
 	current_mode = NetworkMode.NONE
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if current_mode != NetworkMode.LAN:
 		return
 
 	if _is_broadcasting:
-		_broadcast_timer += delta
+		_broadcast_timer += _delta
 		if _broadcast_timer >= BROADCAST_INTERVAL:
 			_broadcast_timer = 0.0
 			_send_broadcast()
@@ -427,6 +429,18 @@ func _on_connection_failed() -> void:
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Conexão falhou!" % mode_str)
 	connection_failed.emit()
+
+
+func _on_server_disconnected() -> void:
+	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
+	print("[%s] Servidor desconectou!" % mode_str)
+	_clear_players()
+	current_mode = NetworkMode.NONE
+	room_code = ""
+	is_host = false
+	my_peer_id = 0
+	multiplayer.multiplayer_peer = null
+	server_disconnected.emit()
 
 
 func _start_broadcasting() -> void:

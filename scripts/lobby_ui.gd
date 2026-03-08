@@ -61,6 +61,7 @@ func _ready() -> void:
 	multiplayer_manager.player_disconnected.connect(_on_player_disconnected)
 	multiplayer_manager.connection_succeeded.connect(_on_connection_succeeded)
 	multiplayer_manager.connection_failed.connect(_on_connection_failed)
+	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
 	multiplayer_manager.room_created.connect(_on_room_created)
 	multiplayer_manager.server_found.connect(_on_server_found)
 	multiplayer_manager.lobby_join_failed.connect(_on_lobby_join_failed)
@@ -168,6 +169,12 @@ func _on_connection_succeeded() -> void:
 
 func _on_connection_failed() -> void:
 	status_label.text = "Connection failed!"
+
+func _on_server_disconnected() -> void:
+	visible = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_show_menu("main")
+	status_label.text = "Host disconnected!"
 
 func _on_lobby_join_failed(reason: String) -> void:
 	status_label.text = "Failed: " + reason

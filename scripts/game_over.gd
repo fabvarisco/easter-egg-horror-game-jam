@@ -1,11 +1,39 @@
 extends Node3D
 
+signal finished
 
-# Called when the node enters the scene tree for the first time.
+const DISPLAY_TIME := 5.0
+
+@onready var camera: Camera3D = $Camera3D
+
+var _timer: float = 0.0
+var _is_active: bool = false
+
+
 func _ready() -> void:
-	pass # Replace with function body.
+	visible = false
+	if camera:
+		camera.current = false
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func show_game_over() -> void:
+	_timer = DISPLAY_TIME
+	_is_active = true
+	visible = true
+
+	if camera:
+		camera.current = true
+
+
+func _process(_delta: float) -> void:
+	if not _is_active:
+		return
+
+	_timer -= _delta
+
+	if _timer <= 0:
+		_is_active = false
+		visible = false
+		if camera:
+			camera.current = false
+		finished.emit()

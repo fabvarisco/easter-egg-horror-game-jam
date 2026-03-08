@@ -5,30 +5,27 @@ const SPRINT_SPEED: float = 6.5
 const ACCELERATION: float = 8.0
 const DECELERATION: float = 10.0
 const ROTATION_SPEED: float = 4.0
-const STEERING_WALK: float = 50.0  # Rapidez para mudar direcao andando
-const STEERING_SPRINT: float = 8.0  # Mais lento para mudar direcao correndo
+const STEERING_WALK: float = 50.0  
+const STEERING_SPRINT: float = 8.0  
 const JUMP_VELOCITY: float = 4.5
 const INTERACT_DISTANCE: float = 2.0
-#const SYNC_INTERVAL = 0.05  # 20 updates per second
+const SYNC_INTERVAL: float = 0.05  
 
 # Stamina
 const MAX_STAMINA:float = 100.0
-const STAMINA_DRAIN_RATE:float = 25.0  # Por segundo enquanto corre
-const STAMINA_REGEN_RATE:float = 15.0  # Por segundo enquanto nao corre
-const MIN_STAMINA_TO_SPRINT:float = 10.0  # Minimo para comecar a correr
+const STAMINA_DRAIN_RATE:float = 25.0  
+const STAMINA_REGEN_RATE:float = 15.0  
+const MIN_STAMINA_TO_SPRINT:float = 10.0  
 
 @onready var camera: Camera3D = $Camera3D
 @onready var flashlight: SpotLight3D = $SpotLight3D
 @onready var vision_light: SpotLight3D = $VisionLight
 @onready var model: Node3D = $model
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
-#@onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
 
 var _texture: Texture2D = preload("res://assets/godot_plush_albedo.png")
 
-#var _peer_id: int = 0
-#var _is_local: bool = false
-#var _sync_timer: float = 0.0
+var _sync_timer: float = 0.0
 
 var _target_rotation: float = 0.0
 var _camera_offset: Vector3
@@ -36,9 +33,9 @@ var _flashlight_on: bool = false
 var _current_speed: float = 0.0
 var _stamina: float = MAX_STAMINA
 var _is_sprinting: bool = false
-var _move_direction: Vector3 = Vector3.ZERO  # Direcao atual do movimento
-var _carried_egg: Node3D = null  # Egg sendo carregado
-var _nearby_egg: Node3D = null  # Egg proximo para pegar
+var _move_direction: Vector3 = Vector3.ZERO 
+var _carried_egg: Node3D = null 
+var _nearby_egg: Node3D = null  
 var _is_dead: bool = false
 var _shake_intensity: float = 0.0
 var _shake_duration: float = 0.0
@@ -47,18 +44,14 @@ var _shake_timer: float = 0.0
 signal player_died
 
 func _ready() -> void:
-	# TODO: Multiplayer - descomentar quando implementar
-	#_peer_id = get_meta("peer_id", 0)
-	#_is_local = multiplayer_manager.is_local_player(_peer_id)
-	#if not _is_local:
-	#	camera.current = false
-	#	set_process_input(false)
-	#else:
-	#	camera.current = true
-
-	camera.current = true
 	_camera_offset = camera.position
 	camera.top_level = true
+
+	if not is_multiplayer_authority():
+		camera.current = false
+		set_process_input(false)
+	else:
+		camera.current = true
 
 	flashlight.visible = false
 	vision_light.visible = true
@@ -66,19 +59,19 @@ func _ready() -> void:
 
 	_apply_texture_to_model()
 
-	# Disable processing until game starts (via lobby)
 	if not visible:
 		set_physics_process(false)
 		set_process_input(false)
 
 func _input(event: InputEvent) -> void:
-	# Lanterna - bloqueada quando carregando egg
+	if not is_multiplayer_authority():
+		return
+
 	if event.is_action_pressed("toggle_flashlight") and not is_carrying_egg():
 		_flashlight_on = not _flashlight_on
 		flashlight.visible = _flashlight_on
 		vision_light.visible = not _flashlight_on
 
-	# Interagir - pegar/soltar egg
 	if event.is_action_pressed("interact"):
 		if is_carrying_egg():
 			_drop_egg()
@@ -86,9 +79,10 @@ func _input(event: InputEvent) -> void:
 			_pickup_egg(_nearby_egg)
 
 func _physics_process(_delta: float) -> void:
-	# TODO: Multiplayer - descomentar quando implementar
-	#if not _is_local:
-	#	return
+	# Jogadores remotos: apenas atualizar animação
+	if not is_multiplayer_authority():
+		_update_animation()
+		return
 
 	# Gravity
 	if not is_on_floor():
@@ -102,7 +96,6 @@ func _physics_process(_delta: float) -> void:
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := Vector3(input_dir.x, 0, input_dir.y).normalized()
 
-	# Sprint bloqueado quando carregando egg
 	var wants_to_sprint := Input.is_action_pressed("sprint") and direction.length() > 0 and not is_carrying_egg()
 
 	if wants_to_sprint and _stamina > MIN_STAMINA_TO_SPRINT:
@@ -154,11 +147,10 @@ func _physics_process(_delta: float) -> void:
 	_detect_nearby_eggs()
 	_update_carried_egg()
 
-	# TODO: Multiplayer - descomentar quando implementar
-	#_sync_timer += delta
-	#if _sync_timer >= SYNC_INTERVAL:
-	#	_sync_timer = 0.0
-	#	_send_position_sync()
+	_sync_timer += _delta
+	if _sync_timer >= SYNC_INTERVAL:
+		_sync_timer = 0.0
+		_send_position_sync()
 
 func _rotate_to_mouse(_delta: float) -> void:
 	var mouse_pos := get_viewport().get_mouse_position()
@@ -175,14 +167,19 @@ func _rotate_to_mouse(_delta: float) -> void:
 		if direction_to_mouse.length() > 0.5:
 			_target_rotation = atan2(direction_to_mouse.x, direction_to_mouse.z) + PI
 
-#func _send_position_sync() -> void:
-#	multiplayer_manager.send_game_data({
-#		"action": "sync_position",
-#		"x": global_position.x,
-#		"y": global_position.y,
-#		"z": global_position.z,
-#		"rot_y": rotation.y
-#	})
+func _send_position_sync() -> void:
+	if not multiplayer.has_multiplayer_peer():
+		return
+	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+		return
+	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting)
+
+@rpc("authority", "call_remote", "unreliable_ordered")
+func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool) -> void:
+	global_position = pos
+	rotation.y = rot_y
+	_current_speed = speed
+	_is_sprinting = sprinting
 
 func _apply_texture_to_model() -> void:
 	if not model or not _texture:
@@ -309,7 +306,6 @@ func die() -> void:
 	player_died.emit()
 
 func _turn_into_egg() -> void:
-	# Hide player model
 	if model:
 		model.visible = false
 	if flashlight:
@@ -317,15 +313,14 @@ func _turn_into_egg() -> void:
 	if vision_light:
 		vision_light.visible = false
 
-	# Spawn egg at player position
-	var egg_scene := preload("res://scenes/egg.tscn")
-	var egg := egg_scene.instantiate()
-	egg.is_monster = false
-	egg.global_position = global_position
-	egg.global_position.y = 0.5
-	get_parent().add_child(egg)
+	if is_inside_tree():
+		var egg_scene := preload("res://scenes/egg.tscn")
+		var egg := egg_scene.instantiate()
+		egg.is_monster = false
+		egg.global_position = global_position
+		egg.global_position.y = 0.5
+		get_parent().add_child(egg)
 
-	# Remove from players group so bunny won't target this player anymore
 	remove_from_group("players")
 	remove_from_group("player")
 
@@ -337,11 +332,11 @@ func shake_camera(intensity: float, duration: float) -> void:
 	_shake_duration = duration
 	_shake_timer = 0.0
 
-func _update_camera(delta: float) -> void:
+func _update_camera(_delta: float) -> void:
 	var shake_offset := Vector3.ZERO
 
 	if _shake_timer < _shake_duration:
-		_shake_timer += delta
+		_shake_timer += _delta
 		var shake_progress := _shake_timer / _shake_duration
 		var current_intensity := _shake_intensity * (1.0 - shake_progress)
 

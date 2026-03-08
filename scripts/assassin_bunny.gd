@@ -26,19 +26,19 @@ func activate() -> void:
 	if _target_player:
 		_spawn_at_distance(SPAWN_DISTANCE)
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	match _state:
 		State.WATCHING:
-			_process_watching(delta)
+			_process_watching(_delta)
 		State.APPROACHING:
-			_process_approaching(delta)
+			_process_approaching(_delta)
 		State.KILLING:
-			_process_killing(delta)
+			_process_killing(_delta)
 
-	_update_eyes(delta)
+	_update_eyes(_delta)
 	_maintain_fixed_rotation()
 
-func _process_watching(delta: float) -> void:
+func _process_watching(_delta: float) -> void:
 	_find_target_player()
 
 	if not _target_player:
@@ -50,7 +50,7 @@ func _process_watching(delta: float) -> void:
 		_attack_close_player()
 		return
 
-	_idle_timer += delta
+	_idle_timer += _delta
 	if _idle_timer >= IDLE_TIMEOUT:
 		_relocate()
 		return

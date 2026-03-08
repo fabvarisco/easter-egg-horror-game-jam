@@ -9,6 +9,7 @@ script = ExtResource("1_wqhvx")
 [node name="bunny" type="Node3D" parent="."]
 
 [node name="godot_plush_model" parent="bunny" instance=ExtResource("2_tbwuq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.74807644)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0958085, 1.8509206)
