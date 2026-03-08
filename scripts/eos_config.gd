@@ -20,6 +20,9 @@ const DEPLOYMENT_ID := "60a776efe5b74d93b805eef984a7695e"   # e.g., "abc123def45
 const CLIENT_ID := "xyza789119bH4jfX88dIoEioAL7IaG91"       # e.g., "xyza1234..."
 const CLIENT_SECRET := "8auO0KScuVwZIiVzPsWx7nrIwLScrhySyQ5394vvnOc"   # e.g., "ABCD1234..."
 
+# Encryption key (64 hex characters)
+const ENCRYPTION_KEY := "131dec7c91ea0665ad2ef55ed9c513e639d6b3af3cd026edce5949619f725602"
+
 # ============================================
 
 static func get_credentials() -> Dictionary:
@@ -31,6 +34,7 @@ static func get_credentials() -> Dictionary:
 		"deployment_id": DEPLOYMENT_ID,
 		"client_id": CLIENT_ID,
 		"client_secret": CLIENT_SECRET,
+		"encryption_key": ENCRYPTION_KEY
 	}
 
 static func is_configured() -> bool:

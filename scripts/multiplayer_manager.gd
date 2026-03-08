@@ -9,12 +9,16 @@ signal room_created(code: String)
 signal server_found(server_info: Dictionary)
 signal lobby_join_failed(reason: String)
 
+
 enum NetworkMode { NONE, LAN, EOS }
+
 
 const MAX_PLAYERS = 4
 const DEFAULT_PORT = 7777
 const BROADCAST_PORT = 7778
 const BROADCAST_INTERVAL = 1.0
+const GAME_ID = "easteregghorror"
+
 
 var player_scene: PackedScene = preload("res://scenes/player.tscn")
 var players: Dictionary = {}
@@ -23,6 +27,7 @@ var is_host: bool = false
 var my_peer_id: int = 0
 var host_name: String = "Player"
 var current_mode: NetworkMode = NetworkMode.NONE
+
 
 # LAN variables
 var _peer: ENetMultiplayerPeer
@@ -33,10 +38,14 @@ var _is_broadcasting: bool = false
 var _is_listening: bool = false
 var _found_servers: Dictionary = {}
 
+
 # EOS variables
 var _eos_available: bool = false
 var _eos_initialized: bool = false
-var _current_lobby_id: String = ""
+var _eos_peer: EOSGMultiplayerPeer
+var _current_lobby: HLobby
+var _local_product_user_id: String = ""
+
 
 @onready var spawn_points: Array[Vector3] = [
 	Vector3(0, 1, 0),
@@ -45,62 +54,33 @@ var _current_lobby_id: String = ""
 	Vector3(0, 1, 2),
 ]
 
+
 func _ready() -> void:
-	# Setup LAN multiplayer signals
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 
-	# Check for EOS plugin
 	_check_eos_available()
 
+
+# ==========================================
+# EOS AVAILABILITY & INIT
+# ==========================================
+
+
 func _check_eos_available() -> void:
-	_eos_available = ClassDB.class_exists("HLobby")
+	_eos_available = ClassDB.class_exists("EOSGMultiplayerPeer")
 
 	if _eos_available:
-		print("EOS plugin detected - online multiplayer available")
-		# Connect EOS signals
-		HLobby.create_lobby_callback.connect(_on_eos_lobby_created)
-		HLobby.join_lobby_callback.connect(_on_eos_lobby_joined)
-		HLobby.leave_lobby_callback.connect(_on_eos_lobby_left)
-		HLobby.member_update_received.connect(_on_eos_member_update)
+		print("[EOS] Plugin detectado - multiplayer online disponível")
 	else:
-		print("EOS plugin not installed - LAN only mode")
+		print("[EOS] Plugin não encontrado - modo LAN apenas")
+
 
 func is_eos_available() -> bool:
 	return _eos_available
 
-func _process(delta: float) -> void:
-	if current_mode != NetworkMode.LAN:
-		return
-
-	# LAN: Broadcast server presence
-	if _is_broadcasting:
-		_broadcast_timer += delta
-		if _broadcast_timer >= BROADCAST_INTERVAL:
-			_broadcast_timer = 0.0
-			_send_broadcast()
-
-	# LAN: Listen for servers
-	if _is_listening and _listen_socket:
-		while _listen_socket.get_available_packet_count() > 0:
-			var packet := _listen_socket.get_packet()
-			var sender_ip := _listen_socket.get_packet_ip()
-			_handle_broadcast(packet, sender_ip)
-
-	# Clean old servers
-	var now := Time.get_ticks_msec()
-	var to_remove: Array[String] = []
-	for ip in _found_servers:
-		if now - _found_servers[ip].time > 3000:
-			to_remove.append(ip)
-	for ip in to_remove:
-		_found_servers.erase(ip)
-
-# ==========================================
-# EOS INITIALIZATION
-# ==========================================
 
 func _initialize_eos() -> bool:
 	if _eos_initialized:
@@ -109,50 +89,55 @@ func _initialize_eos() -> bool:
 	if not _eos_available:
 		return false
 
-	print("Initializing EOS...")
+	print("[EOS] Inicializando plataforma...")
 
-	# Setup credentials from config
-	var init_options := {
-		"product_name": EOSConfig.PRODUCT_NAME,
-		"product_version": EOSConfig.PRODUCT_VERSION,
-		"product_id": EOSConfig.PRODUCT_ID,
-		"sandbox_id": EOSConfig.SANDBOX_ID,
-		"deployment_id": EOSConfig.DEPLOYMENT_ID,
-		"client_id": EOSConfig.CLIENT_ID,
-		"client_secret": EOSConfig.CLIENT_SECRET,
-	}
+	# 1. Initialize EOS Platform
+	var init_opts = EOS.Platform.InitializeOptions.new()
+	init_opts.product_name = EOSConfig.PRODUCT_NAME
+	init_opts.product_version = EOSConfig.PRODUCT_VERSION
 
-	var result = IEOS.platform_create(init_options)
-	if result != OK:
-		push_error("Failed to initialize EOS platform: " + str(result))
+	var init_result = EOS.Platform.PlatformInterface.initialize(init_opts)
+	if init_result != EOS.Result.Success and init_result != EOS.Result.AlreadyConfigured:
+		push_error("[EOS] Falha ao inicializar: " + EOS.result_str(init_result))
 		return false
 
-	# Login with Device ID (anonymous)
-	print("Logging in with Device ID...")
-	HAuth.login_callback.connect(_on_eos_login, CONNECT_ONE_SHOT)
-	HAuth.login_device_id()
+	print("[EOS] SDK inicializado")
 
-	# Wait for login
-	await HAuth.login_callback
+	# 2. Create EOS Platform
+	var create_opts = EOS.Platform.CreateOptions.new()
+	create_opts.product_id = EOSConfig.PRODUCT_ID
+	create_opts.sandbox_id = EOSConfig.SANDBOX_ID
+	create_opts.deployment_id = EOSConfig.DEPLOYMENT_ID
+	create_opts.client_id = EOSConfig.CLIENT_ID
+	create_opts.client_secret = EOSConfig.CLIENT_SECRET
+	create_opts.encryption_key = EOSConfig.ENCRYPTION_KEY
 
-	_eos_initialized = HAuth.logged_in
-	if _eos_initialized:
-		print("EOS initialized successfully! User: ", HAuth.product_user_id)
-		my_peer_id = hash(HAuth.product_user_id) % 1000000
-	else:
-		push_error("EOS login failed")
+	var create_result = EOS.Platform.PlatformInterface.create(create_opts)
+	if not create_result:
+		push_error("[EOS] Falha ao criar plataforma")
+		return false
 
-	return _eos_initialized
+	print("[EOS] Plataforma criada. Fazendo login anônimo...")
 
-func _on_eos_login(result_code: int) -> void:
-	if result_code == 0:
-		print("EOS Login successful")
-	else:
-		push_error("EOS Login failed with code: " + str(result_code))
+	# 3. Setup logging
+	EOS.Logging.set_log_level(EOS.Logging.LogCategory.AllCategories, EOS.Logging.LogLevel.Info)
+
+	# 4. Login anonymously
+	var login_success = await HAuth.login_anonymous_async("Player")
+	if not login_success:
+		push_error("[EOS] Falha no login anônimo")
+		return false
+
+	_local_product_user_id = HAuth.product_user_id
+	_eos_initialized = true
+	my_peer_id = abs(hash(_local_product_user_id)) % 1000000
+	print("[EOS] Login OK! PUID: ", _local_product_user_id, " | peer_id: ", my_peer_id)
+	return true
 
 # ==========================================
 # LAN MULTIPLAYER
 # ==========================================
+
 
 func host_game_lan(player_name: String = "Host") -> void:
 	current_mode = NetworkMode.LAN
@@ -161,7 +146,7 @@ func host_game_lan(player_name: String = "Host") -> void:
 	var error := _peer.create_server(DEFAULT_PORT, MAX_PLAYERS)
 
 	if error != OK:
-		push_error("Failed to create server: " + str(error))
+		push_error("[LAN] Falha ao criar servidor: " + str(error))
 		connection_failed.emit()
 		return
 
@@ -175,6 +160,7 @@ func host_game_lan(player_name: String = "Host") -> void:
 	room_created.emit(host_name)
 	connection_succeeded.emit()
 
+
 func join_game_lan(ip: String) -> void:
 	current_mode = NetworkMode.LAN
 	_stop_listening()
@@ -183,7 +169,7 @@ func join_game_lan(ip: String) -> void:
 	var error := _peer.create_client(ip, DEFAULT_PORT)
 
 	if error != OK:
-		push_error("Failed to connect to server: " + str(error))
+		push_error("[LAN] Falha ao conectar: " + str(error))
 		connection_failed.emit()
 		return
 
@@ -191,23 +177,28 @@ func join_game_lan(ip: String) -> void:
 	is_host = false
 	room_code = ip
 
+
 func start_searching_lan() -> void:
 	_found_servers.clear()
 	_start_listening()
 
+
 func stop_searching_lan() -> void:
 	_stop_listening()
 
+
 func get_found_servers() -> Dictionary:
 	return _found_servers
+
 
 # ==========================================
 # EOS MULTIPLAYER
 # ==========================================
 
+
 func host_game_eos(room_name: String = "Game") -> void:
 	if not _eos_available:
-		push_error("EOS not available")
+		push_error("[EOS] Plugin não disponível")
 		connection_failed.emit()
 		return
 
@@ -215,131 +206,135 @@ func host_game_eos(room_name: String = "Game") -> void:
 	is_host = true
 	host_name = room_name
 
-	# Initialize EOS if needed
 	if not _eos_initialized:
-		var success = await _initialize_eos()
+		var success := await _initialize_eos()
 		if not success:
-			lobby_join_failed.emit("EOS initialization failed")
+			lobby_join_failed.emit("Falha na inicialização do EOS")
 			connection_failed.emit()
 			current_mode = NetworkMode.NONE
 			return
 
-	print("Creating EOS lobby...")
+	print("[EOS] Criando lobby...")
 
-	# Create lobby
-	var lobby_options := {
-		"max_lobby_members": MAX_PLAYERS,
-		"permission_level": HLobby.LobbyPermissionLevel.PUBLICADVERTISED,
-		"bucket_id": "easter_egg_horror",
-		"lobby_attributes": {
-			"room_name": room_name,
-			"game_id": "easter_egg_horror"
-		}
-	}
+	# Create lobby using high-level API
+	var create_opts := EOS.Lobby.CreateLobbyOptions.new()
+	create_opts.bucket_id = GAME_ID
+	create_opts.max_lobby_members = MAX_PLAYERS
 
-	HLobby.create_lobby(lobby_options)
-
-func _on_eos_lobby_created(result_code: int, lobby_id: String) -> void:
-	if result_code != 0:
-		push_error("Failed to create lobby: " + str(result_code))
-		lobby_join_failed.emit("Failed to create lobby")
+	_current_lobby = await HLobbies.create_lobby_async(create_opts)
+	if not _current_lobby:
+		push_error("[EOS] Falha ao criar lobby")
+		lobby_join_failed.emit("Falha ao criar lobby")
 		connection_failed.emit()
 		current_mode = NetworkMode.NONE
 		return
 
-	_current_lobby_id = lobby_id
-	room_code = _generate_lobby_code(lobby_id)
+	# Create P2P server
+	_eos_peer = EOSGMultiplayerPeer.new()
+	var result := _eos_peer.create_server(GAME_ID)
+	if result != OK:
+		push_error("[EOS] Falha ao criar servidor P2P: " + str(result))
+		connection_failed.emit()
+		current_mode = NetworkMode.NONE
+		return
 
-	print("Lobby created! Code: ", room_code)
+	multiplayer.multiplayer_peer = _eos_peer
+	room_code = _generate_lobby_code(_current_lobby.lobby_id)
+	my_peer_id = 1
 
+	print("[EOS] Lobby criado! Código: ", room_code)
 	_add_player(my_peer_id)
 	room_created.emit(room_code)
 	connection_succeeded.emit()
 
+
 func join_game_eos(code: String) -> void:
 	if not _eos_available:
-		lobby_join_failed.emit("EOS not available")
+		lobby_join_failed.emit("EOS não disponível")
 		return
 
 	current_mode = NetworkMode.EOS
 	is_host = false
 	room_code = code.to_upper()
 
-	# Initialize EOS if needed
 	if not _eos_initialized:
-		var success = await _initialize_eos()
+		var success := await _initialize_eos()
 		if not success:
-			lobby_join_failed.emit("EOS initialization failed")
+			lobby_join_failed.emit("Falha na inicialização do EOS")
 			current_mode = NetworkMode.NONE
 			return
 
-	print("Searching for lobby with code: ", room_code)
+	print("[EOS] Buscando lobby com código: ", room_code)
 
-	# Search for lobbies
-	var search_options := {
-		"bucket_id": "easter_egg_horror",
-		"max_results": 50
-	}
-
-	HLobby.search_callback.connect(_on_eos_search_complete.bind(room_code), CONNECT_ONE_SHOT)
-	HLobby.search_lobbies(search_options)
-
-func _on_eos_search_complete(result_code: int, lobbies: Array, target_code: String) -> void:
-	if result_code != 0:
-		lobby_join_failed.emit("Search failed")
+	# Search for lobbies by bucket_id
+	var lobbies = await HLobbies.search_by_bucket_id_async(GAME_ID)
+	if not lobbies or lobbies.size() == 0:
+		lobby_join_failed.emit("Nenhum lobby encontrado")
 		current_mode = NetworkMode.NONE
 		return
 
-	print("Found ", lobbies.size(), " lobbies")
+	print("[EOS] Encontrados ", lobbies.size(), " lobbies")
 
-	# Find lobby with matching code
+	# Find lobby matching the code
 	for lobby in lobbies:
-		var lobby_id: String = lobby.get("lobby_id", "")
-		var found_code := _generate_lobby_code(lobby_id)
-		print("Checking lobby ", lobby_id, " -> code: ", found_code)
+		var found_code := _generate_lobby_code(lobby.lobby_id)
+		if found_code == room_code:
+			print("[EOS] Lobby encontrado! Entrando: ", lobby.lobby_id)
 
-		if found_code == target_code:
-			print("Found matching lobby! Joining...")
-			HLobby.join_lobby(lobby_id)
+			# Join the lobby
+			var joined_lobby = await HLobbies.join_by_id_async(lobby.lobby_id)
+			if not joined_lobby:
+				lobby_join_failed.emit("Falha ao entrar no lobby")
+				current_mode = NetworkMode.NONE
+				return
+
+			# Create P2P client connection to lobby owner
+			_eos_peer = EOSGMultiplayerPeer.new()
+			var result := _eos_peer.create_client(GAME_ID, lobby.owner_product_user_id)
+			if result != OK:
+				push_error("[EOS] Falha ao criar cliente P2P: " + str(result))
+				lobby_join_failed.emit("Falha na conexão P2P")
+				current_mode = NetworkMode.NONE
+				return
+
+			multiplayer.multiplayer_peer = _eos_peer
+			_current_lobby = joined_lobby
+			print("[EOS] Conectado ao lobby!")
 			return
 
-	lobby_join_failed.emit("Lobby not found: " + target_code)
+	lobby_join_failed.emit("Lobby não encontrado: " + room_code)
 	current_mode = NetworkMode.NONE
 
-func _on_eos_lobby_joined(result_code: int, lobby_id: String) -> void:
-	if result_code != 0:
-		push_error("Failed to join lobby: " + str(result_code))
-		lobby_join_failed.emit("Failed to join lobby")
-		current_mode = NetworkMode.NONE
+
+func _process(delta: float) -> void:
+	if current_mode != NetworkMode.LAN:
 		return
 
-	_current_lobby_id = lobby_id
-	print("Joined lobby: ", lobby_id)
+	if _is_broadcasting:
+		_broadcast_timer += delta
+		if _broadcast_timer >= BROADCAST_INTERVAL:
+			_broadcast_timer = 0.0
+			_send_broadcast()
 
-	_add_player(my_peer_id)
-	connection_succeeded.emit()
+	if _is_listening and _listen_socket:
+		while _listen_socket.get_available_packet_count() > 0:
+			var packet := _listen_socket.get_packet()
+			var sender_ip := _listen_socket.get_packet_ip()
+			_handle_broadcast(packet, sender_ip)
 
-func _on_eos_lobby_left(result_code: int, lobby_id: String) -> void:
-	print("Left lobby: ", lobby_id)
-	_current_lobby_id = ""
+	var now := Time.get_ticks_msec()
+	var to_remove: Array[String] = []
+	for ip in _found_servers:
+		if now - _found_servers[ip].time > 3000:
+			to_remove.append(ip)
+	for ip in to_remove:
+		_found_servers.erase(ip)
 
-func _on_eos_member_update(lobby_id: String, member_id: String, update_type: int) -> void:
-	if lobby_id != _current_lobby_id:
-		return
 
-	var peer_id = hash(member_id) % 1000000
+# ==========================================
+# EOS: Notificações de Lobby
+# ==========================================
 
-	# 0 = joined, 1 = left, 2 = updated
-	match update_type:
-		0:  # Joined
-			if peer_id != my_peer_id:
-				print("EOS: Player joined: ", peer_id)
-				_add_player(peer_id)
-				player_connected.emit(peer_id)
-		1:  # Left
-			print("EOS: Player left: ", peer_id)
-			_remove_player(peer_id)
-			player_disconnected.emit(peer_id)
 
 func _generate_lobby_code(lobby_id: String) -> String:
 	var chars := "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -349,9 +344,11 @@ func _generate_lobby_code(lobby_id: String) -> String:
 		code += chars[abs(hash_val >> (i * 5)) % chars.length()]
 	return code
 
+
 # ==========================================
 # SHARED
 # ==========================================
+
 
 func leave_game() -> void:
 	match current_mode:
@@ -366,51 +363,71 @@ func leave_game() -> void:
 	is_host = false
 	my_peer_id = 0
 
+
 func _leave_lan() -> void:
 	_stop_broadcasting()
 	_stop_listening()
-
 	if _peer:
 		_peer.close()
 		_peer = null
 	multiplayer.multiplayer_peer = null
 
+
 func _leave_eos() -> void:
-	if _current_lobby_id != "":
-		HLobby.leave_lobby(_current_lobby_id)
-		_current_lobby_id = ""
+	if _eos_peer:
+		_eos_peer.close()
+		_eos_peer = null
+
+	if _current_lobby:
+		if is_host:
+			await _current_lobby.destroy_async()
+		else:
+			await _current_lobby.leave_async()
+		_current_lobby = null
+
+	multiplayer.multiplayer_peer = null
+
 
 # ==========================================
 # LAN Helpers
 # ==========================================
 
+
 func _on_peer_connected(id: int) -> void:
-	if current_mode != NetworkMode.LAN:
+	if current_mode == NetworkMode.NONE:
 		return
-	print("Peer connected: ", id)
+	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
+	print("[%s] Peer conectado: %d" % [mode_str, id])
 	_add_player(id)
 	player_connected.emit(id)
 
+
 func _on_peer_disconnected(id: int) -> void:
-	if current_mode != NetworkMode.LAN:
+	if current_mode == NetworkMode.NONE:
 		return
-	print("Peer disconnected: ", id)
+	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
+	print("[%s] Peer desconectado: %d" % [mode_str, id])
 	_remove_player(id)
 	player_disconnected.emit(id)
 
+
 func _on_connected_to_server() -> void:
-	if current_mode != NetworkMode.LAN:
+	if current_mode == NetworkMode.NONE:
 		return
-	print("Connected to server!")
+	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
+	print("[%s] Conectado ao servidor!" % mode_str)
 	my_peer_id = multiplayer.get_unique_id()
 	_add_player(my_peer_id)
 	connection_succeeded.emit()
 
+
 func _on_connection_failed() -> void:
-	if current_mode != NetworkMode.LAN:
+	if current_mode == NetworkMode.NONE:
 		return
-	print("Connection failed!")
+	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
+	print("[%s] Conexão falhou!" % mode_str)
 	connection_failed.emit()
+
 
 func _start_broadcasting() -> void:
 	_broadcast_socket = PacketPeerUDP.new()
@@ -419,32 +436,34 @@ func _start_broadcasting() -> void:
 	_is_broadcasting = true
 	_broadcast_timer = 0.0
 
+
 func _stop_broadcasting() -> void:
 	_is_broadcasting = false
 	if _broadcast_socket:
 		_broadcast_socket.close()
 		_broadcast_socket = null
 
+
 func _send_broadcast() -> void:
 	if not _broadcast_socket:
 		return
-
 	var data := {
-		"game": "easter_egg_horror",
+		"game": GAME_ID,
 		"name": host_name,
 		"players": players.size(),
 		"max": MAX_PLAYERS
 	}
-	var json := JSON.stringify(data)
-	_broadcast_socket.put_packet(json.to_utf8_buffer())
+	_broadcast_socket.put_packet(JSON.stringify(data).to_utf8_buffer())
+
 
 func _start_listening() -> void:
 	_listen_socket = PacketPeerUDP.new()
 	var error := _listen_socket.bind(BROADCAST_PORT)
 	if error != OK:
-		push_error("Failed to bind listen socket: " + str(error))
+		push_error("[LAN] Falha ao bind socket: " + str(error))
 		return
 	_is_listening = true
+
 
 func _stop_listening() -> void:
 	_is_listening = false
@@ -452,14 +471,12 @@ func _stop_listening() -> void:
 		_listen_socket.close()
 		_listen_socket = null
 
-func _handle_broadcast(packet: PackedByteArray, sender_ip: String) -> void:
-	var json := packet.get_string_from_utf8()
-	var data: Variant = JSON.parse_string(json)
 
+func _handle_broadcast(packet: PackedByteArray, sender_ip: String) -> void:
+	var data: Variant = JSON.parse_string(packet.get_string_from_utf8())
 	if data == null or not data is Dictionary:
 		return
-
-	if data.get("game") != "easter_egg_horror":
+	if data.get("game") != GAME_ID:
 		return
 
 	var server_info := {
@@ -472,20 +489,23 @@ func _handle_broadcast(packet: PackedByteArray, sender_ip: String) -> void:
 
 	var is_new := not _found_servers.has(sender_ip)
 	_found_servers[sender_ip] = server_info
-
 	if is_new:
 		server_found.emit(server_info)
+
 
 # ==========================================
 # Player Management
 # ==========================================
+
 
 func send_game_data(data: Dictionary, target: int = 0) -> void:
 	match current_mode:
 		NetworkMode.LAN:
 			_send_lan_data(data, target)
 		NetworkMode.EOS:
-			_send_eos_data(data)
+			# EOS uses same RPC system via EOSGMultiplayerPeer
+			_send_lan_data(data, target)
+
 
 func _send_lan_data(data: Dictionary, target: int = 0) -> void:
 	if not multiplayer.has_multiplayer_peer():
@@ -495,11 +515,8 @@ func _send_lan_data(data: Dictionary, target: int = 0) -> void:
 	else:
 		_receive_game_data.rpc_id(target, data)
 
-func _send_eos_data(data: Dictionary) -> void:
-	if _current_lobby_id == "":
-		return
-	var json := JSON.stringify(data)
-	HP2P.send_packet_to_lobby(_current_lobby_id, json.to_utf8_buffer())
+
+
 
 @rpc("any_peer", "call_local", "reliable")
 func _broadcast_game_data(data: Dictionary) -> void:
@@ -508,28 +525,30 @@ func _broadcast_game_data(data: Dictionary) -> void:
 		sender_id = my_peer_id
 	_handle_game_data(sender_id, data)
 
+
 @rpc("any_peer", "reliable")
 func _receive_game_data(data: Dictionary) -> void:
 	var sender_id := multiplayer.get_remote_sender_id()
 	_handle_game_data(sender_id, data)
 
-func _handle_game_data(from_peer: int, data: Dictionary) -> void:
-	var action: String = data.get("action", "")
 
-	match action:
+func _handle_game_data(from_peer: int, data: Dictionary) -> void:
+	match data.get("action", ""):
 		"sync_position":
 			_sync_player_position(from_peer, data)
 		"spawn_player":
 			if not players.has(from_peer):
 				_add_player(from_peer)
 
+
 func _sync_player_position(peer_id: int, data: Dictionary) -> void:
 	if not players.has(peer_id):
 		return
 	var player: Node3D = players[peer_id]
 	if is_instance_valid(player):
-		player.global_position = Vector3(data.get("x", 0), data.get("y", 0), data.get("z", 0))
-		player.rotation.y = data.get("rot_y", 0)
+		player.global_position = Vector3(data.get("x", 0.0), data.get("y", 0.0), data.get("z", 0.0))
+		player.rotation.y = data.get("rot_y", 0.0)
+
 
 func _add_player(id: int) -> void:
 	if players.has(id):
@@ -540,11 +559,8 @@ func _add_player(id: int) -> void:
 	player.set_meta("peer_id", id)
 	player.add_to_group("players")
 
-	if current_mode == NetworkMode.LAN:
-		if id == my_peer_id:
-			player.set_multiplayer_authority(multiplayer.get_unique_id())
-		else:
-			player.set_multiplayer_authority(id)
+	if current_mode == NetworkMode.LAN or current_mode == NetworkMode.EOS:
+		player.set_multiplayer_authority(id if id != my_peer_id else multiplayer.get_unique_id())
 
 	var spawn_index := players.size() % spawn_points.size()
 	player.position = spawn_points[spawn_index]
@@ -554,6 +570,7 @@ func _add_player(id: int) -> void:
 		players_node.add_child(player)
 	players[id] = player
 
+
 func _remove_player(id: int) -> void:
 	if not players.has(id):
 		return
@@ -562,10 +579,12 @@ func _remove_player(id: int) -> void:
 		player.queue_free()
 	players.erase(id)
 
+
 func _clear_players() -> void:
 	for id in players.keys():
 		_remove_player(id)
 	players.clear()
+
 
 func is_local_player(peer_id: int) -> bool:
 	return peer_id == my_peer_id
