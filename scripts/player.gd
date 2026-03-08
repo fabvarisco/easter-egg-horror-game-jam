@@ -66,6 +66,11 @@ func _ready() -> void:
 
 	_apply_texture_to_model()
 
+	# Disable processing until game starts (via lobby)
+	if not visible:
+		set_physics_process(false)
+		set_process_input(false)
+
 func _input(event: InputEvent) -> void:
 	# Lanterna - bloqueada quando carregando egg
 	if event.is_action_pressed("toggle_flashlight") and not is_carrying_egg():
@@ -235,7 +240,6 @@ func get_carried_egg() -> Node3D:
 func _detect_nearby_eggs() -> void:
 	_nearby_egg = null
 
-	# Busca todos os eggs na cena
 	var eggs := get_tree().get_nodes_in_group("eggs")
 	var closest_distance := INTERACT_DISTANCE
 
@@ -254,7 +258,6 @@ func _pickup_egg(egg: Node3D) -> void:
 
 	_carried_egg = egg
 
-	# Notifica o egg que foi pego (pode liberar monstro)
 	if egg.has_method("on_picked_up"):
 		egg.on_picked_up()
 
@@ -295,17 +298,36 @@ func die() -> void:
 		return
 
 	_is_dead = true
-	player_died.emit()
 
-	# Desabilita controles
 	set_physics_process(false)
 	set_process_input(false)
 
-	# Solta egg se estiver carregando
 	if _carried_egg:
 		_drop_egg()
 
-	# TODO: Adicionar animacao de morte ou efeito visual
+	_turn_into_egg()
+	player_died.emit()
+
+func _turn_into_egg() -> void:
+	# Hide player model
+	if model:
+		model.visible = false
+	if flashlight:
+		flashlight.visible = false
+	if vision_light:
+		vision_light.visible = false
+
+	# Spawn egg at player position
+	var egg_scene := preload("res://scenes/egg.tscn")
+	var egg := egg_scene.instantiate()
+	egg.is_monster = false
+	egg.global_position = global_position
+	egg.global_position.y = 0.5
+	get_parent().add_child(egg)
+
+	# Remove from players group so bunny won't target this player anymore
+	remove_from_group("players")
+	remove_from_group("player")
 
 func is_dead() -> bool:
 	return _is_dead

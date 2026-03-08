@@ -1,28 +1,30 @@
-[gd_scene load_steps=3 format=3 uid="uid://dsgccq14es87w"]
+[gd_scene load_steps=4 format=3 uid="uid://dsgccq14es87w"]
 
 [ext_resource type="Script" uid="uid://btwgstsw5s24v" path="res://scripts/assassin_bunny.gd" id="1_ijrq1"]
 [ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/godot_plush_model.glb" id="1_y8wg3"]
+[ext_resource type="AudioStream" uid="uid://c5ye6li1n8lr4" path="res://assets/sounds/assasin_bunny/assassin_bunny_laugh.wav" id="2_w2id4"]
 
 [node name="AssassinBunny" type="Node3D" groups=["assassin_bunny"]]
 script = ExtResource("1_ijrq1")
+bunny_wake_up_sound = ExtResource("2_w2id4")
 
 [node name="model" parent="." instance=ExtResource("1_y8wg3")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
 [node name="RayCast3D" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-target_position = Vector3(0, 0, -30)
-collision_mask = 2
+target_position = Vector3(0, 0, 30)
+collision_mask = 3
 
 [node name="LeftEye" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1.0, -0.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 1, -0.3)
 light_color = Color(1, 0, 0, 1)
 light_energy = 3.0
 omni_range = 2.0
 omni_attenuation = 0.5
 
 [node name="RightEye" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 1.0, -0.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 1, -0.3)
 light_color = Color(1, 0, 0, 1)
 light_energy = 3.0
 omni_range = 2.0

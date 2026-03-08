@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c1abc123lobby"]
 
-[ext_resource type="Script" path="res://scripts/lobby_ui.gd" id="1_lobby"]
+[ext_resource type="Script" uid="uid://cyo7mvr0q8uev" path="res://scripts/lobby_ui.gd" id="1_lobby"]
 
 [node name="Lobby" type="Control"]
 layout_mode = 3
@@ -11,6 +11,15 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_lobby")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
@@ -19,42 +28,132 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -150.0
-offset_top = -120.0
+offset_top = -180.0
 offset_right = 150.0
-offset_bottom = 120.0
+offset_bottom = 180.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Title" type="Label" parent="VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Easter Egg Horror"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="MainMenu" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="SingleplayerButton" type="Button" parent="VBoxContainer/MainMenu"]
+layout_mode = 2
+text = "Singleplayer"
+
+[node name="Separator" type="HSeparator" parent="VBoxContainer/MainMenu"]
+layout_mode = 2
+
+[node name="MultiplayerLabel" type="Label" parent="VBoxContainer/MainMenu"]
+layout_mode = 2
 text = "Multiplayer"
 horizontal_alignment = 1
 
-[node name="CodeInput" type="LineEdit" parent="VBoxContainer"]
+[node name="OnlineButton" type="Button" parent="VBoxContainer/MainMenu"]
 layout_mode = 2
-placeholder_text = "Enter room code"
+text = "Online (Internet)"
+
+[node name="LANButton" type="Button" parent="VBoxContainer/MainMenu"]
+layout_mode = 2
+text = "LAN (Local Network)"
+
+[node name="OnlineMenu" type="VBoxContainer" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="OnlineLabel" type="Label" parent="VBoxContainer/OnlineMenu"]
+layout_mode = 2
+text = "Online Play"
+horizontal_alignment = 1
+
+[node name="HostButton" type="Button" parent="VBoxContainer/OnlineMenu"]
+layout_mode = 2
+text = "Host Game"
+
+[node name="Separator" type="HSeparator" parent="VBoxContainer/OnlineMenu"]
+layout_mode = 2
+
+[node name="JoinLabel" type="Label" parent="VBoxContainer/OnlineMenu"]
+layout_mode = 2
+text = "Join with Code:"
+horizontal_alignment = 1
+
+[node name="CodeInput" type="LineEdit" parent="VBoxContainer/OnlineMenu"]
+layout_mode = 2
+placeholder_text = "Enter 6-digit code"
 alignment = 1
 max_length = 6
 caret_blink = true
 
-[node name="HostButton" type="Button" parent="VBoxContainer"]
-layout_mode = 2
-text = "Host Game"
-
-[node name="JoinButton" type="Button" parent="VBoxContainer"]
+[node name="JoinButton" type="Button" parent="VBoxContainer/OnlineMenu"]
 layout_mode = 2
 text = "Join Game"
 
-[node name="LeaveButton" type="Button" parent="VBoxContainer"]
-visible = false
+[node name="BackButton" type="Button" parent="VBoxContainer/OnlineMenu"]
 layout_mode = 2
-text = "Leave Game"
+text = "< Back"
 
-[node name="RoomCodeLabel" type="Label" parent="VBoxContainer"]
+[node name="LANMenu" type="VBoxContainer" parent="VBoxContainer"]
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+
+[node name="LANLabel" type="Label" parent="VBoxContainer/LANMenu"]
+layout_mode = 2
+text = "LAN Play"
 horizontal_alignment = 1
+
+[node name="HostButton" type="Button" parent="VBoxContainer/LANMenu"]
+layout_mode = 2
+text = "Host Game"
+
+[node name="FindButton" type="Button" parent="VBoxContainer/LANMenu"]
+layout_mode = 2
+text = "Find Games"
+
+[node name="BackButton" type="Button" parent="VBoxContainer/LANMenu"]
+layout_mode = 2
+text = "< Back"
+
+[node name="ServerList" type="VBoxContainer" parent="VBoxContainer/LANMenu"]
+visible = false
+layout_mode = 2
+
+[node name="RoomMenu" type="VBoxContainer" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="RoomLabel" type="Label" parent="VBoxContainer/RoomMenu"]
+layout_mode = 2
+text = "Room"
+horizontal_alignment = 1
+
+[node name="RoomCodeLabel" type="Label" parent="VBoxContainer/RoomMenu"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Code: XXXXXX"
+horizontal_alignment = 1
+
+[node name="PlayersLabel" type="Label" parent="VBoxContainer/RoomMenu"]
+layout_mode = 2
+text = "Players: 1/4"
+horizontal_alignment = 1
+
+[node name="StartGameButton" type="Button" parent="VBoxContainer/RoomMenu"]
+layout_mode = 2
+text = "Start Game"
+
+[node name="LeaveButton" type="Button" parent="VBoxContainer/RoomMenu"]
+layout_mode = 2
+text = "Leave"
 
 [node name="StatusLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2

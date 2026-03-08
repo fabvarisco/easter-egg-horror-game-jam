@@ -14,7 +14,6 @@ func _ready() -> void:
 	pass
 
 func on_picked_up() -> void:
-	"""Chamado quando o jogador pega este egg"""
 	if _was_picked_up:
 		return
 
@@ -26,47 +25,42 @@ func on_picked_up() -> void:
 func _release_monster() -> void:
 	monster_released.emit()
 
-	# Encontra o jogador que pegou o egg
-	var player := get_parent()
-	if player and player.has_method("shake_camera"):
-		player.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
+	var players := get_tree().get_nodes_in_group("players")
+	for player in players:
+		if player.has_method("shake_camera"):
+			player.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
 
-	# Toca som da risada
-	_play_laugh_sound()
+	_play_laugh_sound_global()
 
-	# Efeito de quebra do ovo
 	_break_egg()
 
-	# Ativa o bunny apos um pequeno delay
 	await get_tree().create_timer(0.3).timeout
 	_activate_bunny()
 
 func _break_egg() -> void:
-	# Esconde o mesh do ovo (simula quebra)
 	var mesh := get_node_or_null("MeshInstance3D")
 	if mesh:
-		# Anima escala diminuindo rapidamente
 		var tween := create_tween()
 		tween.tween_property(mesh, "scale", Vector3.ZERO, 0.2)
 		tween.tween_callback(mesh.queue_free)
 
-func _play_laugh_sound() -> void:
+func _play_laugh_sound_global() -> void:
 	var audio_player := AudioStreamPlayer.new()
 	audio_player.stream = _bunny_laugh
 	audio_player.volume_db = 5.0
-	add_child(audio_player)
+	audio_player.bus = "Master"
+	get_tree().current_scene.add_child(audio_player)
 	audio_player.play()
 
-	# Remove o audio player quando terminar
 	audio_player.finished.connect(audio_player.queue_free)
 
 func _activate_bunny() -> void:
-	# Busca o assassin bunny na cena e ativa
 	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
 	if bunny and bunny.has_method("activate"):
+		_connect_bunny_to_scene(bunny)
 		bunny.activate()
+		queue_free()
 	else:
-		# Se nao encontrar, tenta spawnar um novo
 		_spawn_assassin_bunny()
 
 func _spawn_assassin_bunny() -> void:
@@ -74,4 +68,12 @@ func _spawn_assassin_bunny() -> void:
 	var bunny := bunny_scene.instantiate()
 	get_tree().current_scene.add_child(bunny)
 	bunny.add_to_group("assassin_bunny")
+	_connect_bunny_to_scene(bunny)
 	bunny.activate()
+	queue_free()
+
+func _connect_bunny_to_scene(bunny: Node) -> void:
+	var scene_controller := get_tree().current_scene
+	if scene_controller and scene_controller.has_method("_on_all_players_dead"):
+		if bunny.has_signal("all_players_dead") and not bunny.all_players_dead.is_connected(scene_controller._on_all_players_dead):
+			bunny.all_players_dead.connect(scene_controller._on_all_players_dead)

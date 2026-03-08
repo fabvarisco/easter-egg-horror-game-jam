@@ -1,28 +1,11 @@
-extends Node3D
+extends bunny_entity
 
-enum State { DORMANT, WATCHING, APPROACHING, KILLING }
-
-const SPAWN_DISTANCE: float = 25.0  
-const WATCH_DISTANCE: float = 20.0  
-const APPROACH_DISTANCES: Array[float] = [15.0, 8.0, 3.0]  
-const DETECTION_RANGE: float = 30.0  
-const APPROACH_SPEED: float = 15.0
-const BLINK_INTERVAL: float = 2.0 
-const BLINK_DURATION: float = 0.15 
-
-@onready var model: Node3D = $model
 @onready var raycast: RayCast3D = $RayCast3D
 @onready var left_eye: OmniLight3D = $LeftEye
 @onready var right_eye: OmniLight3D = $RightEye
 
-var _state: State = State.DORMANT
-var _target_player: Node3D = null
-var _approach_count: int = 0 
-var _blink_timer: float = 0.0
-var _is_blinking: bool = false
-var _blink_phase_timer: float = 0.0
-
-signal player_killed(player: Node3D)
+const BLINK_INTERVAL: float = 2.0 
+const BLINK_DURATION: float = 0.15 
 
 func _ready() -> void:
 	visible = false
@@ -32,7 +15,6 @@ func _ready() -> void:
 		model.visible = false
 
 func activate() -> void:
-	"""Ativa o assassin bunny - chamado quando egg monster e tocado"""
 	if _state != State.DORMANT:
 		return
 
@@ -54,19 +36,30 @@ func _physics_process(delta: float) -> void:
 			_process_killing(delta)
 
 	_update_eyes(delta)
-	_look_at_player()
+	_maintain_fixed_rotation()
 
-func _process_watching(_delta: float) -> void:
+func _process_watching(delta: float) -> void:
 	_find_target_player()
 
 	if not _target_player:
 		return
 
-	_update_raycast_target()
+	var close_player := _get_player_in_attack_range()
+	if close_player:
+		_target_player = close_player
+		_attack_close_player()
+		return
+
+	_idle_timer += delta
+	if _idle_timer >= IDLE_TIMEOUT:
+		_relocate()
+		return
 
 	if raycast.is_colliding():
 		var collider := raycast.get_collider()
-		if collider == _target_player or collider.get_parent() == _target_player:
+		if collider is CharacterBody3D:
+			# Detectou um player!
+			_target_player = collider
 			_start_approach()
 
 func _process_approaching(_delta: float) -> void:
@@ -76,46 +69,49 @@ func _process_killing(_delta: float) -> void:
 	pass
 
 func _start_approach() -> void:
+	_approach_count += 1
+
 	if _approach_count >= 3:
 		_kill_player()
 		return
 
 	_state = State.APPROACHING
 
-	var target_distance: float = APPROACH_DISTANCES[_approach_count]
-	_spawn_at_distance(target_distance)
+	visible = false
 
-	_approach_count += 1
+	_play_detection_effects()
+
+	await get_tree().create_timer(RESPAWN_DELAY).timeout
+
+	_spawn_at_distance(SPAWN_DISTANCE)
+	visible = true
 
 	_state = State.WATCHING
 
-	if _approach_count >= 3:
-		await get_tree().create_timer(0.5).timeout
-		_kill_player()
-
-func _kill_player() -> void:
-	_state = State.KILLING
-
-	if _target_player and _target_player.has_method("die"):
-		_target_player.die()
-
-	player_killed.emit(_target_player)
-
-	if model:
-		model.visible = true
-
-func _find_target_player() -> void:
-	var players := get_tree().get_nodes_in_group("players")
-
-	if players.is_empty():
-		var player := get_tree().get_first_node_in_group("player")
-		if player:
-			_target_player = player
+func _play_detection_effects() -> void:
+	if not _target_player:
 		return
 
-	# Encontra jogador mais proximo
+	if _target_player.has_method("shake_camera"):
+		_target_player.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
+
+	var audio_player := AudioStreamPlayer.new()
+	audio_player.stream = bunny_wake_up_sound
+	audio_player.volume_db = 3.0
+	_target_player.add_child(audio_player)
+	audio_player.play()
+	audio_player.finished.connect(audio_player.queue_free)
+
+
+func _find_target_player() -> void:
+	var alive_players := _get_alive_players()
+
+	if alive_players.is_empty():
+		_target_player = null
+		return
+
 	var closest_distance := INF
-	for player in players:
+	for player in alive_players:
 		var distance := global_position.distance_to(player.global_position)
 		if distance < closest_distance:
 			closest_distance = distance
@@ -129,22 +125,40 @@ func _spawn_at_distance(distance: float) -> void:
 	var offset := Vector3(cos(angle), 0, sin(angle)) * distance
 
 	global_position = _target_player.global_position + offset
-	global_position.y = 0  
+	global_position.y = 0
 
-func _update_raycast_target() -> void:
+	_fixed_rotation = randf() * TAU
+	rotation.y = _fixed_rotation
+
+	_idle_timer = 0.0
+
+func _relocate() -> void:
+	visible = false
+	_find_target_player()
+	_spawn_at_distance(SPAWN_DISTANCE)
+	visible = true
+
+func _get_player_in_attack_range() -> Node3D:
+	var alive_players := _get_alive_players()
+
+	for player in alive_players:
+		var distance := global_position.distance_to(player.global_position)
+		if distance <= ATTACK_RANGE:
+			return player
+
+	return null
+
+func _attack_close_player() -> void:
 	if not _target_player:
 		return
 
-	var direction := (_target_player.global_position - global_position).normalized()
-	raycast.target_position = direction * DETECTION_RANGE
+	var dir_to_player := (_target_player.global_position - global_position).normalized()
+	rotation.y = atan2(dir_to_player.x, dir_to_player.z)
 
-func _look_at_player() -> void:
-	if not _target_player:
-		return
+	_start_approach()
 
-	var look_target := _target_player.global_position
-	look_target.y = global_position.y 
-	look_at(look_target, Vector3.UP)
+func _maintain_fixed_rotation() -> void:
+	rotation.y = _fixed_rotation
 
 func _update_eyes(delta: float) -> void:
 	_blink_timer += delta
@@ -167,7 +181,6 @@ func _set_eyes_visible(eyes_visible: bool) -> void:
 	if right_eye:
 		right_eye.visible = eyes_visible
 
-# Funcoes utilitarias
 func get_state() -> State:
 	return _state
 
