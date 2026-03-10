@@ -60,6 +60,11 @@ func _kill_player() -> void:
 
 
 func _is_multiplayer_active() -> bool:
+	# Check if we're actually in a multiplayer game, not just having EOS plugin loaded
+	var single_player := get_tree().get_first_node_in_group("player")
+	if single_player:
+		return false  # Singleplayer mode
+
 	return multiplayer.has_multiplayer_peer() and \
 		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
@@ -82,6 +87,8 @@ func _hunt_next_player() -> void:
 	_target_player = alive_players[0]
 	_spawn_at_distance(SPAWN_DISTANCE)
 	visible = true
+	if model:
+		model.visible = true
 
 func _get_alive_players() -> Array[Node]:
 	var alive: Array[Node] = []

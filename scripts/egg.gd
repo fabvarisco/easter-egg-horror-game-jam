@@ -49,6 +49,11 @@ func _release_monster() -> void:
 
 
 func _is_multiplayer_active() -> bool:
+	# Check if we're actually in a multiplayer game, not just having EOS plugin loaded
+	var single_player := get_tree().get_first_node_in_group("player")
+	if single_player:
+		return false  # Singleplayer mode
+
 	return multiplayer.has_multiplayer_peer() and \
 		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 

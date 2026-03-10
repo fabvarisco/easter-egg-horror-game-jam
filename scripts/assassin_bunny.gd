@@ -20,6 +20,8 @@ func activate() -> void:
 
 	_state = State.WATCHING
 	visible = true
+	if model:
+		model.visible = true
 	set_physics_process(true)
 
 	_find_target_player()
@@ -45,6 +47,11 @@ func _physics_process(_delta: float) -> void:
 
 
 func _is_multiplayer_active() -> bool:
+	# Check if we're actually in a multiplayer game, not just having EOS plugin loaded
+	var single_player := get_tree().get_first_node_in_group("player")
+	if single_player:
+		return false  # Singleplayer mode
+
 	return multiplayer.has_multiplayer_peer() and \
 		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
@@ -92,6 +99,8 @@ func _start_approach() -> void:
 	_state = State.APPROACHING
 
 	visible = false
+	if model:
+		model.visible = false
 
 	_play_detection_effects()
 
@@ -99,6 +108,8 @@ func _start_approach() -> void:
 
 	_spawn_at_distance(SPAWN_DISTANCE)
 	visible = true
+	if model:
+		model.visible = true
 
 	_state = State.WATCHING
 
@@ -148,9 +159,13 @@ func _spawn_at_distance(distance: float) -> void:
 
 func _relocate() -> void:
 	visible = false
+	if model:
+		model.visible = false
 	_find_target_player()
 	_spawn_at_distance(SPAWN_DISTANCE)
 	visible = true
+	if model:
+		model.visible = true
 
 func _get_player_in_attack_range() -> Node3D:
 	var alive_players := _get_alive_players()
