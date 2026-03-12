@@ -34,6 +34,10 @@ HSessions="*res://addons/epic-online-services-godot/heos/hsessions.gd"
 
 enabled=PackedStringArray("res://addons/epic-online-services-godot/plugin.cfg")
 
+[filesystem]
+
+import/blender/enabled=false
+
 [input]
 
 move_forward={

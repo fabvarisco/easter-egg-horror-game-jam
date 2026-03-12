@@ -48,6 +48,9 @@ var _eos_peer: EOSGMultiplayerPeer
 var _current_lobby: HLobby
 var _local_product_user_id: String = ""
 
+var _is_quitting: bool = false
+
+
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
@@ -56,6 +59,12 @@ func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 	_check_eos_available()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_EXIT_TREE:
+		_is_quitting = true
+		_cleanup_on_exit()
 
 
 # ==========================================
@@ -375,14 +384,33 @@ func _leave_eos() -> void:
 		_eos_peer.close()
 		_eos_peer = null
 
-	if _current_lobby:
+	if _current_lobby and not _is_quitting:
 		if is_host:
 			await _current_lobby.destroy_async()
 		else:
 			await _current_lobby.leave_async()
-		_current_lobby = null
+	_current_lobby = null
 
 	multiplayer.multiplayer_peer = null
+
+
+func _cleanup_on_exit() -> void:
+	# Synchronous cleanup when game is closing - no await allowed
+	_stop_broadcasting()
+	_stop_listening()
+
+	if _peer:
+		_peer.close()
+		_peer = null
+
+	if _eos_peer:
+		_eos_peer.close()
+		_eos_peer = null
+
+	_current_lobby = null
+	multiplayer.multiplayer_peer = null
+	players.clear()
+	connected_peers.clear()
 
 
 # ==========================================
@@ -391,7 +419,7 @@ func _leave_eos() -> void:
 
 
 func _on_peer_connected(id: int) -> void:
-	if current_mode == NetworkMode.NONE:
+	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Peer conectado: %d" % [mode_str, id])
@@ -401,7 +429,7 @@ func _on_peer_connected(id: int) -> void:
 
 
 func _on_peer_disconnected(id: int) -> void:
-	if current_mode == NetworkMode.NONE:
+	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Peer desconectado: %d" % [mode_str, id])
@@ -411,7 +439,7 @@ func _on_peer_disconnected(id: int) -> void:
 
 
 func _on_connected_to_server() -> void:
-	if current_mode == NetworkMode.NONE:
+	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Conectado ao servidor!" % mode_str)
@@ -422,7 +450,7 @@ func _on_connected_to_server() -> void:
 
 
 func _on_connection_failed() -> void:
-	if current_mode == NetworkMode.NONE:
+	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Conexão falhou!" % mode_str)
@@ -430,6 +458,8 @@ func _on_connection_failed() -> void:
 
 
 func _on_server_disconnected() -> void:
+	if _is_quitting:
+		return
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Servidor desconectou!" % mode_str)
 	_clear_players()

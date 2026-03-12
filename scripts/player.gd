@@ -79,7 +79,6 @@ func _input(event: InputEvent) -> void:
 			_pickup_egg(_nearby_egg)
 
 func _physics_process(_delta: float) -> void:
-	# Jogadores remotos: apenas atualizar animação
 	if not is_multiplayer_authority():
 		_update_animation()
 		return

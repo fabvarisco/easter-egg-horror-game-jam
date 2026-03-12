@@ -54,7 +54,7 @@ func _start_singleplayer() -> void:
 	# Spawn player at first spawn point
 	var spawn_point: Node3D = spawn_points.get_child(0)
 	player = _player_scene.instantiate()
-	player.global_position = spawn_point.global_position
+		player.global_position = spawn_point.global_position
 	$Players.add_child(player)
 
 	player.visible = true
