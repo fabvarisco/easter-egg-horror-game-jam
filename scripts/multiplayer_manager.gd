@@ -23,6 +23,7 @@ const GAME_ID = "easteregghorror"
 
 var player_scene: PackedScene = preload("res://scenes/player.tscn")
 var players: Dictionary = {}
+var connected_peers: Array[int] = []  # Track connected peers before game starts
 var room_code: String = ""
 var is_host: bool = false
 var my_peer_id: int = 0
@@ -46,15 +47,6 @@ var _eos_initialized: bool = false
 var _eos_peer: EOSGMultiplayerPeer
 var _current_lobby: HLobby
 var _local_product_user_id: String = ""
-
-
-@onready var spawn_points: Array[Vector3] = [
-	Vector3(0, 1, 0),
-	Vector3(2, 1, 0),
-	Vector3(-2, 1, 0),
-	Vector3(0, 1, 2),
-]
-
 
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
@@ -158,7 +150,8 @@ func host_game_lan(player_name: String = "Host") -> void:
 	room_code = host_name
 
 	_start_broadcasting()
-	_add_player(my_peer_id)
+	if not connected_peers.has(my_peer_id):
+		connected_peers.append(my_peer_id)
 	room_created.emit(host_name)
 	connection_succeeded.emit()
 
@@ -245,7 +238,8 @@ func host_game_eos(room_name: String = "Game") -> void:
 	my_peer_id = 1
 
 	print("[EOS] Lobby criado! Código: ", room_code)
-	_add_player(my_peer_id)
+	if not connected_peers.has(my_peer_id):
+		connected_peers.append(my_peer_id)
 	room_created.emit(room_code)
 	connection_succeeded.emit()
 
@@ -361,6 +355,7 @@ func leave_game() -> void:
 
 	current_mode = NetworkMode.NONE
 	_clear_players()
+	connected_peers.clear()
 	room_code = ""
 	is_host = false
 	my_peer_id = 0
@@ -400,7 +395,8 @@ func _on_peer_connected(id: int) -> void:
 		return
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Peer conectado: %d" % [mode_str, id])
-	_add_player(id)
+	if not connected_peers.has(id):
+		connected_peers.append(id)
 	player_connected.emit(id)
 
 
@@ -409,6 +405,7 @@ func _on_peer_disconnected(id: int) -> void:
 		return
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Peer desconectado: %d" % [mode_str, id])
+	connected_peers.erase(id)
 	_remove_player(id)
 	player_disconnected.emit(id)
 
@@ -419,7 +416,8 @@ func _on_connected_to_server() -> void:
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Conectado ao servidor!" % mode_str)
 	my_peer_id = multiplayer.get_unique_id()
-	_add_player(my_peer_id)
+	if not connected_peers.has(my_peer_id):
+		connected_peers.append(my_peer_id)
 	connection_succeeded.emit()
 
 
@@ -435,6 +433,7 @@ func _on_server_disconnected() -> void:
 	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
 	print("[%s] Servidor desconectou!" % mode_str)
 	_clear_players()
+	connected_peers.clear()
 	current_mode = NetworkMode.NONE
 	room_code = ""
 	is_host = false
@@ -552,7 +551,7 @@ func _handle_game_data(from_peer: int, data: Dictionary) -> void:
 			_sync_player_position(from_peer, data)
 		"spawn_player":
 			if not players.has(from_peer):
-				_add_player(from_peer)
+				_spawn_player(from_peer)
 
 
 func _sync_player_position(peer_id: int, data: Dictionary) -> void:
@@ -562,27 +561,6 @@ func _sync_player_position(peer_id: int, data: Dictionary) -> void:
 	if is_instance_valid(player):
 		player.global_position = Vector3(data.get("x", 0.0), data.get("y", 0.0), data.get("z", 0.0))
 		player.rotation.y = data.get("rot_y", 0.0)
-
-
-func _add_player(id: int) -> void:
-	if players.has(id):
-		return
-
-	var player := player_scene.instantiate()
-	player.name = str(id)
-	player.set_meta("peer_id", id)
-	player.add_to_group("players")
-
-	if current_mode == NetworkMode.LAN or current_mode == NetworkMode.EOS:
-		player.set_multiplayer_authority(id if id != my_peer_id else multiplayer.get_unique_id())
-
-	var spawn_index := players.size() % spawn_points.size()
-	player.position = spawn_points[spawn_index]
-
-	var players_node := get_tree().current_scene.get_node_or_null("Players")
-	if players_node:
-		players_node.add_child(player)
-	players[id] = player
 
 
 func _remove_player(id: int) -> void:
@@ -598,6 +576,36 @@ func _clear_players() -> void:
 	for id in players.keys():
 		_remove_player(id)
 	players.clear()
+
+
+func spawn_all_players() -> void:
+	for peer_id in connected_peers:
+		_spawn_player(peer_id)
+
+
+func _spawn_player(id: int) -> void:
+	if players.has(id):
+		return
+
+	var player := player_scene.instantiate()
+	player.name = str(id)
+	player.set_meta("peer_id", id)
+	player.add_to_group("players")
+
+	if current_mode == NetworkMode.LAN or current_mode == NetworkMode.EOS:
+		player.set_multiplayer_authority(id if id != my_peer_id else multiplayer.get_unique_id())
+
+	var spawn_points_node := get_tree().current_scene.get_node_or_null("PlayerSpawnPoints")
+	assert(spawn_points_node != null, "ERROR: PlayerSpawnPoints node not found in scene")
+
+	var spawn_points := spawn_points_node.get_children()
+	var spawn_index := players.size() % spawn_points.size()
+	player.global_position = spawn_points[spawn_index].global_position
+
+	var players_node := get_tree().current_scene.get_node_or_null("Players")
+	if players_node:
+		players_node.add_child(player)
+	players[id] = player
 
 
 func is_local_player(peer_id: int) -> bool:

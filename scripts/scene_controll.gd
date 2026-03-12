@@ -2,9 +2,12 @@ extends Node3D
 
 @export var list_of_points_for_eggs: Array[Vector3] = []
 
-@onready var player: CharacterBody3D = $Player
+var _player_scene: PackedScene = preload("res://scenes/player.tscn")
+var player: CharacterBody3D = null
+
 @onready var lobby: Control = $Lobby
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
+@onready var spawn_points: Node3D = $PlayerSpawnPoints
 
 var _is_singleplayer: bool = true
 var _game_over_scene: PackedScene = preload("res://scenes/game_over.tscn")
@@ -48,20 +51,23 @@ func _on_game_started(is_singleplayer: bool) -> void:
 
 
 func _start_singleplayer() -> void:
-	if player:
-		player.visible = true
-		player.set_physics_process(true)
-		player.set_process_input(true)
-		player.add_to_group("player")
-		if not player.player_died.is_connected(_on_player_died):
-			player.player_died.connect(_on_player_died)
+	# Spawn player at first spawn point
+	var spawn_point: Node3D = spawn_points.get_child(0)
+	player = _player_scene.instantiate()
+	player.global_position = spawn_point.global_position
+	$Players.add_child(player)
+
+	player.visible = true
+	player.set_physics_process(true)
+	player.set_process_input(true)
+	player.add_to_group("player")
+	if not player.player_died.is_connected(_on_player_died):
+		player.player_died.connect(_on_player_died)
 
 
 func _start_multiplayer() -> void:
-	if player:
-		player.visible = false
-		player.set_physics_process(false)
-		player.set_process_input(false)
+	# Spawn all connected players at their spawn points
+	multiplayer_manager.spawn_all_players()
 
 
 func _on_player_died() -> void:
@@ -160,9 +166,8 @@ func _return_to_menu() -> void:
 	lobby._show_menu("main")
 
 	if player:
-		player.visible = false
-		player.set_physics_process(false)
-		player.set_process_input(false)
+		player.queue_free()
+		player = null
 
 	for bunny in get_tree().get_nodes_in_group("assassin_bunny"):
 		bunny.queue_free()

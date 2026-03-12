@@ -1,7 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://skdaejm2ow6n"]
+[gd_scene load_steps=8 format=3 uid="uid://skdaejm2ow6n"]
 
 [ext_resource type="Script" uid="uid://cslq5hua2l60f" path="res://scripts/scene_controll.gd" id="1_jyhfs"]
-[ext_resource type="PackedScene" uid="uid://biigvp1n1fx7f" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://c1abc123lobby" path="res://scenes/lobby.tscn" id="2_lobby"]
 [ext_resource type="PackedScene" uid="uid://dr6k67vp3dajy" path="res://scenes/egg.tscn" id="3_sugp2"]
 
@@ -28,41 +27,105 @@ volumetric_fog_enabled = true
 [node name="Main" type="Node3D"]
 script = ExtResource("1_jyhfs")
 
-[node name="Floor" type="StaticBody3D" parent="."]
+[node name="World" type="Node3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+[node name="Floor" type="StaticBody3D" parent="World"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="World/Floor"]
+transform = Transform3D(20, 0, 0, 0, 20, 0, 0, 0, 20, 0.05908203, 0, 0.095832825)
 mesh = SubResource("PlaneMesh_icr5f")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Floor"]
+transform = Transform3D(20, 0, 0, 0, 1, 0, 0, 0, 20, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_floor")
 
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="Floor"]
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="World/Floor"]
 transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 0.25379753, 0.1496954, 5.0186043)
 mesh = SubResource("BoxMesh_0wfyh")
-skeleton = NodePath("../../Player")
+skeleton = NodePath("")
 
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="Floor"]
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="World/Floor"]
 transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 0.25379753, 0.1496954, -3.423232)
 mesh = SubResource("BoxMesh_0wfyh")
-skeleton = NodePath("../../Player")
+skeleton = NodePath("")
 
-[node name="MeshInstance3D5" type="MeshInstance3D" parent="Floor"]
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="World/Floor"]
 transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 4.8478937, 0.1496954, 0.33185887)
 mesh = SubResource("BoxMesh_0wfyh")
-skeleton = NodePath("../../Player")
+skeleton = NodePath("")
 
-[node name="MeshInstance3D6" type="MeshInstance3D" parent="Floor"]
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="World/Floor"]
 transform = Transform3D(0.9992888, 0, -0.037707623, -0.0021160669, 0.9984242, -0.056077834, 0.0376482, 0.056117747, 0.9977141, 4.8478937, 0.1496954, -2.3931243)
 mesh = SubResource("BoxMesh_0wfyh")
-skeleton = NodePath("../../Player")
+skeleton = NodePath("")
 
-[node name="Player" parent="." instance=ExtResource("1_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-visible = false
-collision_layer = 1
+[node name="Car" type="CSGBox3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -181.91052, 0, 0)
 
-[node name="Players" type="Node3D" parent="."]
+[node name="wall3" type="CSGBox3D" parent="World"]
+transform = Transform3D(-0.45490772, 0, 0.8905386, 0, 1, 0, -0.8905386, 0, -0.45490772, -172.29279, -0.0074768066, -16.346294)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall7" type="CSGBox3D" parent="World"]
+transform = Transform3D(-0.45490772, 0, 0.8905386, 0, 1, 0, -0.8905386, 0, -0.45490772, -172.29279, -0.0074768066, 21.1692)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall8" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.43479118, 0, 0.9005315, 0, 1, 0, -0.9005315, 0, 0.43479118, -183.89519, -0.0074768066, 21.1692)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall9" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.43479118, 0, 0.9005315, 0, 1, 0, -0.9005315, 0, 0.43479118, -193.72523, -0.0074768066, 16.340181)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall10" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.9961704, 0, 0.087433815, 0, 1, 0, -0.087433815, 0, 0.9961704, -199.40904, -0.0074768066, 8.014839)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall11" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.99673545, 0, -0.08073835, 0, 1, 0, 0.08073835, 0, 0.99673545, -199.40904, -0.0074768066, -3.5959148)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall12" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.47336572, 0, -0.8808661, 0, 1, 0, 0.8808661, 0, 0.47336572, -193.35498, -0.0074768066, -13.063277)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall13" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.9945438, 0, -0.10432029, 0, 1, 0, 0.10432029, 0, 0.9945438, -184.58792, -0.0074768066, -13.063277)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall14" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.71546125, 0, 0.6986525, 0, 1, 0, -0.6986525, 0, 0.71546125, -189.50052, -0.0074768066, 7.6428194)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall6" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.85215646, 0, 0.52328706, 0, 1, 0, -0.52328706, 0, 0.85215646, -170.85953, -0.0074768066, -7.00384)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall5" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.033538938, 0, 0.99943745, 0, 1, 0, -0.99943745, 0, 0.033538938, -165.0064, -0.0074768066, 2.8262496)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall4" type="CSGBox3D" parent="World"]
+transform = Transform3D(0.9683745, 0, 0.24950123, 0, 1, 0, -0.24950123, 0, 0.9683745, -170.85953, -0.0074768066, 8.479679)
+use_collision = true
+size = Vector3(0.12414551, 0.9850464, 12.213975)
+
+[node name="wall2" type="CSGBox3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -177.58617, 0.8217392, 11.839182)
+use_collision = true
+size = Vector3(0.12414551, 2.6434784, 22.898003)
 
 [node name="Lobby" parent="." instance=ExtResource("2_lobby")]
 
@@ -72,13 +135,36 @@ light_color = Color(0.2, 0.2, 0.25, 1)
 light_energy = 0.3
 shadow_enabled = true
 
-[node name="FogVolume" type="FogVolume" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3167162, 2.1514935, -0.71403503)
-size = Vector3(14.822998, 2, 15.905487)
-
 [node name="Egg" parent="." instance=ExtResource("3_sugp2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1427298, 0, 2.7376053)
 is_monster = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_0wfyh")
+
+[node name="Players" type="Node3D" parent="."]
+
+[node name="PlayerSpawnPoints" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -182.10838, 0, 0)
+
+[node name="Player_1" type="Node3D" parent="PlayerSpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2668304, 0, 0)
+
+[node name="Player_2" type="Node3D" parent="PlayerSpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.1379957)
+
+[node name="Player_3" type="Node3D" parent="PlayerSpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.617353)
+
+[node name="Player_4" type="Node3D" parent="PlayerSpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.3326578)
+
+[node name="EggSpawnPoints" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -182.10838, 0, 0)
+
+[node name="Egg_1" type="Node3D" parent="EggSpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2668304, 0, -6.1916327)
+
+[node name="Egg" parent="EggSpawnPoints" instance=ExtResource("3_sugp2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5447388, 0, 4.924797)
+is_monster = true
