@@ -34,8 +34,9 @@ var _current_speed: float = 0.0
 var _stamina: float = MAX_STAMINA
 var _is_sprinting: bool = false
 var _move_direction: Vector3 = Vector3.ZERO 
-var _carried_egg: Node3D = null 
-var _nearby_egg: Node3D = null  
+var _carried_egg: Node3D = null
+var _nearby_egg: Node3D = null
+var _nearby_pedestal: Area3D = null
 var _is_dead: bool = false
 var _shake_intensity: float = 0.0
 var _shake_duration: float = 0.0
@@ -47,7 +48,7 @@ func _ready() -> void:
 	_camera_offset = camera.position
 	camera.top_level = true
 
-	if not is_multiplayer_authority():
+	if not _has_authority():
 		camera.current = false
 		set_process_input(false)
 	else:
@@ -64,7 +65,7 @@ func _ready() -> void:
 		set_process_input(false)
 
 func _input(event: InputEvent) -> void:
-	if not is_multiplayer_authority():
+	if not _has_authority():
 		return
 
 	if event.is_action_pressed("toggle_flashlight") and not is_carrying_egg():
@@ -73,7 +74,9 @@ func _input(event: InputEvent) -> void:
 		vision_light.visible = not _flashlight_on
 
 	if event.is_action_pressed("interact"):
-		if is_carrying_egg():
+		if _nearby_pedestal:
+			_interact_with_pedestal()
+		elif is_carrying_egg():
 			_drop_egg()
 		elif _nearby_egg:
 			_pickup_egg(_nearby_egg)
@@ -82,7 +85,7 @@ func _physics_process(_delta: float) -> void:
 	if not is_inside_tree():
 		return
 
-	if not is_multiplayer_authority():
+	if not _has_authority():
 		_update_animation()
 		return
 
@@ -147,6 +150,7 @@ func _physics_process(_delta: float) -> void:
 	_update_camera(_delta)
 
 	_detect_nearby_eggs()
+	_detect_nearby_pedestals()
 	_update_carried_egg()
 
 	_sync_timer += _delta
@@ -173,6 +177,13 @@ func _send_position_sync() -> void:
 	if not _is_multiplayer_connected():
 		return
 	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting)
+
+
+func _has_authority() -> bool:
+	# In singleplayer (no multiplayer peer), we always have authority
+	if not multiplayer.has_multiplayer_peer():
+		return true
+	return is_multiplayer_authority()
 
 
 func _is_multiplayer_connected() -> bool:
@@ -277,6 +288,27 @@ func _detect_nearby_eggs() -> void:
 		if distance < closest_distance:
 			closest_distance = distance
 			_nearby_egg = egg
+
+
+func _detect_nearby_pedestals() -> void:
+	_nearby_pedestal = null
+
+	var pedestals := get_tree().get_nodes_in_group("start_game_pedestal")
+	var closest_distance := INTERACT_DISTANCE + 1.0  # Slightly larger range for pedestal
+
+	for pedestal in pedestals:
+		var distance := global_position.distance_to(pedestal.global_position)
+		if distance < closest_distance:
+			closest_distance = distance
+			_nearby_pedestal = pedestal
+
+
+func _interact_with_pedestal() -> void:
+	if not _nearby_pedestal:
+		return
+
+	var peer_id: int = get_meta("peer_id", 1)
+	_nearby_pedestal.on_interact(peer_id)
 
 func _pickup_egg(egg: Node3D) -> void:
 	if _carried_egg:

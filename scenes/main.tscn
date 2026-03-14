@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://skdaejm2ow6n"]
+[gd_scene load_steps=3 format=3 uid="uid://skdaejm2ow6n"]
 
-[ext_resource type="Script" uid="uid://cslq5hua2l60f" path="res://scripts/scene_controll.gd" id="1_jyhfs"]
-[ext_resource type="PackedScene" uid="uid://c1abc123lobby" path="res://scenes/lobbyui.tscn" id="2_lobby"]
+[ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game_controller.gd" id="1_gamectrl"]
 
 [sub_resource type="Environment" id="Environment_0wfyh"]
 background_mode = 1
@@ -16,7 +15,7 @@ fog_aerial_perspective = 0.5
 volumetric_fog_enabled = true
 
 [node name="Main" type="Node3D"]
-script = ExtResource("1_jyhfs")
+script = ExtResource("1_gamectrl")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8660253, -0.35355332, 0.35355374, 0, 0.70710725, 0.7071064, -0.50000024, -0.61237204, 0.61237276, 0, 10, 0)
@@ -26,8 +25,6 @@ shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_0wfyh")
-
-[node name="Lobbyui" parent="." instance=ExtResource("2_lobby")]
 
 [node name="Players" type="Node3D" parent="."]
 
