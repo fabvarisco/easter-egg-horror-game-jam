@@ -9,6 +9,9 @@ signal server_disconnected
 signal room_created(code: String)
 signal server_found(server_info: Dictionary)
 signal lobby_join_failed(reason: String)
+signal player_ready_changed(peer_id: int, is_ready: bool)
+signal all_players_ready
+signal game_starting
 
 
 enum NetworkMode { NONE, LAN, EOS }
@@ -29,6 +32,9 @@ var is_host: bool = false
 var my_peer_id: int = 0
 var host_name: String = "Player"
 var current_mode: NetworkMode = NetworkMode.NONE
+
+# Ready system
+var _ready_states: Dictionary = {}  # peer_id -> bool
 
 
 # LAN variables
@@ -640,3 +646,63 @@ func _spawn_player(id: int) -> void:
 
 func is_local_player(peer_id: int) -> bool:
 	return peer_id == my_peer_id
+
+
+# ==========================================
+# READY SYSTEM
+# ==========================================
+
+
+func set_player_ready(is_ready: bool) -> void:
+	if current_mode == NetworkMode.NONE:
+		# Singleplayer mode
+		_ready_states[1] = is_ready
+		player_ready_changed.emit(1, is_ready)
+		if is_ready:
+			all_players_ready.emit()
+	else:
+		# Multiplayer mode - sync via RPC
+		_sync_ready_state.rpc(my_peer_id, is_ready)
+
+
+func get_ready_state(peer_id: int) -> bool:
+	return _ready_states.get(peer_id, false)
+
+
+func get_all_ready_states() -> Dictionary:
+	return _ready_states.duplicate()
+
+
+func reset_ready_states() -> void:
+	_ready_states.clear()
+
+
+func _check_all_ready() -> void:
+	if connected_peers.size() == 0:
+		return
+
+	for peer_id in connected_peers:
+		if not _ready_states.get(peer_id, false):
+			return
+
+	# All players are ready
+	all_players_ready.emit()
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _sync_ready_state(peer_id: int, is_ready: bool) -> void:
+	_ready_states[peer_id] = is_ready
+	player_ready_changed.emit(peer_id, is_ready)
+
+	if is_host:
+		_check_all_ready()
+
+
+func broadcast_game_start() -> void:
+	if current_mode != NetworkMode.NONE:
+		_receive_game_start.rpc()
+
+
+@rpc("authority", "call_local", "reliable")
+func _receive_game_start() -> void:
+	game_starting.emit()
