@@ -79,6 +79,9 @@ func _input(event: InputEvent) -> void:
 			_pickup_egg(_nearby_egg)
 
 func _physics_process(_delta: float) -> void:
+	if not is_inside_tree():
+		return
+
 	if not is_multiplayer_authority():
 		_update_animation()
 		return
@@ -167,11 +170,17 @@ func _rotate_to_mouse(_delta: float) -> void:
 			_target_rotation = atan2(direction_to_mouse.x, direction_to_mouse.z) + PI
 
 func _send_position_sync() -> void:
-	if not multiplayer.has_multiplayer_peer():
-		return
-	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+	if not _is_multiplayer_connected():
 		return
 	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting)
+
+
+func _is_multiplayer_connected() -> bool:
+	if not multiplayer.has_multiplayer_peer():
+		return false
+	if not is_instance_valid(multiplayer.multiplayer_peer):
+		return false
+	return multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 @rpc("authority", "call_remote", "unreliable_ordered")
 func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool) -> void:
@@ -182,9 +191,7 @@ func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool) -
 
 
 func _sync_pickup_egg(egg_name: String) -> void:
-	if not multiplayer.has_multiplayer_peer():
-		return
-	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+	if not _is_multiplayer_connected():
 		return
 
 	var host_manager := get_node_or_null("/root/HostManager")
@@ -194,9 +201,7 @@ func _sync_pickup_egg(egg_name: String) -> void:
 
 
 func _sync_drop_egg(egg_name: String, drop_pos: Vector3) -> void:
-	if not multiplayer.has_multiplayer_peer():
-		return
-	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+	if not _is_multiplayer_connected():
 		return
 
 	var host_manager := get_node_or_null("/root/HostManager")

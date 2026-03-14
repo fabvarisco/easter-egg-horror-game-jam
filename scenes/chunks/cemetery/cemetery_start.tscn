@@ -1,0 +1,50 @@
+[gd_scene load_steps=4 format=3 uid="uid://jj3rrsclryqf"]
+
+[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_3tqts"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_3tqts"]
+size = Vector3(0.1, 5, 20)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_6bq2s"]
+data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, -10, 0.049999997, -2.5, -10, -0.049999997, 2.5, -10, -0.049999997, -2.5, -10, 0.049999997, -2.5, -10, 0.049999997, 2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, -10, 0.049999997, -2.5, 10, -0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, 2.5, 10, -0.049999997, 2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, 2.5, -10, 0.049999997, 2.5, -10, -0.049999997, -2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, -2.5, 10, 0.049999997, -2.5, -10, -0.049999997, -2.5, -10)
+
+[node name="CemeteryStart" instance=ExtResource("1_3tqts")]
+
+[node name="PlayerPoint1" type="Node3D" parent="PlayerSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8860607, 0.72925186, 0)
+
+[node name="PlayerPoint2" type="Node3D" parent="PlayerSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8860607, 0.72925186, 3.7769096)
+
+[node name="PlayerPoint3" type="Node3D" parent="PlayerSpawnPoints" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8860607, 0.72925186, -1.8614175)
+
+[node name="PlayerPoint4" type="Node3D" parent="PlayerSpawnPoints" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.759052, 0.72925186, 0)
+
+[node name="Wall" type="MeshInstance3D" parent="World" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.972935, 2.5516224, -0.15961742)
+mesh = SubResource("BoxMesh_3tqts")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall/StaticBody3D" index="0"]
+shape = SubResource("ConcavePolygonShape3D_6bq2s")
+
+[node name="Wall2" type="MeshInstance3D" parent="World" index="1"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.040991306, 2.5516224, -10.076504)
+mesh = SubResource("BoxMesh_3tqts")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall2/StaticBody3D" index="0"]
+shape = SubResource("ConcavePolygonShape3D_6bq2s")
+
+[node name="Wall3" type="MeshInstance3D" parent="World" index="2"]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 9.9914, 2.5516224, -0.0062303543)
+mesh = SubResource("BoxMesh_3tqts")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall3" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall3/StaticBody3D" index="0"]
+shape = SubResource("ConcavePolygonShape3D_6bq2s")

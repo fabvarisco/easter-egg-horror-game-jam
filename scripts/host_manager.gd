@@ -23,8 +23,11 @@ func _physics_process(delta: float) -> void:
 
 
 func _is_multiplayer_active() -> bool:
-	return multiplayer.has_multiplayer_peer() and \
-		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
+	if not multiplayer.has_multiplayer_peer():
+		return false
+	if not is_instance_valid(multiplayer.multiplayer_peer):
+		return false
+	return multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 
 # ==========================================

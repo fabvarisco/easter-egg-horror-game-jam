@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://1v6tvwpp3els"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_o1atq"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_o1atq"]
+data = PackedVector3Array(1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1, 1, 0, -1)
+
+[node name="ChunkMaster" type="Node3D"]
+
+[node name="Plane" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("PlaneMesh_o1atq")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Plane"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Plane/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_o1atq")
+
+[node name="PlayerSpawnPoints" type="Node3D" parent="."]
+
+[node name="EggSpawnPoints" type="Node3D" parent="."]
+
+[node name="World" type="Node3D" parent="."]

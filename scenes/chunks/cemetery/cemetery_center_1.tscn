@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://beb8al3yv600p"]
+
+[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_2ab70"]
+
+[node name="CemeteryCenter1" instance=ExtResource("1_2ab70")]

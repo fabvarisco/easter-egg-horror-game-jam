@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://bs3vy84tur0p"]
+
+[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_rkt2a"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_rkt2a"]
+size = Vector3(0.1, 5, 20)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_rkt2a"]
+data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, -10, 0.049999997, -2.5, -10, -0.049999997, 2.5, -10, -0.049999997, -2.5, -10, 0.049999997, -2.5, -10, 0.049999997, 2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, -10, 0.049999997, -2.5, 10, -0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, 2.5, 10, -0.049999997, 2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, 2.5, -10, 0.049999997, 2.5, -10, -0.049999997, -2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, -2.5, 10, 0.049999997, -2.5, -10, -0.049999997, -2.5, -10)
+
+[node name="CemeteryLeft1" instance=ExtResource("1_rkt2a")]
+
+[node name="Wall" type="MeshInstance3D" parent="World" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.030711, 2.5516224, 0)
+mesh = SubResource("BoxMesh_rkt2a")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall/StaticBody3D" index="0"]
+shape = SubResource("ConcavePolygonShape3D_rkt2a")

@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://ddutwjd3rkmk1"]
+
+[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_ufuwf"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_rkt2a"]
+size = Vector3(0.1, 5, 20)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_rkt2a"]
+data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, -10, 0.049999997, -2.5, -10, -0.049999997, 2.5, -10, -0.049999997, -2.5, -10, 0.049999997, -2.5, -10, 0.049999997, 2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, -10, 0.049999997, -2.5, 10, -0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, 2.5, 10, -0.049999997, 2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, 2.5, -10, 0.049999997, 2.5, -10, -0.049999997, -2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, -2.5, 10, 0.049999997, -2.5, -10, -0.049999997, -2.5, -10)
+
+[node name="CemeteryBottom" instance=ExtResource("1_ufuwf")]
+
+[node name="Point" type="Node3D" parent="EggSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.161594, 0.44941187, -8.268037)
+
+[node name="Point2" type="Node3D" parent="EggSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.353432, 0.44941187, -8.268037)
+
+[node name="Wall" type="MeshInstance3D" parent="World" index="0"]
+transform = Transform3D(-0.012286755, 0, -0.99992454, 0, 1, 0, 0.99992454, 0, -0.012286755, -0.0032463074, 2.5516224, -10.086292)
+mesh = SubResource("BoxMesh_rkt2a")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall/StaticBody3D" index="0"]
+shape = SubResource("ConcavePolygonShape3D_rkt2a")

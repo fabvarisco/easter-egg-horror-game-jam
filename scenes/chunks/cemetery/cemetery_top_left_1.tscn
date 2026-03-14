@@ -1,0 +1,38 @@
+[gd_scene load_steps=4 format=3 uid="uid://dox0du0kq2q4o"]
+
+[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_go57l"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_rkt2a"]
+size = Vector3(0.1, 5, 20)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_rkt2a"]
+data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, -10, 0.049999997, -2.5, -10, -0.049999997, 2.5, -10, -0.049999997, -2.5, -10, 0.049999997, -2.5, -10, 0.049999997, 2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, -10, 0.049999997, -2.5, 10, -0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, 2.5, 10, -0.049999997, 2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, 2.5, -10, 0.049999997, 2.5, -10, -0.049999997, -2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, -2.5, 10, 0.049999997, -2.5, -10, -0.049999997, -2.5, -10)
+
+[node name="CemeteryTopLeft1" instance=ExtResource("1_go57l")]
+
+[node name="Point" type="Node3D" parent="EggSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.2466536, 0.44941187, 8.608991)
+
+[node name="Point2" type="Node3D" parent="EggSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1034584, 0.44941187, 8.608991)
+
+[node name="Point3" type="Node3D" parent="EggSpawnPoints" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.463886, 0.44941187, -1.2602549)
+
+[node name="Wall" type="MeshInstance3D" parent="World" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.977708, 2.5516224, -0.10728693)
+mesh = SubResource("BoxMesh_rkt2a")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall/StaticBody3D" index="0"]
+shape = SubResource("ConcavePolygonShape3D_rkt2a")
+
+[node name="Wall2" type="MeshInstance3D" parent="World" index="1"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.046325684, 2.5516224, 9.998868)
+mesh = SubResource("BoxMesh_rkt2a")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall2/StaticBody3D" index="0"]
+shape = SubResource("ConcavePolygonShape3D_rkt2a")
