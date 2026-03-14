@@ -54,6 +54,10 @@ var _eos_peer: EOSGMultiplayerPeer
 var _current_lobby: HLobby
 var _local_product_user_id: String = ""
 
+# PUID to peer_id mapping for voice chat
+var puid_to_peer_id: Dictionary = {}  # product_user_id -> peer_id
+var peer_id_to_puid: Dictionary = {}  # peer_id -> product_user_id
+
 var _is_quitting: bool = false
 
 
@@ -230,6 +234,7 @@ func host_game_eos(room_name: String = "Game") -> void:
 	var create_opts := EOS.Lobby.CreateLobbyOptions.new()
 	create_opts.bucket_id = GAME_ID
 	create_opts.max_lobby_members = MAX_PLAYERS
+	create_opts.enable_rtc_room = true  # Enable voice chat
 
 	_current_lobby = await HLobbies.create_lobby_async(create_opts)
 	if not _current_lobby:
@@ -255,6 +260,11 @@ func host_game_eos(room_name: String = "Game") -> void:
 	print("[EOS] Lobby criado! Código: ", room_code)
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
+
+	# Register own PUID for voice chat mapping
+	puid_to_peer_id[_local_product_user_id] = my_peer_id
+	peer_id_to_puid[my_peer_id] = _local_product_user_id
+
 	room_created.emit(room_code)
 	connection_succeeded.emit()
 
@@ -371,6 +381,8 @@ func leave_game() -> void:
 	current_mode = NetworkMode.NONE
 	_clear_players()
 	connected_peers.clear()
+	puid_to_peer_id.clear()
+	peer_id_to_puid.clear()
 	room_code = ""
 	is_host = false
 	my_peer_id = 0
@@ -417,6 +429,8 @@ func _cleanup_on_exit() -> void:
 	multiplayer.multiplayer_peer = null
 	players.clear()
 	connected_peers.clear()
+	puid_to_peer_id.clear()
+	peer_id_to_puid.clear()
 
 
 # ==========================================
@@ -452,6 +466,11 @@ func _on_connected_to_server() -> void:
 	my_peer_id = multiplayer.get_unique_id()
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
+
+	# Register PUID mapping for voice chat (EOS only)
+	if current_mode == NetworkMode.EOS and _local_product_user_id != "":
+		_register_puid.rpc(_local_product_user_id, my_peer_id)
+
 	connection_succeeded.emit()
 
 
@@ -706,3 +725,23 @@ func broadcast_game_start() -> void:
 @rpc("authority", "call_local", "reliable")
 func _receive_game_start() -> void:
 	game_starting.emit()
+
+
+# ==========================================
+# PUID REGISTRATION FOR VOICE CHAT
+# ==========================================
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _register_puid(puid: String, peer_id: int) -> void:
+	puid_to_peer_id[puid] = peer_id
+	peer_id_to_puid[peer_id] = puid
+	print("[Voice] Registered PUID mapping: %s -> peer %d" % [puid, peer_id])
+
+
+func get_current_lobby() -> HLobby:
+	return _current_lobby
+
+
+func get_local_puid() -> String:
+	return _local_product_user_id
