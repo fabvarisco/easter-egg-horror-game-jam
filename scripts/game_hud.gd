@@ -2,6 +2,8 @@ extends CanvasLayer
 ## Game HUD - Shows connected players with voice feedback
 
 @onready var _player_list: VBoxContainer = $Control/PlayerList
+@onready var _egg_counter: Label = $Control/EggCounter
+@onready var _car_message: Label = $Control/CarMessage
 
 var _player_panels: Dictionary = {}  # peer_id -> HBoxContainer
 var _is_singleplayer: bool = false
@@ -102,6 +104,36 @@ func _on_player_connected(peer_id: int) -> void:
 
 func _on_player_disconnected(peer_id: int) -> void:
 	remove_player(peer_id)
+
+
+# ==========================================
+# EGG COUNTER UI
+# ==========================================
+
+func setup_egg_counter(total: int) -> void:
+	if _egg_counter:
+		_egg_counter.text = "Ovos: 0 / %d" % total
+		_egg_counter.visible = true
+
+
+func update_egg_counter(delivered: int, total: int) -> void:
+	if _egg_counter:
+		_egg_counter.text = "Ovos: %d / %d" % [delivered, total]
+		if delivered >= total:
+			_egg_counter.add_theme_color_override("font_color", Color.GREEN)
+
+
+func show_car_ready() -> void:
+	if _car_message:
+		_car_message.text = "Todos os ovos coletados! Vá para o carro!"
+		_car_message.visible = true
+
+
+func show_mission_complete() -> void:
+	if _car_message:
+		_car_message.text = "MISSÃO COMPLETA!"
+		_car_message.add_theme_color_override("font_color", Color.GOLD)
+		_car_message.visible = true
 
 
 func _exit_tree() -> void:

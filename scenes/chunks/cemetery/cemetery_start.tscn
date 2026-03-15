@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://jj3rrsclryqf"]
+[gd_scene load_steps=6 format=3 uid="uid://jj3rrsclryqf"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_3tqts"]
 
@@ -7,6 +7,9 @@ size = Vector3(0.1, 5, 20)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_6bq2s"]
 data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, -10, 0.049999997, -2.5, -10, -0.049999997, 2.5, -10, -0.049999997, -2.5, -10, 0.049999997, -2.5, -10, 0.049999997, 2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, -10, 0.049999997, -2.5, 10, -0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, 2.5, 10, -0.049999997, 2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, 2.5, -10, 0.049999997, 2.5, -10, -0.049999997, -2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, -2.5, 10, 0.049999997, -2.5, -10, -0.049999997, -2.5, -10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_car"]
+size = Vector3(3, 2, 4)
 
 [node name="CemeteryStart" instance=ExtResource("1_3tqts")]
 
@@ -51,3 +54,11 @@ shape = SubResource("ConcavePolygonShape3D_6bq2s")
 
 [node name="Camera3D" parent="." index="4"]
 transform = Transform3D(-0.9975628, 0.05753966, -0.03946612, -0.011828166, 0.41798574, 0.9083766, 0.06876396, 0.9066295, -0.41628644, 0, 10.952211, -7.0106153)
+
+[node name="Car" type="Area3D" parent="." index="5" groups=["car_delivery"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.3391304)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Car"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Car"]
+shape = SubResource("BoxShape3D_car")

@@ -188,10 +188,24 @@ func _release_monster_rpc(egg_position: Vector3) -> void:
 	if camera_manager:
 		camera_manager.shake_camera(0.5, 1.0)
 
-	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
-	if bunny and bunny.has_method("activate"):
-		bunny.global_position = egg_position
-		bunny.activate()
+	# Always spawn a new bunny for each monster egg
+	_spawn_bunny_at_position(egg_position)
+
+
+func _spawn_bunny_at_position(pos: Vector3) -> void:
+	var bunny_scene := preload("res://scenes/assassin_bunny.tscn")
+	var bunny := bunny_scene.instantiate()
+	bunny.global_position = pos
+	get_tree().current_scene.add_child(bunny)
+	bunny.add_to_group("assassin_bunny")
+
+	# Connect to game controller
+	var scene_controller := get_tree().current_scene
+	if scene_controller and scene_controller.has_method("_on_all_players_dead"):
+		if bunny.has_signal("all_players_dead") and not bunny.all_players_dead.is_connected(scene_controller._on_all_players_dead):
+			bunny.all_players_dead.connect(scene_controller._on_all_players_dead)
+
+	bunny.activate()
 
 
 func spawn_egg(pos: Vector3, is_monster: bool = false) -> void:
@@ -214,3 +228,48 @@ func _spawn_egg_rpc(egg_id: int, pos: Vector3, is_monster: bool) -> void:
 	egg.global_position = pos
 	egg.add_to_group("eggs")
 	get_tree().current_scene.add_child(egg)
+
+
+# ==========================================
+# DELIVERY & CAR SYNC
+# ==========================================
+
+func sync_egg_delivered(delivered: int, total: int) -> void:
+	if not _is_multiplayer_active():
+		return
+	_sync_egg_delivered_rpc.rpc(delivered, total)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _sync_egg_delivered_rpc(delivered: int, total: int) -> void:
+	var game_ctrl := get_tree().current_scene
+	if game_ctrl and game_ctrl.has_method("_on_remote_egg_delivered"):
+		game_ctrl._on_remote_egg_delivered(delivered, total)
+
+
+func sync_player_entered_car(peer_id: int) -> void:
+	if not _is_multiplayer_active():
+		return
+	_sync_player_entered_car_rpc.rpc(peer_id)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _sync_player_entered_car_rpc(peer_id: int) -> void:
+	var game_ctrl := get_tree().current_scene
+	if game_ctrl and game_ctrl.has_method("_on_remote_player_entered_car"):
+		game_ctrl._on_remote_player_entered_car(peer_id)
+
+
+func sync_mission_complete() -> void:
+	if not _is_multiplayer_active():
+		return
+	if not multiplayer.is_server():
+		return
+	_sync_mission_complete_rpc.rpc()
+
+
+@rpc("authority", "call_local", "reliable")
+func _sync_mission_complete_rpc() -> void:
+	var game_ctrl := get_tree().current_scene
+	if game_ctrl and game_ctrl.has_method("_on_remote_mission_complete"):
+		game_ctrl._on_remote_mission_complete()

@@ -74,13 +74,8 @@ func _play_laugh_sound_global() -> void:
 	audio_player.finished.connect(audio_player.queue_free)
 
 func _activate_bunny() -> void:
-	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
-	if bunny and bunny.has_method("activate"):
-		_connect_bunny_to_scene(bunny)
-		bunny.activate()
-		queue_free()
-	else:
-		_spawn_assassin_bunny()
+	# Always spawn a new bunny for each monster egg
+	_spawn_assassin_bunny()
 
 func _spawn_assassin_bunny() -> void:
 	var bunny_scene := preload("res://scenes/assassin_bunny.tscn")

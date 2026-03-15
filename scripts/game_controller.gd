@@ -21,6 +21,12 @@ var _is_spectating: bool = false
 var _spectator_camera: Camera3D = null
 var _spectate_target_index: int = 0
 
+# Egg delivery system
+var _total_good_eggs: int = 0
+var _eggs_delivered: int = 0
+var _players_in_car: Dictionary = {}  # peer_id -> bool
+var _car_area: Area3D = null
+
 
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
@@ -50,8 +56,12 @@ func _start_game() -> void:
 	else:
 		_spawn_multiplayer()
 
-	# Spawn eggs after players
-	spawn_eggs()
+	# Spawn eggs after players and get good egg count
+	_total_good_eggs = spawn_eggs()
+
+	# Setup car delivery
+	_setup_car()
+	_game_hud.setup_egg_counter(_total_good_eggs)
 
 
 func _get_player_spawn_points() -> Array[Node3D]:
@@ -166,7 +176,7 @@ func _connect_bunny_signals() -> void:
 			bunny.all_players_dead.connect(_on_all_players_dead)
 
 
-func spawn_eggs() -> void:
+func spawn_eggs() -> int:
 	var all_spawn_points: Array[Node3D] = []
 
 	for chunk in chunks.get_children():
@@ -177,15 +187,21 @@ func spawn_eggs() -> void:
 
 	var egg_count: int = all_spawn_points.size()
 	if egg_count == 0:
-		return
+		return 0
+
+	# Shuffle spawn points and pick first half as monster positions
+	var shuffled_indices: Array[int] = []
+	for i in range(egg_count):
+		shuffled_indices.append(i)
+	shuffled_indices.shuffle()
 
 	var monster_count: int = egg_count / 2
-	print("Spawning ", egg_count, " eggs (", monster_count, " monsters)")
+	var monster_indices: Array[int] = []
+	for i in range(monster_count):
+		monster_indices.append(shuffled_indices[i])
 
-	var indices: Array[int] = []
-	for i in range(egg_count):
-		indices.append(i)
-	indices.shuffle()
+	var good_egg_count: int = 0
+	var actual_monster_count: int = 0
 
 	for i in range(egg_count):
 		var spawn_point: Node3D = all_spawn_points[i]
@@ -193,13 +209,19 @@ func spawn_eggs() -> void:
 			continue
 
 		var egg: Node3D = _egg_scene.instantiate()
+		var is_monster: bool = i in monster_indices
 
-		if indices.find(i) < monster_count:
+		if is_monster:
 			egg.is_monster = true
+			actual_monster_count += 1
+		else:
+			good_egg_count += 1
 
-		# Add to tree first, then set position
 		add_child(egg)
 		egg.global_position = spawn_point.global_position
+
+	print("Spawned eggs: ", good_egg_count, " good, ", actual_monster_count, " monsters")
+	return good_egg_count
 
 
 func _on_player_died() -> void:
@@ -339,3 +361,132 @@ func _return_to_lobby() -> void:
 			bunny.queue_free()
 
 	get_tree().change_scene_to_file("res://scenes/lobby_3d.tscn")
+
+
+# ==========================================
+# EGG DELIVERY SYSTEM
+# ==========================================
+
+func _setup_car() -> void:
+	for chunk in chunks.get_children():
+		if "start" in chunk.name.to_lower():
+			_car_area = chunk.get_node_or_null("Car")
+			break
+
+
+func deliver_egg(player: Node3D) -> bool:
+	if not player.is_carrying_egg():
+		return false
+
+	var egg: Node3D = player.get_carried_egg()
+	if egg.get("is_monster"):
+		return false  # Cannot deliver monster egg
+
+	# Remove egg from player and destroy
+	player._clear_carried_egg()
+	egg.queue_free()
+
+	_eggs_delivered += 1
+	_update_hud_eggs()
+
+	# Sync multiplayer
+	if not _is_singleplayer:
+		_sync_egg_delivered()
+
+	if _eggs_delivered >= _total_good_eggs:
+		_on_all_eggs_delivered()
+
+	return true
+
+
+func can_enter_car() -> bool:
+	return _eggs_delivered >= _total_good_eggs
+
+
+func player_enter_car(peer_id: int) -> void:
+	if not can_enter_car():
+		return
+
+	_players_in_car[peer_id] = true
+
+	# Hide player
+	var player := _get_player_by_peer_id(peer_id)
+	if player:
+		player.visible = false
+		player.set_physics_process(false)
+		player.set_process_input(false)
+
+	# Sync multiplayer
+	if not _is_singleplayer:
+		_sync_player_entered_car(peer_id)
+
+	_check_mission_complete()
+
+
+func _check_mission_complete() -> void:
+	var alive_players := _get_alive_players()
+	for p in alive_players:
+		var pid: int = p.get_meta("peer_id", 1)
+		if not _players_in_car.get(pid, false):
+			return
+	# All players in car!
+	_on_mission_complete()
+
+
+func _on_all_eggs_delivered() -> void:
+	_game_hud.show_car_ready()
+
+
+func _on_mission_complete() -> void:
+	_game_hud.show_mission_complete()
+	await get_tree().create_timer(3.0).timeout
+	_return_to_lobby()
+
+
+func _update_hud_eggs() -> void:
+	_game_hud.update_egg_counter(_eggs_delivered, _total_good_eggs)
+
+
+func _get_player_by_peer_id(peer_id: int) -> Node3D:
+	for p in get_tree().get_nodes_in_group("players"):
+		if p.get_meta("peer_id", -1) == peer_id:
+			return p
+	return null
+
+
+func _sync_egg_delivered() -> void:
+	var host_manager := get_node_or_null("/root/HostManager")
+	if host_manager:
+		host_manager.sync_egg_delivered(_eggs_delivered, _total_good_eggs)
+
+
+func _sync_player_entered_car(peer_id: int) -> void:
+	var host_manager := get_node_or_null("/root/HostManager")
+	if host_manager:
+		host_manager.sync_player_entered_car(peer_id)
+
+
+func _on_remote_egg_delivered(delivered: int, total: int) -> void:
+	_eggs_delivered = delivered
+	_total_good_eggs = total
+	_update_hud_eggs()
+	if _eggs_delivered >= _total_good_eggs:
+		_on_all_eggs_delivered()
+
+
+func _on_remote_player_entered_car(peer_id: int) -> void:
+	_players_in_car[peer_id] = true
+
+	var player := _get_player_by_peer_id(peer_id)
+	if player:
+		player.visible = false
+		player.set_physics_process(false)
+		player.set_process_input(false)
+
+	_check_mission_complete()
+
+
+func _on_remote_mission_complete() -> void:
+	_game_hud.show_mission_complete()
+	await get_tree().create_timer(3.0).timeout
+	_return_to_lobby()

@@ -38,6 +38,7 @@ var _move_direction: Vector3 = Vector3.ZERO
 var _carried_egg: Node3D = null
 var _nearby_egg: Node3D = null
 var _nearby_pedestal: Area3D = null
+var _nearby_car: Area3D = null
 var _is_dead: bool = false
 
 signal player_died
@@ -68,6 +69,8 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		if _nearby_pedestal:
 			_interact_with_pedestal()
+		elif _nearby_car:
+			_interact_with_car()
 		elif is_carrying_egg():
 			_drop_egg()
 		elif _nearby_egg:
@@ -161,6 +164,7 @@ func _physics_process(_delta: float) -> void:
 
 	_detect_nearby_eggs()
 	_detect_nearby_pedestals()
+	_detect_nearby_car()
 	_update_carried_egg()
 
 	_sync_timer += _delta
@@ -359,6 +363,39 @@ func _interact_with_pedestal() -> void:
 
 	var peer_id: int = get_meta("peer_id", 1)
 	_nearby_pedestal.on_interact(peer_id)
+
+
+func _detect_nearby_car() -> void:
+	_nearby_car = null
+	var cars := get_tree().get_nodes_in_group("car_delivery")
+	for car in cars:
+		if global_position.distance_to(car.global_position) < INTERACT_DISTANCE + 1.5:
+			_nearby_car = car
+			break
+
+
+func _interact_with_car() -> void:
+	var game_ctrl := get_tree().current_scene
+	if not game_ctrl:
+		return
+
+	var peer_id: int = get_meta("peer_id", 1)
+
+	if is_carrying_egg():
+		# Deliver egg
+		if game_ctrl.has_method("deliver_egg"):
+			game_ctrl.deliver_egg(self)
+	else:
+		# Try to enter car
+		if game_ctrl.has_method("player_enter_car"):
+			game_ctrl.player_enter_car(peer_id)
+
+
+func _clear_carried_egg() -> void:
+	# Remove egg without dropping in world (for delivery)
+	if _carried_egg:
+		remove_child(_carried_egg)
+		_carried_egg = null
 
 func _pickup_egg(egg: Node3D) -> void:
 	if _carried_egg:
