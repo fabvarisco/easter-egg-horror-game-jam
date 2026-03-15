@@ -63,6 +63,9 @@ func _get_player_spawn_points() -> Array[Node3D]:
 
 
 func _spawn_singleplayer() -> void:
+	# Clear old player references from lobby (they were freed when scene changed)
+	multiplayer_manager.players.clear()
+
 	var spawn_points := _get_player_spawn_points()
 	if spawn_points.is_empty():
 		push_error("No player spawn points found in start chunk!")
@@ -88,12 +91,15 @@ func _spawn_singleplayer() -> void:
 
 
 func _spawn_multiplayer() -> void:
+	# Clear old player references from lobby (they were freed when scene changed)
+	multiplayer_manager.players.clear()
+
 	multiplayer_manager.spawn_all_players()
 
 	# Connect death signals for all players
 	for peer_id in multiplayer_manager.players:
 		var player = multiplayer_manager.players[peer_id] as Node3D
-		if player.has_signal("player_died") and not player.player_died.is_connected(_on_player_died):
+		if is_instance_valid(player) and player.has_signal("player_died") and not player.player_died.is_connected(_on_player_died):
 			player.player_died.connect(_on_player_died)
 
 
@@ -150,13 +156,17 @@ func spawn_eggs() -> void:
 
 	for i in range(egg_count):
 		var spawn_point: Node3D = all_spawn_points[i]
+		if not is_instance_valid(spawn_point) or not spawn_point.is_inside_tree():
+			continue
+
 		var egg: Node3D = _egg_scene.instantiate()
-		egg.global_position = spawn_point.global_position
 
 		if indices.find(i) < monster_count:
 			egg.is_monster = true
 
+		# Add to tree first, then set position
 		add_child(egg)
+		egg.global_position = spawn_point.global_position
 
 
 func _on_player_died() -> void:
