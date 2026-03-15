@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://cpy5dq7xflldh"]
+[gd_scene load_steps=31 format=3 uid="uid://b62erwxr56mmo"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_rcgni"]
 [ext_resource type="PackedScene" uid="uid://brojq6uqsl2ao" path="res://assets/cemetery_assets_unity/crypt.fbx" id="2_fdd30"]
@@ -32,6 +32,15 @@
 [ext_resource type="PackedScene" uid="uid://qs14qowtl2j1" path="res://assets/cemetery_assets_unity/skull_candle.fbx" id="30_ls0qs"]
 
 [node name="CemeteryCenter1" instance=ExtResource("1_rcgni")]
+
+[node name="point" type="Node3D" parent="EggSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8315654, 0, -1.6310606)
+
+[node name="point2" type="Node3D" parent="EggSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1401067, 0, -1.6310606)
+
+[node name="point3" type="Node3D" parent="EggSpawnPoints" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1401067, 0, 2.2717228)
 
 [node name="crypt" parent="." index="4" instance=ExtResource("2_fdd30")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.037279606, 0.5204307, -5.8664513)

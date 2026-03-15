@@ -14,6 +14,8 @@ const GAME_SCENE_PATH := "res://scenes/main.tscn"
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
 
+var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
+var _pause_menu: CanvasLayer = null
 var _state: LobbyState = LobbyState.MENU
 var _is_singleplayer: bool = true
 var _countdown_timer: float = 0.0
@@ -32,8 +34,21 @@ func _ready() -> void:
 	multiplayer_manager.all_players_ready.connect(_on_all_players_ready)
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
 
+	# Setup pause menu
+	_pause_menu = _pause_menu_scene.instantiate()
+	_pause_menu.process_mode = Node.PROCESS_MODE_ALWAYS
+	_pause_menu.visible = false
+	_pause_menu.disconnect_requested.connect(_on_pause_menu_disconnect)
+	add_child(_pause_menu)
+
 	# Initial state
 	_set_state(LobbyState.MENU)
+
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and _state == LobbyState.WAITING:
+		if _pause_menu and not _pause_menu.visible:
+			_pause_menu.show_menu()
 
 
 func _process(delta: float) -> void:
@@ -90,7 +105,7 @@ func _on_connection_established(is_singleplayer: bool) -> void:
 	else:
 		# Multiplayer - add all connected peers
 		for peer_id in multiplayer_manager.connected_peers:
-			var is_local: bool = multiplayer_manager.is_local_player(peer_id)
+			var is_local = multiplayer_manager.is_local_player(peer_id)
 			lobby_hud.add_player(peer_id, is_local)
 
 	# Update pedestal indicators
@@ -100,7 +115,11 @@ func _on_connection_established(is_singleplayer: bool) -> void:
 
 
 func _spawn_local_player() -> void:
-	var peer_id: int = 1 if _is_singleplayer else multiplayer_manager.my_peer_id
+	var peer_id: int
+	if _is_singleplayer:
+		peer_id = 1
+	else:
+		peer_id = multiplayer_manager.my_peer_id
 
 	# Use multiplayer_manager to spawn if multiplayer
 	if _is_singleplayer:
@@ -126,7 +145,7 @@ func _on_player_connected(peer_id: int) -> void:
 	if _state == LobbyState.MENU:
 		return
 
-	var is_local: bool = multiplayer_manager.is_local_player(peer_id)
+	var is_local = multiplayer_manager.is_local_player(peer_id)
 	lobby_hud.add_player(peer_id, is_local)
 	_update_pedestal_indicators()
 
@@ -149,7 +168,7 @@ func _on_pedestal_interacted(peer_id: int) -> void:
 		return
 
 	# Toggle ready state
-	var current_ready: bool = multiplayer_manager.get_ready_state(peer_id)
+	var current_ready = multiplayer_manager.get_ready_state(peer_id)
 	multiplayer_manager.set_player_ready(not current_ready)
 
 
@@ -169,13 +188,14 @@ func _on_all_players_ready() -> void:
 
 
 func _update_pedestal_indicators() -> void:
-	var ready_states: Dictionary = multiplayer_manager.get_all_ready_states()
+	var ready_states = multiplayer_manager.get_all_ready_states()
 	var connected_peers: Array[int] = []
 
 	if _is_singleplayer:
 		connected_peers.append(1)
 	else:
-		connected_peers = multiplayer_manager.connected_peers.duplicate()
+		for peer_id in multiplayer_manager.connected_peers:
+			connected_peers.append(peer_id)
 
 	start_game_pedestal.update_ready_indicators(ready_states, connected_peers)
 
@@ -210,3 +230,10 @@ func _cleanup() -> void:
 
 	multiplayer_manager.players.clear()
 	lobby_hud.clear_players()
+
+
+func _on_pause_menu_disconnect() -> void:
+	multiplayer_manager.leave_game()
+	_cleanup()
+	_set_state(LobbyState.MENU)
+	connection_menu.show_menu()

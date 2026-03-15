@@ -638,6 +638,24 @@ func spawn_all_players() -> void:
 		_spawn_player(peer_id)
 
 
+func _get_player_spawn_points() -> Array[Node3D]:
+	var spawn_points: Array[Node3D] = []
+
+	var chunks_node := get_tree().current_scene.get_node_or_null("Chunks")
+	if not chunks_node:
+		return spawn_points
+
+	for chunk in chunks_node.get_children():
+		if "start" in chunk.name.to_lower():
+			var player_spawns = chunk.get_node_or_null("PlayerSpawnPoints")
+			if player_spawns and player_spawns.get_child_count() > 0:
+				for spawn_point in player_spawns.get_children():
+					spawn_points.append(spawn_point)
+				break
+
+	return spawn_points
+
+
 func _spawn_player(id: int) -> void:
 	if players.has(id):
 		return
@@ -650,10 +668,11 @@ func _spawn_player(id: int) -> void:
 	if current_mode == NetworkMode.LAN or current_mode == NetworkMode.EOS:
 		player.set_multiplayer_authority(id if id != my_peer_id else multiplayer.get_unique_id())
 
-	var spawn_points_node := get_tree().current_scene.get_node_or_null("PlayerSpawnPoints")
-	assert(spawn_points_node != null, "ERROR: PlayerSpawnPoints node not found in scene")
+	var spawn_points := _get_player_spawn_points()
+	if spawn_points.is_empty():
+		push_error("No player spawn points found in start chunk!")
+		return
 
-	var spawn_points := spawn_points_node.get_children()
 	var spawn_index := players.size() % spawn_points.size()
 	player.global_position = spawn_points[spawn_index].global_position
 
@@ -689,7 +708,7 @@ func get_ready_state(peer_id: int) -> bool:
 
 
 func get_all_ready_states() -> Dictionary:
-	return _ready_states.duplicate()
+	return _ready_states.duplicate() as Dictionary
 
 
 func reset_ready_states() -> void:

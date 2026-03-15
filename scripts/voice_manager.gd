@@ -59,26 +59,26 @@ func _update_voice_volumes() -> void:
 	if not _current_lobby:
 		return
 
-	var local_player := _get_local_player()
+	var local_player = _get_local_player()
 	if not local_player:
 		return
 
-	var local_position := local_player.global_position
+	var local_position: Vector3 = local_player.global_position
 
 	# Update volume for each remote player
 	for puid in MultiplayerManager.puid_to_peer_id:
-		var peer_id: int = MultiplayerManager.puid_to_peer_id[puid]
+		var peer_id = MultiplayerManager.puid_to_peer_id[puid] as int
 
 		# Skip local player
 		if peer_id == MultiplayerManager.my_peer_id:
 			continue
 
-		var remote_player := _get_player_by_peer_id(peer_id)
+		var remote_player = _get_player_by_peer_id(peer_id)
 		if not remote_player:
 			continue
 
-		var distance := local_position.distance_to(remote_player.global_position)
-		var volume := _calculate_volume(distance)
+		var distance: float = local_position.distance_to(remote_player.global_position)
+		var volume: float = _calculate_volume(distance)
 
 		_set_participant_volume(puid, volume)
 
@@ -115,14 +115,12 @@ func _set_participant_volume(puid: String, volume: float) -> void:
 	if not _current_lobby:
 		return
 
-	var room_name := _current_lobby.lobby_id
+	var room_name = _current_lobby.lobby_id as String
 
-	var volume_opts := EOS.RTCAudio.UpdateReceivingVolumeOptions.new()
+	var volume_opts = EOS.RTCAudio.UpdateReceivingVolumeOptions.new()
 	volume_opts.local_user_id = MultiplayerManager.get_local_puid()
 	volume_opts.room_name = room_name
 	volume_opts.participant_id = puid
 	volume_opts.volume = volume
 
-	var result = EOS.RTCAudio.RTCAudioInterface.update_receiving_volume(volume_opts)
-	if result != EOS.Result.Success:
-		push_warning("[Voice] Failed to update volume for %s: %s" % [puid, EOS.result_str(result)])
+	EOS.RTCAudio.RTCAudioInterface.update_receiving_volume(volume_opts)

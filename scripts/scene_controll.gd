@@ -8,8 +8,7 @@ var player: CharacterBody3D = null
 
 @onready var lobby: Control = $Lobby
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
-@onready var spawn_points: Node3D = $PlayerSpawnPoints
-@onready var egg_spawn_points: Node3D = $EggSpawnPoints
+@onready var chunks: Node3D = $Chunks
 
 var _is_singleplayer: bool = true
 var _game_over_scene: PackedScene = preload("res://scenes/game_over.tscn")
@@ -56,9 +55,27 @@ func _on_game_started(is_singleplayer: bool) -> void:
 		_start_multiplayer()
 
 
+func _get_player_spawn_points() -> Array[Node3D]:
+	var spawn_points: Array[Node3D] = []
+
+	for chunk in chunks.get_children():
+		if "start" in chunk.name.to_lower():
+			var player_spawns = chunk.get_node_or_null("PlayerSpawnPoints")
+			if player_spawns and player_spawns.get_child_count() > 0:
+				for spawn_point in player_spawns.get_children():
+					spawn_points.append(spawn_point)
+				break
+
+	return spawn_points
+
+
 func _start_singleplayer() -> void:
-	# Spawn player at first spawn point
-	var spawn_point: Node3D = spawn_points.get_child(0)
+	var spawn_points := _get_player_spawn_points()
+	if spawn_points.is_empty():
+		push_error("No player spawn points found in start chunk!")
+		return
+
+	var spawn_point: Node3D = spawn_points[0]
 	player = _player_scene.instantiate()
 	player.global_position = spawn_point.global_position
 	$Players.add_child(player)
@@ -77,7 +94,16 @@ func _start_multiplayer() -> void:
 
 
 func spawn_eggs() -> void:
-	var egg_count: int = egg_spawn_points.get_child_count()
+	# Coletar todos os spawn points de todos os chunks
+	var all_spawn_points: Array[Node3D] = []
+
+	for chunk in chunks.get_children():
+		var egg_spawns = chunk.get_node_or_null("EggSpawnPoints")
+		if egg_spawns and egg_spawns.get_child_count() > 0:
+			for spawn_point in egg_spawns.get_children():
+				all_spawn_points.append(spawn_point)
+
+	var egg_count: int = all_spawn_points.size()
 	var monster_count: int = egg_count / 2
 	print("Spawning ", egg_count, " eggs (", monster_count, " monsters)")
 
@@ -88,7 +114,7 @@ func spawn_eggs() -> void:
 	indices.shuffle()
 
 	for i in range(egg_count):
-		var spawn_point: Node3D = egg_spawn_points.get_child(i)
+		var spawn_point: Node3D = all_spawn_points[i]
 		var egg: Node3D = _egg_scene.instantiate()
 		egg.global_position = spawn_point.global_position
 

@@ -5,10 +5,11 @@ extends Node3D
 
 var _player_scene: PackedScene = preload("res://scenes/player.tscn")
 var _egg_scene: PackedScene = preload("res://scenes/egg.tscn")
+var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
+var _pause_menu: CanvasLayer = null
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
-@onready var spawn_points: Node3D = $PlayerSpawnPoints
-@onready var egg_spawn_points: Node3D = $EggSpawnPoints
+@onready var chunks: Node3D = $Chunks
 @onready var players_container: Node3D = $Players
 
 var _is_singleplayer: bool = true
@@ -21,6 +22,13 @@ var _spectate_target_index: int = 0
 
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
+
+	# Setup pause menu
+	_pause_menu = _pause_menu_scene.instantiate()
+	_pause_menu.process_mode = Node.PROCESS_MODE_ALWAYS
+	_pause_menu.visible = false
+	_pause_menu.disconnect_requested.connect(_on_pause_menu_disconnect)
+	add_child(_pause_menu)
 
 	# Determine if singleplayer based on network mode
 	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
@@ -40,8 +48,27 @@ func _start_game() -> void:
 	spawn_eggs()
 
 
+func _get_player_spawn_points() -> Array[Node3D]:
+	var spawn_points: Array[Node3D] = []
+
+	for chunk in chunks.get_children():
+		if "start" in chunk.name.to_lower():
+			var player_spawns = chunk.get_node_or_null("PlayerSpawnPoints")
+			if player_spawns and player_spawns.get_child_count() > 0:
+				for spawn_point in player_spawns.get_children():
+					spawn_points.append(spawn_point)
+				break
+
+	return spawn_points
+
+
 func _spawn_singleplayer() -> void:
-	var spawn_point: Node3D = spawn_points.get_child(0)
+	var spawn_points := _get_player_spawn_points()
+	if spawn_points.is_empty():
+		push_error("No player spawn points found in start chunk!")
+		return
+
+	var spawn_point: Node3D = spawn_points[0]
 	var player := _player_scene.instantiate()
 	player.name = "1"
 	player.set_meta("peer_id", 1)
@@ -65,7 +92,7 @@ func _spawn_multiplayer() -> void:
 
 	# Connect death signals for all players
 	for peer_id in multiplayer_manager.players:
-		var player: Node3D = multiplayer_manager.players[peer_id]
+		var player = multiplayer_manager.players[peer_id] as Node3D
 		if player.has_signal("player_died") and not player.player_died.is_connected(_on_player_died):
 			player.player_died.connect(_on_player_died)
 
@@ -77,7 +104,18 @@ func _on_server_disconnected() -> void:
 	call_deferred("_safe_return_to_lobby")
 
 
+func _on_pause_menu_disconnect() -> void:
+	# Disconnect from multiplayer and return to lobby
+	multiplayer_manager.leave_game()
+	_safe_return_to_lobby()
+
+
 func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		if _pause_menu and not _pause_menu.visible:
+			_pause_menu.show_menu()
+		return
+
 	if _is_spectating and event.is_action_pressed("interact"):
 		_switch_spectate_target()
 
@@ -90,10 +128,15 @@ func _connect_bunny_signals() -> void:
 
 
 func spawn_eggs() -> void:
-	if not egg_spawn_points:
-		return
+	var all_spawn_points: Array[Node3D] = []
 
-	var egg_count: int = egg_spawn_points.get_child_count()
+	for chunk in chunks.get_children():
+		var egg_spawns = chunk.get_node_or_null("EggSpawnPoints")
+		if egg_spawns and egg_spawns.get_child_count() > 0:
+			for spawn_point in egg_spawns.get_children():
+				all_spawn_points.append(spawn_point)
+
+	var egg_count: int = all_spawn_points.size()
 	if egg_count == 0:
 		return
 
@@ -106,7 +149,7 @@ func spawn_eggs() -> void:
 	indices.shuffle()
 
 	for i in range(egg_count):
-		var spawn_point: Node3D = egg_spawn_points.get_child(i)
+		var spawn_point: Node3D = all_spawn_points[i]
 		var egg: Node3D = _egg_scene.instantiate()
 		egg.global_position = spawn_point.global_position
 
@@ -137,7 +180,7 @@ func _on_game_over_finished() -> void:
 		_game_over_instance = null
 
 	if not _is_singleplayer:
-		var alive_players := _get_alive_players()
+		var alive_players = _get_alive_players()
 		if alive_players.size() > 0:
 			_start_spectator_mode()
 			return
@@ -157,7 +200,7 @@ func _start_spectator_mode() -> void:
 
 
 func _switch_spectate_target() -> void:
-	var alive_players := _get_alive_players()
+	var alive_players = _get_alive_players()
 	if alive_players.size() == 0:
 		return
 
@@ -176,10 +219,10 @@ func _get_alive_players() -> Array:
 
 func _process(_delta: float) -> void:
 	if _is_spectating and _spectator_camera:
-		var alive_players := _get_alive_players()
+		var alive_players = _get_alive_players()
 		if alive_players.size() > 0:
 			_spectate_target_index = min(_spectate_target_index, alive_players.size() - 1)
-			var target: Node3D = alive_players[_spectate_target_index]
+			var target = alive_players[_spectate_target_index] as Node3D
 			var offset := Vector3(0, 5, 5)
 			_spectator_camera.global_position = target.global_position + offset
 			_spectator_camera.look_at(target.global_position, Vector3.UP)
