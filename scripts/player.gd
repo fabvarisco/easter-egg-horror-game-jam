@@ -89,9 +89,9 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
-	# WASD movement
+	# WASD movement relative to camera
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	var direction := Vector3(input_dir.x, 0, input_dir.y).normalized()
+	var direction := _get_camera_relative_direction(input_dir)
 
 	var wants_to_sprint := Input.is_action_pressed("sprint") and direction.length() > 0 and not is_carrying_egg()
 	var wants_to_walk := Input.is_action_pressed("walk") and direction.length() > 0
@@ -167,6 +167,34 @@ func _physics_process(_delta: float) -> void:
 	if _sync_timer >= SYNC_INTERVAL:
 		_sync_timer = 0.0
 		_send_position_sync()
+
+func _get_camera_relative_direction(input_dir: Vector2) -> Vector3:
+	if input_dir.length() < 0.01:
+		return Vector3.ZERO
+
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if not camera_manager:
+		return Vector3(input_dir.x, 0, input_dir.y).normalized()
+
+	var camera = camera_manager.get_active_camera()
+	if not is_instance_valid(camera):
+		return Vector3(input_dir.x, 0, input_dir.y).normalized()
+
+	# Get camera's forward and right vectors projected onto XZ plane
+	var cam_basis: Basis = camera.global_transform.basis
+	var cam_forward: Vector3 = -cam_basis.z
+	var cam_right: Vector3 = cam_basis.x
+
+	# Project onto horizontal plane and normalize
+	cam_forward.y = 0
+	cam_right.y = 0
+	cam_forward = cam_forward.normalized()
+	cam_right = cam_right.normalized()
+
+	# Calculate direction relative to camera
+	var direction: Vector3 = (cam_forward * -input_dir.y + cam_right * input_dir.x).normalized()
+	return direction
+
 
 func _rotate_to_mouse(_delta: float) -> void:
 	var camera_manager := get_node_or_null("/root/CameraManager")
