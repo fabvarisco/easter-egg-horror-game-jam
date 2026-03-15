@@ -44,9 +44,11 @@ func show_menu() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	visible = true
 
-	# Refresh devices in case they changed
-	_populate_audio_devices()
-	_populate_mic_devices()
+	# Only populate devices once, not every time menu opens
+	if audio_output_dropdown.item_count == 0:
+		_populate_audio_devices()
+	if mic_input_dropdown.item_count == 0:
+		_populate_mic_devices()
 
 	# Load current mute state
 	var voice_manager := get_node_or_null("/root/VoiceManager")
