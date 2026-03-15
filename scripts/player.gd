@@ -1,21 +1,23 @@
 extends CharacterBody3D
 
+const SLOW_WALK_SPEED: float = 1.5
 const WALK_SPEED: float = 3.0
 const SPRINT_SPEED: float = 6.5
 const ACCELERATION: float = 8.0
 const DECELERATION: float = 10.0
 const ROTATION_SPEED: float = 4.0
-const STEERING_WALK: float = 50.0  
-const STEERING_SPRINT: float = 8.0  
+const STEERING_WALK: float = 50.0
+const STEERING_SPRINT: float = 8.0
 const JUMP_VELOCITY: float = 4.5
 const INTERACT_DISTANCE: float = 2.0
-const SYNC_INTERVAL: float = 0.05  
+const SYNC_INTERVAL: float = 0.05
 
 # Stamina
-const MAX_STAMINA:float = 100.0
-const STAMINA_DRAIN_RATE:float = 25.0  
-const STAMINA_REGEN_RATE:float = 15.0  
-const MIN_STAMINA_TO_SPRINT:float = 10.0  
+const MAX_STAMINA: float = 100.0
+const STAMINA_DRAIN_RATE: float = 25.0
+const STAMINA_REGEN_RATE: float = 8.0  # Slower default recovery
+const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
+const MIN_STAMINA_TO_SPRINT: float = 10.0  
 
 @onready var camera: Camera3D = $Camera3D
 @onready var flashlight: SpotLight3D = $SpotLight3D
@@ -33,6 +35,7 @@ var _flashlight_on: bool = false
 var _current_speed: float = 0.0
 var _stamina: float = MAX_STAMINA
 var _is_sprinting: bool = false
+var _is_walking: bool = false
 var _move_direction: Vector3 = Vector3.ZERO 
 var _carried_egg: Node3D = null
 var _nearby_egg: Node3D = null
@@ -102,20 +105,40 @@ func _physics_process(_delta: float) -> void:
 	var direction := Vector3(input_dir.x, 0, input_dir.y).normalized()
 
 	var wants_to_sprint := Input.is_action_pressed("sprint") and direction.length() > 0 and not is_carrying_egg()
+	var wants_to_walk := Input.is_action_pressed("walk") and direction.length() > 0
 
-	if wants_to_sprint and _stamina > MIN_STAMINA_TO_SPRINT:
-		_is_sprinting = true
-	elif _stamina <= 0 or not wants_to_sprint:
+	# Walking (CTRL) takes priority - can't sprint while walking
+	if wants_to_walk:
+		_is_walking = true
 		_is_sprinting = false
+	else:
+		_is_walking = false
+		if wants_to_sprint and _stamina > MIN_STAMINA_TO_SPRINT:
+			_is_sprinting = true
+		elif _stamina <= 0 or not wants_to_sprint:
+			_is_sprinting = false
 
+	# Stamina management
 	if _is_sprinting:
 		_stamina = max(0, _stamina - STAMINA_DRAIN_RATE * _delta)
 		if _stamina <= 0:
 			_is_sprinting = false
+	elif _is_walking:
+		# Faster stamina recovery while walking
+		_stamina = min(MAX_STAMINA, _stamina + STAMINA_REGEN_RATE_WALKING * _delta)
 	else:
+		# Normal (slower) stamina recovery
 		_stamina = min(MAX_STAMINA, _stamina + STAMINA_REGEN_RATE * _delta)
 
-	var target_speed := SPRINT_SPEED if _is_sprinting else WALK_SPEED
+	# Determine target speed
+	var target_speed: float
+	if _is_sprinting:
+		target_speed = SPRINT_SPEED
+	elif _is_walking:
+		target_speed = SLOW_WALK_SPEED
+	else:
+		target_speed = WALK_SPEED
+
 	var steering := STEERING_SPRINT if _is_sprinting else STEERING_WALK
 
 	if direction:
@@ -193,7 +216,7 @@ func _is_multiplayer_connected() -> bool:
 		return false
 	return multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
-@rpc("authority", "call_remote", "unreliable_ordered")
+@rpc("authority", "call_remote", "unreliable")
 func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool) -> void:
 	global_position = pos
 	rotation.y = rot_y
@@ -267,6 +290,10 @@ func get_stamina_percent() -> float:
 
 func is_sprinting() -> bool:
 	return _is_sprinting
+
+
+func is_walking() -> bool:
+	return _is_walking
 
 func is_carrying_egg() -> bool:
 	return _carried_egg != null

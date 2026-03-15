@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game_controller.gd" id="1_gamectrl"]
 [ext_resource type="PackedScene" uid="uid://jj3rrsclryqf" path="res://scenes/chunks/cemetery/cemetery_start.tscn" id="2_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://beb8al3yv600p" path="res://scenes/chunks/cemetery/cemetery_center_1.tscn" id="3_tbgi4"]
-[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_center_2.tscn" id="4_tefeu"]
+[ext_resource type="PackedScene" uid="uid://b62erwxr56mmo" path="res://scenes/chunks/cemetery/cemetery_center_2.tscn" id="4_tefeu"]
 
 [sub_resource type="Environment" id="Environment_0wfyh"]
 background_mode = 1
@@ -34,10 +34,10 @@ environment = SubResource("Environment_0wfyh")
 [node name="Chunks" type="Node3D" parent="."]
 
 [node name="CemeteryStart" parent="Chunks" instance=ExtResource("2_jyhfs")]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -0.45331287, 0, 10.014955)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -0.453, -0.5, 10.015)
 
 [node name="CemeteryCenter1" parent="Chunks" instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23786795, 0, -10.034681)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.238, -0.5, -10.035)
 
 [node name="CemeteryCenter2" parent="Chunks" instance=ExtResource("4_tefeu")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.574081, 0, -10.011419)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.574, -0.5, -10.011)

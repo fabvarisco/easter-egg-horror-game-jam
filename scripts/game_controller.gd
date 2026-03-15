@@ -118,7 +118,7 @@ func _on_server_disconnected() -> void:
 
 func _on_pause_menu_disconnect() -> void:
 	# Disconnect from multiplayer and return to lobby
-	multiplayer_manager.leave_game()
+	await multiplayer_manager.leave_game()
 	_safe_return_to_lobby()
 
 

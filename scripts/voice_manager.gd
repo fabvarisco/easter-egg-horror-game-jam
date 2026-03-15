@@ -23,7 +23,21 @@ func _ready() -> void:
 	MultiplayerManager.player_disconnected.connect(_on_player_disconnected)
 
 	# Connect to RTC audio events for speaking detection
-	IEOS.rtc_audio_participant_updated.connect(_on_rtc_audio_participant_updated)
+	if IEOS.rtc_audio_participant_updated:
+		IEOS.rtc_audio_participant_updated.connect(_on_rtc_audio_participant_updated)
+
+
+func _exit_tree() -> void:
+	# Disconnect signals to prevent issues during shutdown
+	if MultiplayerManager.connection_succeeded.is_connected(_on_connection_succeeded):
+		MultiplayerManager.connection_succeeded.disconnect(_on_connection_succeeded)
+	if MultiplayerManager.server_disconnected.is_connected(_on_server_disconnected):
+		MultiplayerManager.server_disconnected.disconnect(_on_server_disconnected)
+	if MultiplayerManager.player_disconnected.is_connected(_on_player_disconnected):
+		MultiplayerManager.player_disconnected.disconnect(_on_player_disconnected)
+	if IEOS.rtc_audio_participant_updated and IEOS.rtc_audio_participant_updated.is_connected(_on_rtc_audio_participant_updated):
+		IEOS.rtc_audio_participant_updated.disconnect(_on_rtc_audio_participant_updated)
+	_cleanup()
 
 
 func _process(delta: float) -> void:

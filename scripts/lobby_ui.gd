@@ -194,7 +194,7 @@ func _on_start_game_pressed() -> void:
 	_start_game(false)
 
 func _on_leave_pressed() -> void:
-	multiplayer_manager.leave_game()
+	await multiplayer_manager.leave_game()
 	multiplayer_manager.stop_searching_lan()
 	_clear_server_list()
 	_show_menu("main")

@@ -21,3 +21,6 @@ shape = SubResource("ConcavePolygonShape3D_o1atq")
 [node name="EggSpawnPoints" type="Node3D" parent="."]
 
 [node name="World" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.56562924, 0.8246597, 0, -0.8246597, 0.56562924, 0, 8.422054, 10.001619)

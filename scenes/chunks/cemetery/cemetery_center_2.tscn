@@ -281,3 +281,6 @@ transform = Transform3D(0.56787246, 0, 0.82311654, 0, 1, 0, -0.82311654, 0, 0.56
 
 [node name="skull_candle" parent="others" index="10" instance=ExtResource("30_ls0qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0839887, 0.3167405, 7.1665115)
+
+[node name="Camera3D" parent="." index="10"]
+transform = Transform3D(0.4269949, -0.74570185, 0.5114725, 0, 0.56562924, 0.8246597, -0.9042541, -0.35212544, 0.24152079, 6.6695156, 10.14262, 2.1231556)

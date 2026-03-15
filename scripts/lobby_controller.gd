@@ -260,7 +260,7 @@ func _cleanup() -> void:
 
 
 func _on_pause_menu_disconnect() -> void:
-	multiplayer_manager.leave_game()
+	await multiplayer_manager.leave_game()
 	_cleanup()
 	_set_state(LobbyState.MENU)
 	connection_menu.show_menu()

@@ -68,13 +68,28 @@ func _ready() -> void:
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
+	# Prevent auto-quit so we can cleanup properly
+	get_tree().set_auto_accept_quit(false)
+
 	_check_eos_available()
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_EXIT_TREE:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if _is_quitting:
+			return  # Already handling quit
 		_is_quitting = true
+		_handle_quit()
+	elif what == NOTIFICATION_EXIT_TREE:
 		_cleanup_on_exit()
+
+
+func _handle_quit() -> void:
+	print("[MultiplayerManager] Handling quit...")
+	_cleanup_on_exit()
+	# Give a moment for cleanup to process
+	await get_tree().create_timer(0.2).timeout
+	get_tree().quit()
 
 
 # ==========================================
@@ -376,7 +391,7 @@ func leave_game() -> void:
 		NetworkMode.LAN:
 			_leave_lan()
 		NetworkMode.EOS:
-			_leave_eos()
+			await _leave_eos()
 
 	current_mode = NetworkMode.NONE
 	_clear_players()
@@ -398,24 +413,38 @@ func _leave_lan() -> void:
 
 
 func _leave_eos() -> void:
+	# Close peer first to stop network traffic
 	if _eos_peer:
 		_eos_peer.close()
 		_eos_peer = null
 
-	if _current_lobby and not _is_quitting:
-		if is_host:
-			await _current_lobby.destroy_async()
-		else:
-			await _current_lobby.leave_async()
-	_current_lobby = null
-
 	multiplayer.multiplayer_peer = null
+
+	# Handle lobby cleanup - fire and forget to avoid blocking
+	if _current_lobby and not _is_quitting:
+		var lobby_ref := _current_lobby
+		_current_lobby = null  # Clear reference immediately to prevent re-entry
+
+		# Start async cleanup but don't wait indefinitely
+		if is_host:
+			lobby_ref.destroy_async()
+		else:
+			lobby_ref.leave_async()
+
+		# Give a brief moment for the cleanup to start
+		await get_tree().create_timer(0.1).timeout
+	else:
+		_current_lobby = null
 
 
 func _cleanup_on_exit() -> void:
-	# Synchronous cleanup when game is closing - no await allowed
+	# Synchronous cleanup when game is closing
+	print("[MultiplayerManager] Cleanup on exit...")
 	_stop_broadcasting()
 	_stop_listening()
+
+	# Clear multiplayer peer first to stop network callbacks
+	multiplayer.multiplayer_peer = null
 
 	if _peer:
 		_peer.close()
@@ -426,11 +455,11 @@ func _cleanup_on_exit() -> void:
 		_eos_peer = null
 
 	_current_lobby = null
-	multiplayer.multiplayer_peer = null
 	players.clear()
 	connected_peers.clear()
 	puid_to_peer_id.clear()
 	peer_id_to_puid.clear()
+	print("[MultiplayerManager] Cleanup complete")
 
 
 # ==========================================

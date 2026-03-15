@@ -102,3 +102,13 @@ func _on_player_connected(peer_id: int) -> void:
 
 func _on_player_disconnected(peer_id: int) -> void:
 	remove_player(peer_id)
+
+
+func _exit_tree() -> void:
+	# Disconnect from autoload signals to prevent errors when scene changes
+	if VoiceManager.player_speaking_changed.is_connected(_on_player_speaking_changed):
+		VoiceManager.player_speaking_changed.disconnect(_on_player_speaking_changed)
+	if MultiplayerManager.player_connected.is_connected(_on_player_connected):
+		MultiplayerManager.player_connected.disconnect(_on_player_connected)
+	if MultiplayerManager.player_disconnected.is_connected(_on_player_disconnected):
+		MultiplayerManager.player_disconnected.disconnect(_on_player_disconnected)
