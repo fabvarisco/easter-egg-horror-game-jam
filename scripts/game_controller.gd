@@ -33,9 +33,9 @@ func _ready() -> void:
 	# Determine if singleplayer based on network mode
 	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
 
-	# Spawn players and start game
-	_start_game()
-	_connect_bunny_signals()
+	# Spawn players and start game (deferred to ensure chunks are ready)
+	call_deferred("_start_game")
+	call_deferred("_connect_bunny_signals")
 
 
 func _start_game() -> void:

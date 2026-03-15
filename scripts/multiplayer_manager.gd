@@ -641,17 +641,23 @@ func spawn_all_players() -> void:
 func _get_player_spawn_points() -> Array[Node3D]:
 	var spawn_points: Array[Node3D] = []
 
+	# First try to find spawn points in chunks (game scene)
 	var chunks_node := get_tree().current_scene.get_node_or_null("Chunks")
-	if not chunks_node:
-		return spawn_points
+	if chunks_node:
+		for chunk in chunks_node.get_children():
+			if "start" in chunk.name.to_lower():
+				var player_spawns = chunk.get_node_or_null("PlayerSpawnPoints")
+				if player_spawns and player_spawns.get_child_count() > 0:
+					for spawn_point in player_spawns.get_children():
+						spawn_points.append(spawn_point)
+					break
 
-	for chunk in chunks_node.get_children():
-		if "start" in chunk.name.to_lower():
-			var player_spawns = chunk.get_node_or_null("PlayerSpawnPoints")
-			if player_spawns and player_spawns.get_child_count() > 0:
-				for spawn_point in player_spawns.get_children():
-					spawn_points.append(spawn_point)
-				break
+	# Fallback: check for PlayerSpawnPoints directly in scene root (lobby)
+	if spawn_points.is_empty():
+		var root_spawns := get_tree().current_scene.get_node_or_null("PlayerSpawnPoints")
+		if root_spawns and root_spawns.get_child_count() > 0:
+			for spawn_point in root_spawns.get_children():
+				spawn_points.append(spawn_point)
 
 	return spawn_points
 
