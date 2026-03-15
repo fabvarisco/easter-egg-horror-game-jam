@@ -173,13 +173,13 @@ func _rotate_to_mouse(_delta: float) -> void:
 	if not camera_manager:
 		return
 
-	var camera: Camera3D = camera_manager.get_active_camera()
-	if not camera:
+	var camera = camera_manager.get_active_camera()
+	if not is_instance_valid(camera):
 		return
 
 	var mouse_pos := get_viewport().get_mouse_position()
-	var ray_origin := camera.project_ray_origin(mouse_pos)
-	var ray_direction := camera.project_ray_normal(mouse_pos)
+	var ray_origin: Vector3 = camera.project_ray_origin(mouse_pos)
+	var ray_direction: Vector3 = camera.project_ray_normal(mouse_pos)
 
 	var plane := Plane(Vector3.UP, global_position.y)
 	var intersection: Variant = plane.intersects_ray(ray_origin, ray_direction)

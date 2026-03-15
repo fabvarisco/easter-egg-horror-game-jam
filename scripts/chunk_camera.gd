@@ -3,14 +3,19 @@ extends Node3D
 
 @onready var camera: Camera3D = $Camera3D
 
+var _detection_area: Area3D = null
+
 func _ready() -> void:
 	_create_detection_area()
+	# Check for players already inside after physics processes
+	call_deferred("_check_initial_players")
 
 func _create_detection_area() -> void:
-	var area := Area3D.new()
-	area.name = "CameraDetectionArea"
-	area.collision_layer = 0
-	area.collision_mask = 1  # Detecta players na layer 1
+	_detection_area = Area3D.new()
+	_detection_area.name = "CameraDetectionArea"
+	_detection_area.collision_layer = 0
+	_detection_area.collision_mask = 1  # Detecta players na layer 1
+	_detection_area.monitoring = true
 
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
@@ -18,10 +23,22 @@ func _create_detection_area() -> void:
 	shape.shape = box
 	shape.position = Vector3(0, 5, 0)
 
-	area.add_child(shape)
-	add_child(area)
+	_detection_area.add_child(shape)
+	add_child(_detection_area)
 
-	area.body_entered.connect(_on_body_entered)
+	_detection_area.body_entered.connect(_on_body_entered)
+
+func _check_initial_players() -> void:
+	# Wait a frame for physics to update
+	await get_tree().physics_frame
+
+	if not _detection_area:
+		return
+
+	# Check for bodies already overlapping
+	var bodies := _detection_area.get_overlapping_bodies()
+	for body in bodies:
+		_on_body_entered(body)
 
 func _on_body_entered(body: Node3D) -> void:
 	if not body.is_in_group("players"):

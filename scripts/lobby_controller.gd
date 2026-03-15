@@ -13,6 +13,7 @@ const GAME_SCENE_PATH := "res://scenes/main.tscn"
 @onready var players_container: Node3D = $Players
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
+@onready var lobby_camera: Camera3D = $Camera3D
 
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
 var _pause_menu: CanvasLayer = null
@@ -41,6 +42,11 @@ func _ready() -> void:
 	_pause_menu.visible = false
 	_pause_menu.disconnect_requested.connect(_on_pause_menu_disconnect)
 	add_child(_pause_menu)
+
+	# Register lobby camera with CameraManager
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if camera_manager and lobby_camera:
+		camera_manager.set_active_camera(lobby_camera)
 
 	# Initial state
 	_set_state(LobbyState.MENU)

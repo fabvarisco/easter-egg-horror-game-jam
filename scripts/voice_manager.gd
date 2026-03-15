@@ -4,8 +4,8 @@ extends Node
 signal player_speaking_changed(peer_id: int, is_speaking: bool)
 
 const UPDATE_INTERVAL: float = 0.1  # Update volume every 100ms
-const MAX_VOICE_DISTANCE: float = 20.0  # Volume = 0 at this distance
-const MIN_VOICE_DISTANCE: float = 2.0   # Volume = 50 (normal) at this distance
+const MAX_VOICE_DISTANCE: float = 5.0  # Volume = 0 at this distance
+const MIN_VOICE_DISTANCE: float = 1.0   # Volume = 50 (normal) at this distance
 const MAX_VOLUME: float = 50.0  # EOS uses 0-100, 50 is normal
 
 var _update_timer: float = 0.0
@@ -84,11 +84,15 @@ func _update_voice_volumes() -> void:
 
 	var local_player = _get_local_player()
 	if not local_player:
+		# Debug: print why we can't find local player
+		if _update_timer < 0.2:  # Only print once per second
+			print("[Voice] Warning: Could not find local player (my_peer_id: %d)" % MultiplayerManager.my_peer_id)
 		return
 
 	var local_position: Vector3 = local_player.global_position
 
 	# Update volume for each remote player
+	var updated_count := 0
 	for puid in MultiplayerManager.puid_to_peer_id:
 		var peer_id = MultiplayerManager.puid_to_peer_id[puid] as int
 
@@ -98,24 +102,51 @@ func _update_voice_volumes() -> void:
 
 		var remote_player = _get_player_by_peer_id(peer_id)
 		if not remote_player:
+			print("[Voice] Could not find remote player for peer_id: %d" % peer_id)
 			continue
 
 		var distance: float = local_position.distance_to(remote_player.global_position)
 		var volume: float = _calculate_volume(distance)
 
 		_set_participant_volume(puid, volume)
+		updated_count += 1
+
+	if updated_count == 0 and MultiplayerManager.puid_to_peer_id.size() > 1:
+		print("[Voice] Warning: No remote players found to update volume (puid_count: %d)" % MultiplayerManager.puid_to_peer_id.size())
 
 
 func _get_local_player() -> Node3D:
-	if not MultiplayerManager.players.has(MultiplayerManager.my_peer_id):
-		return null
-	return MultiplayerManager.players[MultiplayerManager.my_peer_id]
+	# First try the dictionary
+	if MultiplayerManager.players.has(MultiplayerManager.my_peer_id):
+		var player = MultiplayerManager.players[MultiplayerManager.my_peer_id]
+		if is_instance_valid(player):
+			return player
+
+	# Fallback: find player in tree by peer_id
+	var players_container := get_tree().current_scene.get_node_or_null("Players")
+	if players_container:
+		var player := players_container.get_node_or_null(str(MultiplayerManager.my_peer_id))
+		if player and is_instance_valid(player):
+			return player
+
+	return null
 
 
 func _get_player_by_peer_id(peer_id: int) -> Node3D:
-	if not MultiplayerManager.players.has(peer_id):
-		return null
-	return MultiplayerManager.players[peer_id]
+	# First try the dictionary
+	if MultiplayerManager.players.has(peer_id):
+		var player = MultiplayerManager.players[peer_id]
+		if is_instance_valid(player):
+			return player
+
+	# Fallback: find player in tree by peer_id
+	var players_container := get_tree().current_scene.get_node_or_null("Players")
+	if players_container:
+		var player := players_container.get_node_or_null(str(peer_id))
+		if player and is_instance_valid(player):
+			return player
+
+	return null
 
 
 func _calculate_volume(distance: float) -> float:
@@ -139,9 +170,13 @@ func _set_participant_volume(puid: String, volume: float) -> void:
 		return
 
 	var room_name = _current_lobby.lobby_id as String
+	var local_puid = MultiplayerManager.get_local_puid()
+
+	# Debug log
+	print("[Voice] Setting volume for %s: %.1f (room: %s)" % [puid.substr(0, 8), volume, room_name.substr(0, 8)])
 
 	var volume_opts = EOS.RTCAudio.UpdateReceivingVolumeOptions.new()
-	volume_opts.local_user_id = MultiplayerManager.get_local_puid()
+	volume_opts.local_user_id = local_puid
 	volume_opts.room_name = room_name
 	volume_opts.participant_id = puid
 	volume_opts.volume = volume

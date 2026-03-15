@@ -81,10 +81,10 @@ func _spawn_singleplayer() -> void:
 	var player := _player_scene.instantiate()
 	player.name = "1"
 	player.set_meta("peer_id", 1)
-	player.global_position = spawn_point.global_position
 	player.add_to_group("players")
 	player.add_to_group("player")
 	players_container.add_child(player)
+	player.global_position = spawn_point.global_position
 
 	player.visible = true
 	player.set_physics_process(true)

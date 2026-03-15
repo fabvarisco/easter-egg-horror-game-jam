@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://lfob3msbcvlg"]
+
+[ext_resource type="Shader" path="res://shaders/vhs_crt.gdshader" id="1_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vhs"]
+shader = ExtResource("1_shader")
+shader_parameter/scanline_intensity = 0.25
+shader_parameter/noise_intensity = 0.1
+shader_parameter/chromatic_aberration = 1.5
+shader_parameter/vignette_intensity = 0.35
+shader_parameter/vignette_size = 0.5
+shader_parameter/screen_curvature = 0.015
+shader_parameter/flicker_intensity = 0.02
+shader_parameter/vertical_jitter = 0.001
+shader_parameter/color_bleed = 0.2
+
+[node name="VHSOverlay" type="CanvasLayer"]
+layer = 100
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_vhs")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
