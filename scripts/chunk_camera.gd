@@ -37,6 +37,7 @@ func _check_initial_players() -> void:
 
 	# Check for bodies already overlapping
 	var bodies := _detection_area.get_overlapping_bodies()
+	print("[ChunkCamera] ", name, " checking initial players, found: ", bodies.size())
 	for body in bodies:
 		_on_body_entered(body)
 
@@ -48,6 +49,7 @@ func _on_body_entered(body: Node3D) -> void:
 	if not _is_local_player(body):
 		return
 
+	print("[ChunkCamera] Player entered chunk: ", name)
 	var camera_manager := get_node_or_null("/root/CameraManager")
 	if camera_manager:
 		camera_manager.set_active_camera(camera)

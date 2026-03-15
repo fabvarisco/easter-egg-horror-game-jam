@@ -95,6 +95,9 @@ func _spawn_singleplayer() -> void:
 
 	multiplayer_manager.players[1] = player
 
+	# Ativar câmera do chunk inicial diretamente (evita race condition)
+	_activate_start_chunk_camera()
+
 
 func _spawn_multiplayer() -> void:
 	# Clear old player references from lobby (they were freed when scene changed)
@@ -107,6 +110,30 @@ func _spawn_multiplayer() -> void:
 		var player = multiplayer_manager.players[peer_id] as Node3D
 		if is_instance_valid(player) and player.has_signal("player_died") and not player.player_died.is_connected(_on_player_died):
 			player.player_died.connect(_on_player_died)
+
+	# Ativar câmera do chunk inicial diretamente (evita race condition)
+	_activate_start_chunk_camera()
+
+
+func _activate_start_chunk_camera() -> void:
+	# Aguardar frames para garantir que tudo está inicializado
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if not camera_manager:
+		print("[GameController] CameraManager not found!")
+		return
+
+	for chunk in chunks.get_children():
+		if "start" in chunk.name.to_lower():
+			var camera := chunk.get_node_or_null("Camera3D") as Camera3D
+			if camera:
+				print("[GameController] Activating start chunk camera: ", chunk.name)
+				camera_manager.set_active_camera(camera)
+			else:
+				print("[GameController] No Camera3D found in chunk: ", chunk.name)
+			break
 
 
 func _on_server_disconnected() -> void:
