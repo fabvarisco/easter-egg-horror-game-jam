@@ -7,6 +7,8 @@ var _player_scene: PackedScene = preload("res://scenes/player.tscn")
 var _egg_scene: PackedScene = preload("res://scenes/egg.tscn")
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
 var _pause_menu: CanvasLayer = null
+var _game_hud_scene: PackedScene = preload("res://scenes/game_hud.tscn")
+var _game_hud: CanvasLayer = null
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
 @onready var chunks: Node3D = $Chunks
@@ -29,6 +31,10 @@ func _ready() -> void:
 	_pause_menu.visible = false
 	_pause_menu.disconnect_requested.connect(_on_pause_menu_disconnect)
 	add_child(_pause_menu)
+
+	# Setup game HUD
+	_game_hud = _game_hud_scene.instantiate()
+	add_child(_game_hud)
 
 	# Determine if singleplayer based on network mode
 	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
@@ -262,6 +268,9 @@ func _cleanup_all_players() -> void:
 
 
 func _cleanup_game_objects() -> void:
+	if not is_inside_tree():
+		return
+
 	for egg in get_tree().get_nodes_in_group("eggs"):
 		if is_instance_valid(egg):
 			egg.queue_free()
@@ -276,6 +285,9 @@ func _cleanup_game_objects() -> void:
 
 
 func _safe_return_to_lobby() -> void:
+	if not is_inside_tree():
+		return
+
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file("res://scenes/lobby_3d.tscn")
 
@@ -286,6 +298,9 @@ func _return_to_lobby() -> void:
 	if _game_over_instance and is_instance_valid(_game_over_instance):
 		_game_over_instance.queue_free()
 		_game_over_instance = null
+
+	if not is_inside_tree():
+		return
 
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 

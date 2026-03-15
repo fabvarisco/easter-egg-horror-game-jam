@@ -6,6 +6,7 @@ signal disconnect_requested
 
 @onready var master_volume_slider: HSlider = $Panel/MarginContainer/VBoxContainer/MasterVolumeSlider
 @onready var mic_volume_slider: HSlider = $Panel/MarginContainer/VBoxContainer/MicVolumeSlider
+@onready var mic_mute_button: CheckButton = $Panel/MarginContainer/VBoxContainer/MicMuteButton
 @onready var audio_output_dropdown: OptionButton = $Panel/MarginContainer/VBoxContainer/AudioOutputDropdown
 @onready var mic_input_dropdown: OptionButton = $Panel/MarginContainer/VBoxContainer/MicInputDropdown
 @onready var resume_button: Button = $Panel/MarginContainer/VBoxContainer/ButtonsContainer/ResumeButton
@@ -18,6 +19,7 @@ func _ready() -> void:
 	# Connect signals
 	master_volume_slider.value_changed.connect(_on_master_volume_changed)
 	mic_volume_slider.value_changed.connect(_on_mic_volume_changed)
+	mic_mute_button.toggled.connect(_on_mic_mute_toggled)
 	audio_output_dropdown.item_selected.connect(_on_audio_output_selected)
 	mic_input_dropdown.item_selected.connect(_on_mic_input_selected)
 	resume_button.pressed.connect(_on_resume_pressed)
@@ -45,6 +47,11 @@ func show_menu() -> void:
 	# Refresh devices in case they changed
 	_populate_audio_devices()
 	_populate_mic_devices()
+
+	# Load current mute state
+	var voice_manager := get_node_or_null("/root/VoiceManager")
+	if voice_manager and voice_manager.has_method("is_mic_muted"):
+		mic_mute_button.button_pressed = voice_manager.is_mic_muted()
 
 
 func _close_menu() -> void:
@@ -100,6 +107,12 @@ func _on_mic_volume_changed(value: float) -> void:
 	var voice_manager := get_node_or_null("/root/VoiceManager")
 	if voice_manager and voice_manager.has_method("set_mic_volume"):
 		voice_manager.set_mic_volume(value)
+
+
+func _on_mic_mute_toggled(is_muted: bool) -> void:
+	var voice_manager := get_node_or_null("/root/VoiceManager")
+	if voice_manager and voice_manager.has_method("set_mic_muted"):
+		voice_manager.set_mic_muted(is_muted)
 
 
 func _on_audio_output_selected(index: int) -> void:

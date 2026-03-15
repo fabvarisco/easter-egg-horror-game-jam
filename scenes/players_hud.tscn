@@ -1,35 +1,18 @@
-[gd_scene format=3 uid="uid://dun1l2eljk140"]
+[gd_scene load_steps=2 format=3 uid="uid://dun1l2eljk140"]
+
+[ext_resource type="PackedScene" uid="uid://byfi6fp0pelsh" path="res://scenes/player_panel_hud.tscn" id="1_4ofsl"]
 
 [node name="PlayersHud" type="CanvasLayer"]
 
-[node name="PlayerPanel" type="Panel" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -421.0
-offset_top = 66.0
-offset_right = -211.0
-offset_bottom = 220.0
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -141.0
 grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
+grow_vertical = 0
+size_flags_vertical = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PlayerPanel"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="Name" type="Label" parent="PlayerPanel/VBoxContainer"]
+[node name="PlayerPanel" parent="HBoxContainer" instance=ExtResource("1_4ofsl")]
 layout_mode = 2
-text = "Name"
-
-[node name="Voice" type="Label" parent="PlayerPanel/VBoxContainer"]
-layout_mode = 2
-text = "Voice"
-
-[node name="ReadyLabel" type="Label" parent="PlayerPanel/VBoxContainer"]
-layout_mode = 2
-text = "Ready"

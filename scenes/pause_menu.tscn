@@ -65,6 +65,10 @@ min_value = 0.0
 max_value = 100.0
 value = 100.0
 
+[node name="MicMuteButton" type="CheckButton" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Mutar Microfone"
+
 [node name="Separator2" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
