@@ -666,6 +666,11 @@ func _spawn_player(id: int) -> void:
 	if players.has(id):
 		return
 
+	var spawn_points := _get_player_spawn_points()
+	if spawn_points.is_empty():
+		push_error("No player spawn points found!")
+		return
+
 	var player := player_scene.instantiate()
 	player.name = str(id)
 	player.set_meta("peer_id", id)
@@ -674,17 +679,26 @@ func _spawn_player(id: int) -> void:
 	if current_mode == NetworkMode.LAN or current_mode == NetworkMode.EOS:
 		player.set_multiplayer_authority(id if id != my_peer_id else multiplayer.get_unique_id())
 
-	var spawn_points := _get_player_spawn_points()
-	if spawn_points.is_empty():
-		push_error("No player spawn points found in start chunk!")
-		return
-
-	var spawn_index := players.size() % spawn_points.size()
-	player.global_position = spawn_points[spawn_index].global_position
-
+	# Add to tree first, then set position
 	var players_node := get_tree().current_scene.get_node_or_null("Players")
 	if players_node:
 		players_node.add_child(player)
+
+	var spawn_index := players.size() % spawn_points.size()
+	var spawn_point: Node3D = spawn_points[spawn_index]
+
+	# Calculate global position from spawn point's transform
+	if spawn_point.is_inside_tree():
+		player.global_position = spawn_point.global_position
+	else:
+		# Fallback: use local position relative to parent chain
+		var pos := spawn_point.position
+		var parent := spawn_point.get_parent()
+		while parent and parent is Node3D:
+			pos = parent.transform * pos
+			parent = parent.get_parent()
+		player.global_position = pos
+
 	players[id] = player
 
 

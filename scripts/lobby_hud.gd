@@ -4,6 +4,7 @@ extends CanvasLayer
 @onready var player_list: VBoxContainer = $Control/PlayerList
 @onready var instruction_label: Label = $Control/InstructionLabel
 @onready var countdown_label: Label = $Control/CountdownLabel
+@onready var room_code_label: Label = $Control/RoomCodeLabel
 
 var _player_entries: Dictionary = {}  # peer_id -> HBoxContainer
 
@@ -80,3 +81,17 @@ func clear_players() -> void:
 		if is_instance_valid(entry):
 			entry.queue_free()
 	_player_entries.clear()
+
+
+func set_room_code(code: String) -> void:
+	if code.is_empty():
+		room_code_label.text = ""
+		room_code_label.visible = false
+	else:
+		room_code_label.text = "Código: " + code
+		room_code_label.visible = true
+
+
+func clear_room_code() -> void:
+	room_code_label.text = ""
+	room_code_label.visible = false

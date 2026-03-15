@@ -102,11 +102,18 @@ func _on_connection_established(is_singleplayer: bool) -> void:
 	if is_singleplayer:
 		# Single player mode - add just local player
 		lobby_hud.add_player(1, true)
+		lobby_hud.clear_room_code()
 	else:
 		# Multiplayer - add all connected peers
 		for peer_id in multiplayer_manager.connected_peers:
 			var is_local = multiplayer_manager.is_local_player(peer_id)
 			lobby_hud.add_player(peer_id, is_local)
+
+		# Show room code for multiplayer
+		if multiplayer_manager.is_host and not multiplayer_manager.room_code.is_empty():
+			lobby_hud.set_room_code(multiplayer_manager.room_code)
+		else:
+			lobby_hud.clear_room_code()
 
 	# Update pedestal indicators
 	_update_pedestal_indicators()
