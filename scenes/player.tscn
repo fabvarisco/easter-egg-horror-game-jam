@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://biigvp1n1fx7f"]
+[gd_scene load_steps=4 format=3 uid="uid://biigvp1n1fx7f"]
 
 [ext_resource type="Script" uid="uid://doydjtp6bwfud" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/godot_plush_model.glb" id="2_g2els"]
-[ext_resource type="PackedScene" uid="uid://dm6ry6jumfwl2" path="res://scenes/player_hud_model.tscn" id="3_qhqgy"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -18,26 +17,6 @@ shape = SubResource("CapsuleShape3D_1")
 
 [node name="model" parent="." instance=ExtResource("2_g2els")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 10, 10)
-projection = 1
-size = 10.0
-
-[node name="PlayerCustomHud" type="Node3D" parent="Camera3D"]
-visible = false
-
-[node name="PlayerHudModel" parent="Camera3D/PlayerCustomHud" instance=ExtResource("3_qhqgy")]
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -6.758134, -3.4102159, -1.238266)
-
-[node name="PlayerHudModel2" parent="Camera3D/PlayerCustomHud" instance=ExtResource("3_qhqgy")]
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -3.225102, -3.4102159, -1.238266)
-
-[node name="PlayerHudModel3" parent="Camera3D/PlayerCustomHud" instance=ExtResource("3_qhqgy")]
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -0.08235216, -3.4102159, -1.238266)
-
-[node name="PlayerHudModel4" parent="Camera3D/PlayerCustomHud" instance=ExtResource("3_qhqgy")]
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 2.9150567, -3.4102159, -1.238266)
 
 [node name="VisionLight" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.9999266, -0.01211217, 0, 0.01211217, 0.9999266, 0, 4.9512978, 7.2653155)

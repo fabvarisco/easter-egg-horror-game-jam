@@ -184,9 +184,9 @@ func release_monster(egg_position: Vector3) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func _release_monster_rpc(egg_position: Vector3) -> void:
-	for player in get_tree().get_nodes_in_group("players"):
-		if player.has_method("shake_camera"):
-			player.shake_camera(0.5, 1.0)
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if camera_manager:
+		camera_manager.shake_camera(0.5, 1.0)
 
 	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
 	if bunny and bunny.has_method("activate"):

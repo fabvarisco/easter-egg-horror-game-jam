@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 MultiplayerManager="*res://scripts/multiplayer_manager.gd"
 HostManager="*res://scripts/host_manager.gd"
+CameraManager="*res://scripts/camera_manager.gd"
 VoiceManager="*res://scripts/voice_manager.gd"
 EOSGRuntime="*res://addons/epic-online-services-godot/runtime.gd"
 HPlatform="*res://addons/epic-online-services-godot/heos/hplatform.gd"

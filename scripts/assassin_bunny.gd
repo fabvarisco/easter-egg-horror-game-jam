@@ -55,6 +55,11 @@ func _is_multiplayer_active() -> bool:
 	return multiplayer.has_multiplayer_peer() and \
 		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
+func _is_local_player(player: Node3D) -> bool:
+	if not multiplayer.has_multiplayer_peer():
+		return true
+	return player.is_multiplayer_authority()
+
 func set_synced_state(state: int, approach_count: int) -> void:
 	_state = state as State
 	_approach_count = approach_count
@@ -117,8 +122,11 @@ func _play_detection_effects() -> void:
 	if not _target_player:
 		return
 
-	if _target_player.has_method("shake_camera"):
-		_target_player.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
+	# Só aplica shake se for o jogador local
+	if _is_local_player(_target_player):
+		var camera_manager := get_node_or_null("/root/CameraManager")
+		if camera_manager:
+			camera_manager.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
 
 	var audio_player := AudioStreamPlayer.new()
 	audio_player.stream = bunny_wake_up_sound

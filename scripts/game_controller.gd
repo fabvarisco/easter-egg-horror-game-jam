@@ -210,7 +210,10 @@ func _start_spectator_mode() -> void:
 	_spectator_camera = Camera3D.new()
 	_spectator_camera.name = "SpectatorCamera"
 	add_child(_spectator_camera)
-	_spectator_camera.current = true
+
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if camera_manager:
+		camera_manager.set_active_camera(_spectator_camera)
 
 	_spectate_target_index = 0
 

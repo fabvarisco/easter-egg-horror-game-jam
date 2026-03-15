@@ -35,10 +35,9 @@ func _release_monster() -> void:
 		queue_free()
 		return
 
-	var players := get_tree().get_nodes_in_group("players")
-	for player in players:
-		if player.has_method("shake_camera"):
-			player.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if camera_manager:
+		camera_manager.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
 
 	_play_laugh_sound_global()
 

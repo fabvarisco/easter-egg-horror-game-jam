@@ -19,7 +19,6 @@ const STAMINA_REGEN_RATE: float = 8.0  # Slower default recovery
 const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
 const MIN_STAMINA_TO_SPRINT: float = 10.0  
 
-@onready var camera: Camera3D = $Camera3D
 @onready var flashlight: SpotLight3D = $SpotLight3D
 @onready var vision_light: SpotLight3D = $VisionLight
 @onready var model: Node3D = $model
@@ -30,7 +29,6 @@ var _texture: Texture2D = preload("res://assets/godot_plush_albedo.png")
 var _sync_timer: float = 0.0
 
 var _target_rotation: float = 0.0
-var _camera_offset: Vector3
 var _flashlight_on: bool = false
 var _current_speed: float = 0.0
 var _stamina: float = MAX_STAMINA
@@ -41,21 +39,12 @@ var _carried_egg: Node3D = null
 var _nearby_egg: Node3D = null
 var _nearby_pedestal: Area3D = null
 var _is_dead: bool = false
-var _shake_intensity: float = 0.0
-var _shake_duration: float = 0.0
-var _shake_timer: float = 0.0
 
 signal player_died
 
 func _ready() -> void:
-	_camera_offset = camera.position
-	camera.top_level = true
-
 	if not _has_authority():
-		camera.current = false
 		set_process_input(false)
-	else:
-		camera.current = true
 
 	flashlight.visible = false
 	vision_light.visible = true
@@ -170,8 +159,6 @@ func _physics_process(_delta: float) -> void:
 
 	rotation.y = lerp_angle(rotation.y, _target_rotation, ROTATION_SPEED * _delta)
 
-	_update_camera(_delta)
-
 	_detect_nearby_eggs()
 	_detect_nearby_pedestals()
 	_update_carried_egg()
@@ -182,6 +169,14 @@ func _physics_process(_delta: float) -> void:
 		_send_position_sync()
 
 func _rotate_to_mouse(_delta: float) -> void:
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if not camera_manager:
+		return
+
+	var camera: Camera3D = camera_manager.get_active_camera()
+	if not camera:
+		return
+
 	var mouse_pos := get_viewport().get_mouse_position()
 	var ray_origin := camera.project_ray_origin(mouse_pos)
 	var ray_direction := camera.project_ray_normal(mouse_pos)
@@ -423,22 +418,6 @@ func is_dead() -> bool:
 	return _is_dead
 
 func shake_camera(intensity: float, duration: float) -> void:
-	_shake_intensity = intensity
-	_shake_duration = duration
-	_shake_timer = 0.0
-
-func _update_camera(_delta: float) -> void:
-	var shake_offset := Vector3.ZERO
-
-	if _shake_timer < _shake_duration:
-		_shake_timer += _delta
-		var shake_progress := _shake_timer / _shake_duration
-		var current_intensity := _shake_intensity * (1.0 - shake_progress)
-
-		shake_offset = Vector3(
-			randf_range(-current_intensity, current_intensity),
-			randf_range(-current_intensity, current_intensity),
-			randf_range(-current_intensity, current_intensity)
-		)
-
-	camera.global_position = global_position + _camera_offset + shake_offset  
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if camera_manager:
+		camera_manager.shake_camera(intensity, duration)
