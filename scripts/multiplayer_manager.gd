@@ -445,6 +445,16 @@ func _on_peer_connected(id: int) -> void:
 	print("[%s] Peer conectado: %d" % [mode_str, id])
 	if not connected_peers.has(id):
 		connected_peers.append(id)
+
+	# Host sends existing data to new peer
+	if is_host:
+		# Send existing ready states
+		for peer_id in _ready_states:
+			_sync_ready_state.rpc_id(id, peer_id, _ready_states[peer_id])
+
+		# Send list of all connected peers so new client knows about everyone
+		_sync_peer_list.rpc_id(id, connected_peers)
+
 	player_connected.emit(id)
 
 
@@ -710,7 +720,6 @@ func is_local_player(peer_id: int) -> bool:
 # READY SYSTEM
 # ==========================================
 
-
 func set_player_ready(is_ready: bool) -> void:
 	if current_mode == NetworkMode.NONE:
 		# Singleplayer mode
@@ -764,6 +773,15 @@ func broadcast_game_start() -> void:
 @rpc("authority", "call_local", "reliable")
 func _receive_game_start() -> void:
 	game_starting.emit()
+
+
+@rpc("authority", "reliable")
+func _sync_peer_list(peers: Array) -> void:
+	for peer_id in peers:
+		if not connected_peers.has(peer_id):
+			connected_peers.append(peer_id)
+			player_connected.emit(peer_id)
+	print("[Multiplayer] Synced peer list: ", connected_peers)
 
 
 # ==========================================

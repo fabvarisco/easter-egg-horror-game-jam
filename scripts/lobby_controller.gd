@@ -33,6 +33,7 @@ func _ready() -> void:
 	multiplayer_manager.player_ready_changed.connect(_on_player_ready_changed)
 	multiplayer_manager.all_players_ready.connect(_on_all_players_ready)
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
+	multiplayer_manager.game_starting.connect(_on_game_starting)
 
 	# Setup pause menu
 	_pause_menu = _pause_menu_scene.instantiate()
@@ -59,6 +60,10 @@ func _process(delta: float) -> void:
 		if new_value != _countdown_value:
 			_countdown_value = new_value
 			lobby_hud.show_countdown(_countdown_value)
+
+			# Sync countdown to clients
+			if not _is_singleplayer and multiplayer_manager.is_host:
+				_sync_countdown.rpc(_countdown_value)
 
 		if _countdown_timer <= 0:
 			_transition_to_game()
@@ -152,6 +157,10 @@ func _on_player_connected(peer_id: int) -> void:
 	if _state == LobbyState.MENU:
 		return
 
+	# Spawn the new player visually
+	if not multiplayer_manager.players.has(peer_id):
+		multiplayer_manager._spawn_player(peer_id)
+
 	var is_local = multiplayer_manager.is_local_player(peer_id)
 	lobby_hud.add_player(peer_id, is_local)
 	_update_pedestal_indicators()
@@ -193,6 +202,10 @@ func _on_all_players_ready() -> void:
 	if _state == LobbyState.WAITING:
 		_set_state(LobbyState.COUNTDOWN)
 
+		# Notify clients to start countdown
+		if not _is_singleplayer and multiplayer_manager.is_host:
+			_start_countdown_on_clients.rpc()
+
 
 func _update_pedestal_indicators() -> void:
 	var ready_states = multiplayer_manager.get_all_ready_states()
@@ -230,6 +243,13 @@ func _on_server_disconnected() -> void:
 	connection_menu.show_menu()
 
 
+func _on_game_starting() -> void:
+	# Called on clients when host broadcasts game start
+	if not multiplayer_manager.is_host:
+		_set_state(LobbyState.TRANSITIONING)
+		_load_game_scene()
+
+
 func _cleanup() -> void:
 	# Clear players
 	for child in players_container.get_children():
@@ -244,3 +264,19 @@ func _on_pause_menu_disconnect() -> void:
 	_cleanup()
 	_set_state(LobbyState.MENU)
 	connection_menu.show_menu()
+
+
+# ==========================================
+# MULTIPLAYER RPC
+# ==========================================
+
+
+@rpc("authority", "call_remote", "reliable")
+func _start_countdown_on_clients() -> void:
+	_set_state(LobbyState.COUNTDOWN)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_countdown(value: int) -> void:
+	_countdown_value = value
+	lobby_hud.show_countdown(value)
