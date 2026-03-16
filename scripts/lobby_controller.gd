@@ -103,7 +103,9 @@ func _set_state(new_state: LobbyState) -> void:
 
 
 func _is_returning_from_game() -> bool:
-	# Check if we have an active multiplayer connection
+	# Only consider returning from game if we're in an active multiplayer session
+	if multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE:
+		return false
 	if not multiplayer.has_multiplayer_peer():
 		return false
 	if not is_instance_valid(multiplayer.multiplayer_peer):
