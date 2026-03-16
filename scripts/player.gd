@@ -40,6 +40,7 @@ var _nearby_egg: Node3D = null
 var _nearby_pedestal: Area3D = null
 var _nearby_car: Area3D = null
 var _is_dead: bool = false
+var _is_on_floor_synced: bool = true  
 
 signal player_died
 
@@ -82,6 +83,7 @@ func _physics_process(_delta: float) -> void:
 
 	if not _has_authority():
 		_update_animation()
+		_update_carried_egg()  # Atualizar ovo mesmo em players remotos
 		return
 
 	# Gravity
@@ -226,7 +228,7 @@ func _rotate_to_mouse(_delta: float) -> void:
 func _send_position_sync() -> void:
 	if not _is_multiplayer_connected():
 		return
-	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting)
+	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting, is_on_floor())
 
 
 func _has_authority() -> bool:
@@ -244,11 +246,12 @@ func _is_multiplayer_connected() -> bool:
 	return multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 @rpc("authority", "call_remote", "unreliable")
-func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool) -> void:
+func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool, on_floor: bool = true) -> void:
 	global_position = pos
 	rotation.y = rot_y
 	_current_speed = speed
 	_is_sprinting = sprinting
+	_is_on_floor_synced = on_floor
 
 
 func _sync_pickup_egg(egg_name: String) -> void:
@@ -296,7 +299,10 @@ func _update_animation() -> void:
 
 	var anim_name: String
 
-	if not is_on_floor():
+	# Usar valor sincronizado para players remotos, is_on_floor() para local
+	var on_floor: bool = is_on_floor() if _has_authority() else _is_on_floor_synced
+
+	if not on_floor:
 		anim_name = "jump"
 	elif _current_speed > 0.1:
 		if _is_sprinting:
@@ -468,13 +474,14 @@ func _turn_into_egg() -> void:
 	if vision_light:
 		vision_light.visible = false
 
-	if is_inside_tree():
+	if is_inside_tree() and get_parent():
+		var spawn_pos := global_position
+		spawn_pos.y = 0.5
 		var egg_scene := preload("res://scenes/egg.tscn")
 		var egg := egg_scene.instantiate()
 		egg.is_monster = false
-		egg.global_position = global_position
-		egg.global_position.y = 0.5
 		get_parent().add_child(egg)
+		egg.global_position = spawn_pos
 
 	remove_from_group("players")
 	remove_from_group("player")

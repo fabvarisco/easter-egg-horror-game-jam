@@ -4,8 +4,8 @@ extends Node
 signal player_speaking_changed(peer_id: int, is_speaking: bool)
 
 const UPDATE_INTERVAL: float = 0.1  # Update volume every 100ms
-const MAX_VOICE_DISTANCE: float = 4.0  # Volume = 0 at this distance
-const MIN_VOICE_DISTANCE: float = 2.0   # Volume = 50 (normal) at this distance
+const MAX_VOICE_DISTANCE: float = 6.0  # Volume = 0 at this distance
+const MIN_VOICE_DISTANCE: float = 1.0   # Volume = 50 (normal) at this distance
 const MAX_VOLUME: float = 50.0  # EOS uses 0-100, 50 is normal
 
 var _update_timer: float = 0.0

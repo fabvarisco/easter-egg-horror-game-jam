@@ -34,8 +34,13 @@ func _is_multiplayer_active() -> bool:
 # BUNNY SYNC
 # ==========================================
 func _sync_bunny() -> void:
+	# Only sync in game scene (not lobby)
+	var current_scene := get_tree().current_scene
+	if not current_scene or "lobby" in current_scene.name.to_lower():
+		return
+
 	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
-	if not bunny:
+	if not bunny or not bunny.is_inside_tree():
 		return
 
 	var state: int = bunny.get_state() if bunny.has_method("get_state") else 0
@@ -52,8 +57,13 @@ func _sync_bunny() -> void:
 
 @rpc("authority", "call_remote", "unreliable")
 func _sync_bunny_state(pos: Vector3, rot_y: float, is_visible: bool, state: int, approach_count: int) -> void:
+	# Only process in game scene
+	var current_scene := get_tree().current_scene
+	if not current_scene or "lobby" in current_scene.name.to_lower():
+		return
+
 	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
-	if not bunny:
+	if not bunny or not bunny.is_inside_tree():
 		return
 
 	bunny.global_position = pos
@@ -93,8 +103,12 @@ func bunny_kill_player(player_id: int) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _bunny_kill_player_rpc(player_id: int) -> void:
-	var player := get_tree().current_scene.get_node_or_null("Players/" + str(player_id))
-	if player and player.has_method("die"):
+	var current_scene := get_tree().current_scene
+	if not current_scene or "lobby" in current_scene.name.to_lower():
+		return
+
+	var player := current_scene.get_node_or_null("Players/" + str(player_id))
+	if player and is_instance_valid(player) and player.has_method("die"):
 		player.die()
 
 
@@ -141,6 +155,11 @@ func _pickup_egg_rpc(egg_name: String, player_id: int) -> void:
 		egg_parent.remove_child(egg)
 	player.add_child(egg)
 
+	# Posicionar o ovo corretamente (mesmo código de _update_carried_egg)
+	egg.position = Vector3(0, 0.8, -0.5)
+	egg.rotation = Vector3.ZERO
+	egg.scale = Vector3(1, 1, 1)
+
 	# Atualizar _carried_egg no player remoto
 	if "_carried_egg" in player:
 		player._carried_egg = egg
@@ -154,7 +173,7 @@ func drop_egg(egg_name: String, player_id: int, drop_position: Vector3) -> void:
 
 
 @rpc("any_peer", "call_local", "reliable")
-func _drop_egg_rpc(egg_name: String, player_id: int, drop_position: Vector3) -> void:
+func _drop_egg_rpc(_egg_name: String, player_id: int, drop_position: Vector3) -> void:
 	var player: Node3D = null
 	var players_node := get_tree().current_scene.get_node_or_null("Players")
 	if players_node:
@@ -208,10 +227,14 @@ func _release_monster_rpc(egg_position: Vector3) -> void:
 
 
 func _spawn_bunny_at_position(pos: Vector3) -> void:
+	var current_scene := get_tree().current_scene
+	if not current_scene or not current_scene.is_inside_tree():
+		return
+
 	var bunny_scene := preload("res://scenes/assassin_bunny.tscn")
 	var bunny := bunny_scene.instantiate()
+	current_scene.add_child(bunny)
 	bunny.global_position = pos
-	get_tree().current_scene.add_child(bunny)
 	bunny.add_to_group("assassin_bunny")
 
 	# Connect to game controller
