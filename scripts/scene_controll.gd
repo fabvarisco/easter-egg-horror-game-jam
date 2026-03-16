@@ -14,8 +14,8 @@ var _is_singleplayer: bool = true
 var _game_over_scene: PackedScene = preload("res://scenes/game_over.tscn")
 var _game_over_instance: Node3D = null
 var _is_spectating: bool = false
-var _spectator_camera: Camera3D = null
-var _spectate_target_index: int = 0
+var _chunk_cameras: Array[Camera3D] = []
+var _spectate_camera_index: int = 0
 
 
 func _ready() -> void:
@@ -34,8 +34,11 @@ func _on_server_disconnected() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if _is_spectating and event.is_action_pressed("interact"):
-		_switch_spectate_target()
+	if _is_spectating:
+		if event.is_action_pressed("move_forward"):
+			_switch_spectate_camera(-1)  # W = câmera anterior
+		elif event.is_action_pressed("move_backward"):
+			_switch_spectate_camera(1)   # S = próxima câmera
 
 
 func _connect_bunny_signals() -> void:
@@ -85,7 +88,7 @@ func _start_singleplayer() -> void:
 	player.set_process_input(true)
 	player.add_to_group("player")
 	if not player.player_died.is_connected(_on_player_died):
-		player.player_died.connect(_on_player_died)
+		player.player_died.connect(_on_player_died.bind(player))
 
 
 func _start_multiplayer() -> void:
@@ -107,16 +110,29 @@ func spawn_eggs() -> void:
 	var monster_count: int = egg_count / 2
 	print("Spawning ", egg_count, " eggs (", monster_count, " monsters)")
 
-	# Criar array de índices e embaralhar para distribuir monstros aleatoriamente
+	# Usar seed fixa para garantir mesma ordem em todos os clientes
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 12345
+
+	# Criar array de índices e embaralhar com RNG determinístico
 	var indices: Array[int] = []
 	for i in range(egg_count):
 		indices.append(i)
-	indices.shuffle()
+
+	# Fisher-Yates shuffle determinístico
+	for i in range(indices.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var temp := indices[i]
+		indices[i] = indices[j]
+		indices[j] = temp
 
 	for i in range(egg_count):
 		var spawn_point: Node3D = all_spawn_points[i]
 		var egg: Node3D = _egg_scene.instantiate()
 		egg.global_position = spawn_point.global_position
+
+		# Nome determinístico para sincronização multiplayer
+		egg.name = "Egg_" + str(i)
 
 		# Metade dos ovos são monstros (os primeiros após embaralhar)
 		if indices.find(i) < monster_count:
@@ -125,7 +141,13 @@ func spawn_eggs() -> void:
 		add_child(egg)
 
 
-func _on_player_died() -> void:
+func _on_player_died(dead_player: Node3D) -> void:
+	if not _is_singleplayer:
+		var my_peer_id := multiplayer.get_unique_id()
+		var dead_peer_id: int = dead_player.get_meta("peer_id", -1)
+		if dead_peer_id != my_peer_id:
+			return
+
 	_show_game_over()
 
 
@@ -157,20 +179,39 @@ func _on_game_over_finished() -> void:
 func _start_spectator_mode() -> void:
 	_is_spectating = true
 
-	_spectator_camera = Camera3D.new()
-	_spectator_camera.name = "SpectatorCamera"
-	add_child(_spectator_camera)
-	_spectator_camera.current = true
+	# Coletar todas as câmeras dos chunks
+	_chunk_cameras.clear()
+	for chunk in chunks.get_children():
+		var camera := chunk.get_node_or_null("Camera3D") as Camera3D
+		if camera:
+			_chunk_cameras.append(camera)
 
-	_spectate_target_index = 0
-
-
-func _switch_spectate_target() -> void:
-	var alive_players := _get_alive_players()
-	if alive_players.size() == 0:
+	if _chunk_cameras.is_empty():
+		_cleanup_spectator()
+		_return_to_menu()
 		return
 
-	_spectate_target_index = (_spectate_target_index + 1) % alive_players.size()
+	_spectate_camera_index = 0
+	_activate_spectate_camera()
+
+
+func _switch_spectate_camera(direction: int) -> void:
+	if _chunk_cameras.is_empty():
+		return
+
+	_spectate_camera_index = (_spectate_camera_index + direction) % _chunk_cameras.size()
+	if _spectate_camera_index < 0:
+		_spectate_camera_index = _chunk_cameras.size() - 1
+
+	_activate_spectate_camera()
+
+
+func _activate_spectate_camera() -> void:
+	if _spectate_camera_index < 0 or _spectate_camera_index >= _chunk_cameras.size():
+		return
+
+	var camera := _chunk_cameras[_spectate_camera_index]
+	camera.current = true
 
 
 func _get_alive_players() -> Array:
@@ -184,16 +225,9 @@ func _get_alive_players() -> Array:
 
 
 func _process(_delta: float) -> void:
-	if _is_spectating and _spectator_camera:
+	if _is_spectating:
 		var alive_players := _get_alive_players()
-		if alive_players.size() > 0:
-			_spectate_target_index = min(_spectate_target_index, alive_players.size() - 1)
-			var target: Node3D = alive_players[_spectate_target_index]
-			var offset := Vector3(0, 5, 5)
-			_spectator_camera.global_position = target.global_position + offset
-			_spectator_camera.look_at(target.global_position, Vector3.UP)
-		else:
-			# Todos morreram, voltar ao menu
+		if alive_players.size() == 0:
 			_cleanup_spectator()
 			_return_to_menu()
 
@@ -204,9 +238,8 @@ func _on_all_players_dead() -> void:
 
 func _cleanup_spectator() -> void:
 	_is_spectating = false
-	if _spectator_camera and is_instance_valid(_spectator_camera):
-		_spectator_camera.queue_free()
-		_spectator_camera = null
+	_chunk_cameras.clear()
+	_spectate_camera_index = 0
 
 
 func _cleanup_all_players() -> void:

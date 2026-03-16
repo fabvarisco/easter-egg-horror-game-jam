@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://1v6tvwpp3els"]
 
-[ext_resource type="Script" uid="uid://bomcwixmsxrq5" path="res://scripts/chunk_camera.gd" id="1_chunk_camera"]
+[ext_resource type="Script" uid="uid://bomcwixmsxrq5" path="res://scripts/chunk_camera.gd" id="1_oc2dp"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_o1atq"]
 
@@ -8,7 +8,7 @@
 data = PackedVector3Array(1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1, 1, 0, -1)
 
 [node name="ChunkMaster" type="Node3D"]
-script = ExtResource("1_chunk_camera")
+script = ExtResource("1_oc2dp")
 
 [node name="Plane" type="MeshInstance3D" parent="."]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
@@ -27,3 +27,7 @@ shape = SubResource("ConcavePolygonShape3D_o1atq")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.56562924, 0.8246597, 0, -0.8246597, 0.56562924, 0, 8.422054, 10.001619)
+
+[node name="FogVolume" type="FogVolume" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.14916992, 0, 0.33044434)
+size = Vector3(19.958496, 2, 20.181396)

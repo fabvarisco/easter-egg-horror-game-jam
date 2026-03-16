@@ -1,6 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://jj3rrsclryqf"]
+[gd_scene load_steps=5 format=3 uid="uid://jj3rrsclryqf"]
 
-[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_3tqts"]
+[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_3tqts"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_3tqts"]
 size = Vector3(0.1, 5, 20)
@@ -58,7 +58,7 @@ transform = Transform3D(-0.9975628, 0.05753966, -0.03946612, -0.011828166, 0.417
 [node name="Car" type="Area3D" parent="." index="5" groups=["car_delivery"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.3391304)
 
-[node name="CSGBox3D" type="CSGBox3D" parent="Car"]
+[node name="CSGBox3D" type="CSGBox3D" parent="Car" index="0"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Car"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Car" index="1"]
 shape = SubResource("BoxShape3D_car")

@@ -110,6 +110,19 @@ func pickup_egg(egg_name: String, player_id: int) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func _pickup_egg_rpc(egg_name: String, player_id: int) -> void:
+	var player: Node3D = null
+	var players_node := get_tree().current_scene.get_node_or_null("Players")
+	if players_node:
+		player = players_node.get_node_or_null(str(player_id))
+
+	if not player:
+		return
+
+	# Se este cliente tem authority sobre o player, ele já processou localmente
+	if player.is_multiplayer_authority():
+		return
+
+	# Buscar o ovo pelo nome
 	var egg: Node3D = null
 	for e in get_tree().get_nodes_in_group("eggs"):
 		if e.name == egg_name:
@@ -119,23 +132,18 @@ func _pickup_egg_rpc(egg_name: String, player_id: int) -> void:
 	if not egg:
 		return
 
-	var player: Node3D = null
-	var players_node := get_tree().current_scene.get_node_or_null("Players")
-	if players_node:
-		player = players_node.get_node_or_null(str(player_id))
+	# Processar pickup no cliente remoto
+	if egg.has_method("on_picked_up"):
+		egg.on_picked_up()
 
-	if not player:
-		return
+	var egg_parent := egg.get_parent()
+	if egg_parent:
+		egg_parent.remove_child(egg)
+	player.add_child(egg)
 
-	if player.has_method("_pickup_egg"):
-		if player.is_multiplayer_authority():
-			return
-		if egg.has_method("on_picked_up"):
-			egg.on_picked_up()
-		var egg_parent := egg.get_parent()
-		if egg_parent:
-			egg_parent.remove_child(egg)
-		player.add_child(egg)
+	# Atualizar _carried_egg no player remoto
+	if "_carried_egg" in player:
+		player._carried_egg = egg
 
 
 func drop_egg(egg_name: String, player_id: int, drop_position: Vector3) -> void:
@@ -155,6 +163,11 @@ func _drop_egg_rpc(egg_name: String, player_id: int, drop_position: Vector3) -> 
 	if not player:
 		return
 
+	# Se este cliente tem authority sobre o player, ele já processou localmente
+	if player.is_multiplayer_authority():
+		return
+
+	# Buscar o ovo nos filhos do player
 	var egg: Node3D = null
 	for child in player.get_children():
 		if child.is_in_group("eggs"):
@@ -164,12 +177,14 @@ func _drop_egg_rpc(egg_name: String, player_id: int, drop_position: Vector3) -> 
 	if not egg:
 		return
 
-	if player.is_multiplayer_authority():
-		return
-
+	# Processar drop no cliente remoto
 	player.remove_child(egg)
 	get_tree().current_scene.add_child(egg)
 	egg.global_position = drop_position
+
+	# Atualizar _carried_egg no player remoto
+	if "_carried_egg" in player:
+		player._carried_egg = null
 
 
 func release_monster(egg_position: Vector3) -> void:
@@ -273,3 +288,21 @@ func _sync_mission_complete_rpc() -> void:
 	var game_ctrl := get_tree().current_scene
 	if game_ctrl and game_ctrl.has_method("_on_remote_mission_complete"):
 		game_ctrl._on_remote_mission_complete()
+
+
+# ==========================================
+# LOBBY RETURN SYNC
+# ==========================================
+
+func sync_return_to_lobby() -> void:
+	if not _is_multiplayer_active():
+		return
+	if not multiplayer.is_server():
+		return
+	_sync_return_to_lobby_rpc.rpc()
+
+
+@rpc("authority", "call_local", "reliable")
+func _sync_return_to_lobby_rpc() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().change_scene_to_file("res://scenes/lobby_3d.tscn")

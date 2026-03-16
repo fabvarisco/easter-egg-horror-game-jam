@@ -48,8 +48,12 @@ func _ready() -> void:
 	if camera_manager and lobby_camera:
 		camera_manager.set_active_camera(lobby_camera)
 
-	# Initial state
-	_set_state(LobbyState.MENU)
+	# Check if we're returning from a game (still connected to multiplayer)
+	if _is_returning_from_game():
+		_handle_return_from_game()
+	else:
+		# Initial state
+		_set_state(LobbyState.MENU)
 
 
 func _input(event: InputEvent) -> void:
@@ -96,6 +100,48 @@ func _set_state(new_state: LobbyState) -> void:
 
 		LobbyState.TRANSITIONING:
 			lobby_hud.hide_countdown()
+
+
+func _is_returning_from_game() -> bool:
+	# Check if we have an active multiplayer connection
+	if not multiplayer.has_multiplayer_peer():
+		return false
+	if not is_instance_valid(multiplayer.multiplayer_peer):
+		return false
+	return multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
+
+
+func _handle_return_from_game() -> void:
+	# Determine if we were in singleplayer or multiplayer
+	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
+
+	# Clean up any existing players first
+	_cleanup()
+
+	# Reset ready states for new game
+	multiplayer_manager.reset_ready_states()
+
+	# Spawn players
+	_spawn_local_player()
+
+	# Setup HUD
+	lobby_hud.clear_players()
+
+	if _is_singleplayer:
+		lobby_hud.add_player(1, true)
+		lobby_hud.clear_room_code()
+	else:
+		for peer_id in multiplayer_manager.connected_peers:
+			var is_local = multiplayer_manager.is_local_player(peer_id)
+			lobby_hud.add_player(peer_id, is_local)
+
+		if multiplayer_manager.is_host and not multiplayer_manager.room_code.is_empty():
+			lobby_hud.set_room_code(multiplayer_manager.room_code)
+		else:
+			lobby_hud.clear_room_code()
+
+	_update_pedestal_indicators()
+	_set_state(LobbyState.WAITING)
 
 
 func _on_connection_established(is_singleplayer: bool) -> void:

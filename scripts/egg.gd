@@ -14,6 +14,7 @@ func _ready() -> void:
 	pass
 
 func on_picked_up() -> void:
+	is_multiplayer_authority()
 	if _was_picked_up:
 		return
 

@@ -1,6 +1,6 @@
 [gd_scene load_steps=29 format=3 uid="uid://b62erwxr56mmo"]
 
-[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunckMaster.tscn" id="1_rcgni"]
+[ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_rcgni"]
 [ext_resource type="PackedScene" uid="uid://i5ekcrmusbb7" path="res://assets/cemetery_assets_unity/tree_pine_orange_large.fbx" id="3_kk8cx"]
 [ext_resource type="PackedScene" uid="uid://c82xai8e88qdh" path="res://assets/cemetery_assets_unity/tree_pine_yellow_medium.fbx" id="4_tmiyk"]
 [ext_resource type="PackedScene" uid="uid://by70a4rqy0ysm" path="res://assets/cemetery_assets_unity/tree_pine_yellow_small.fbx" id="5_4bapb"]
