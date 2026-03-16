@@ -50,7 +50,7 @@ func _sync_bunny() -> void:
 	)
 
 
-@rpc("authority", "call_remote", "unreliable_ordered")
+@rpc("authority", "call_remote", "unreliable")
 func _sync_bunny_state(pos: Vector3, rot_y: float, is_visible: bool, state: int, approach_count: int) -> void:
 	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
 	if not bunny:
