@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=3 uid="uid://h1wgcmab7rxk"]
+
+[ext_resource type="Script" uid="uid://duh67dnsy4ohe" path="res://scenes/showing_item.gd" id="1_wyo1r"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_p8juq"]
+
+[node name="ShowingItem" type="Node3D"]
+script = ExtResource("1_wyo1r")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(8.181898, 5.749481, 0, -5.749481, 8.181898, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_p8juq")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+color = Color(0, 0, 0, 0.2509804)
+
+[node name="Button" type="Button" parent="CanvasLayer"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -204.0
+offset_top = -69.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_vertical = 8
+text = "Close"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20.422813)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://skdaejm2ow6n"]
 
-[ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game_controller.gd" id="1_gamectrl"]
+[ext_resource type="Script" path="res://scripts/game_controller.gd" id="1_gamectrl"]
 [ext_resource type="PackedScene" uid="uid://jj3rrsclryqf" path="res://scenes/chunks/cemetery/cemetery_start.tscn" id="2_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://beb8al3yv600p" path="res://scenes/chunks/cemetery/cemetery_center_1.tscn" id="3_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://b62erwxr56mmo" path="res://scenes/chunks/cemetery/cemetery_center_2.tscn" id="4_tefeu"]

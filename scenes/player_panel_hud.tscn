@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://byfi6fp0pelsh"]
+[gd_scene load_steps=0 format=3 uid="uid://byfi6fp0pelsh"]
 
 [node name="PlayerPanel" type="Panel"]
 size_flags_horizontal = 3
