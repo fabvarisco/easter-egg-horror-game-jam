@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://54w8buvxwsu1"]
+
+[ext_resource type="Script" uid="uid://cpbt3b1win5pg" path="res://scripts/interactable_item.gd" id="1_4thwp"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_g3ofv"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_4thwp"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_d6kly"]
+radius = 1.2263671
+
+[node name="interactable_item" type="Node3D"]
+script = ExtResource("1_4thwp")
+model = SubResource("PrismMesh_g3ofv")
+descriptionValue = "adafafasd"
+is_static = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PrismMesh_4thwp")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("SphereShape3D_d6kly")
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
+[connection signal="body_exited" from="Area3D" to="." method="_on_area_3d_body_exited"]

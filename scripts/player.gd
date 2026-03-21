@@ -1,3 +1,4 @@
+class_name Player 
 extends CharacterBody3D
 
 const SLOW_WALK_SPEED: float = 1.5
@@ -40,7 +41,8 @@ var _nearby_egg: Node3D = null
 var _nearby_pedestal: Area3D = null
 var _nearby_car: Area3D = null
 var _is_dead: bool = false
-var _is_on_floor_synced: bool = true  
+var _is_on_floor_synced: bool = true
+var _movement_enabled: bool = true  
 
 signal player_died
 
@@ -60,6 +62,10 @@ func _ready() -> void:
 
 func _input(event: InputEvent) -> void:
 	if not _has_authority():
+		return
+
+	# Bloquear inputs se movimento desabilitado
+	if not _movement_enabled:
 		return
 
 	if event.is_action_pressed("toggle_flashlight") and not is_carrying_egg():
@@ -84,6 +90,14 @@ func _physics_process(_delta: float) -> void:
 	if not _has_authority():
 		_update_animation()
 		_update_carried_egg()  # Atualizar ovo mesmo em players remotos
+		return
+
+	# Se movimento desabilitado, parar completamente
+	if not _movement_enabled:
+		velocity = Vector3.ZERO
+		_current_speed = 0.0
+		_move_direction = Vector3.ZERO
+		_update_animation()
 		return
 
 	# Gravity
@@ -493,3 +507,13 @@ func shake_camera(intensity: float, duration: float) -> void:
 	var camera_manager := get_node_or_null("/root/CameraManager")
 	if camera_manager:
 		camera_manager.shake_camera(intensity, duration)
+
+func add_item_to_inventory() -> void:
+	pass
+
+func set_movement_enabled(enabled: bool) -> void:
+	_movement_enabled = enabled
+	if not enabled:
+		velocity = Vector3.ZERO
+		_current_speed = 0.0
+		_move_direction = Vector3.ZERO

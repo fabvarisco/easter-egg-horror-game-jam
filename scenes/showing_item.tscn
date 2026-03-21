@@ -1,15 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://h1wgcmab7rxk"]
+[gd_scene load_steps=2 format=3 uid="uid://h1wgcmab7rxk"]
 
-[ext_resource type="Script" uid="uid://duh67dnsy4ohe" path="res://scenes/showing_item.gd" id="1_wyo1r"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_p8juq"]
+[ext_resource type="Script" uid="uid://duh67dnsy4ohe" path="res://scripts/showing_item.gd" id="1_wyo1r"]
 
 [node name="ShowingItem" type="Node3D"]
 script = ExtResource("1_wyo1r")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(8.181898, 5.749481, 0, -5.749481, 8.181898, 0, 0, 0, 10, 0, 0, 0)
-mesh = SubResource("BoxMesh_p8juq")
+transform = Transform3D(2.4545696, 1.7248445, 0, -1.7248445, 2.4545696, 0, 0, 0, 3, 0, 0, 0)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -35,5 +32,19 @@ grow_vertical = 0
 size_flags_vertical = 8
 text = "Close"
 
+[node name="Info" type="RichTextLabel" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -105.0
+offset_right = -200.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_vertical = 8
+text = "Display Information"
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20.422813)
+
+[connection signal="pressed" from="CanvasLayer/Button" to="." method="_on_button_pressed"]
