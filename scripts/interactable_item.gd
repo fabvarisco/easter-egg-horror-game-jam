@@ -1,6 +1,6 @@
 extends Node3D
 
-var _can_interact: bool = false
+var _nearby_players: Array = []
 var _is_showing_item: bool = false
 @export var model: Mesh
 @export var descriptionValue: String = ""
@@ -17,17 +17,24 @@ func _process(_delta: float) -> void:
 
 
 func _input(_event: InputEvent) -> void:
-	if _event.is_action_pressed("interact") and _can_interact and not _is_showing_item:
+	if _event.is_action_pressed("interact") and _is_local_player_nearby() and not _is_showing_item:
 		show_item()
 
 func _on_area_3d_body_entered(_body: Node3D) -> void:
-	if _body.is_in_group("players"):
-		_can_interact = true
+	if _body.is_in_group("players") and not _nearby_players.has(_body):
+		_nearby_players.append(_body)
 
 
 func _on_area_3d_body_exited(_body: Node3D) -> void:
 	if _body.is_in_group("players"):
-		_can_interact = false
+		_nearby_players.erase(_body)
+
+
+func _is_local_player_nearby() -> bool:
+	var local_player := _get_local_player()
+	if not local_player:
+		return false
+	return _nearby_players.has(local_player)
 
 
 func show_item() -> void:

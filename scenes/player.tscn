@@ -4,15 +4,15 @@
 [ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/godot_plush_model.glb" id="2_g2els"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
-radius = 0.4
-height = 0.91123044
+radius = 0.26123047
+height = 1.3770813
 
 [node name="Player" type="CharacterBody3D" groups=["players"]]
 collision_layer = 3
 script = ExtResource("1_player")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45561522, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.68854064, 0)
 shape = SubResource("CapsuleShape3D_1")
 
 [node name="model" parent="." instance=ExtResource("2_g2els")]

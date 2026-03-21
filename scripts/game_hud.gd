@@ -145,16 +145,29 @@ func show_mission_complete() -> void:
 
 func _find_local_player() -> void:
 	var players := get_tree().get_nodes_in_group("players")
+	if players.is_empty():
+		# Tentar grupo alternativo
+		players = get_tree().get_nodes_in_group("player")
+
 	for player in players:
 		if not multiplayer.has_multiplayer_peer():
 			_local_player = player
+			print("[GameHUD] Found local player (singleplayer): ", player.name)
 			return
 		if player.is_multiplayer_authority():
 			_local_player = player
+			print("[GameHUD] Found local player (multiplayer): ", player.name)
 			return
+
+	if not _local_player:
+		print("[GameHUD] WARNING: No local player found yet")
 
 
 func _update_stamina_bar() -> void:
+	# Se ainda não encontrou o player, tentar novamente
+	if not is_instance_valid(_local_player):
+		_find_local_player()
+
 	if not _stamina_bar or not is_instance_valid(_local_player):
 		return
 
