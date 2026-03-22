@@ -16,29 +16,14 @@ const SYNC_INTERVAL: float = 0.05
 # Stamina
 const MAX_STAMINA: float = 100.0
 const STAMINA_DRAIN_RATE: float = 25.0
-const STAMINA_REGEN_RATE: float = 8.0 
-const STAMINA_REGEN_RATE_WALKING: float = 20.0  
-const MIN_STAMINA_TO_SPRINT: float = 10.0
-
-# Sound Radius System
-const SOUND_RADIUS_IDLE: float = 2.0      
-const SOUND_RADIUS_WALK_SLOW: float = 4.0  
-const SOUND_RADIUS_WALK: float = 6.0     
-const SOUND_RADIUS_SPRINT: float = 12.0
-const SOUND_RADIUS_VOICE: float = 8.0      
-const SOUND_RADIUS_LERP_SPEED: float = 3.0
-const SOUND_RADIUS_DECAY: float = 5.0     
+const STAMINA_REGEN_RATE: float = 8.0  # Slower default recovery
+const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
+const MIN_STAMINA_TO_SPRINT: float = 10.0  
 
 @onready var flashlight: SpotLight3D = $SpotLight3D
 @onready var vision_light: SpotLight3D = $VisionLight
 @onready var model: Node3D = $model
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
-@onready var sound_area_3d: Area3D = $SoundArea3D
-
-
-var _sound_radius_current: float = SOUND_RADIUS_IDLE
-var _sound_radius_target: float = SOUND_RADIUS_IDLE
-var _is_speaking: bool = false
 
 var _texture: Texture2D = preload("res://assets/models/godot_plush_albedo.png")
 
@@ -77,12 +62,6 @@ func _ready() -> void:
 	if not visible:
 		set_physics_process(false)
 		set_process_input(false)
-
-	_connect_voice_detection()
-
-	# Log position after ready
-	await get_tree().process_frame
-	print("[Player %d] Position after _ready() + 1 frame: %s" % [peer_id, global_position])
 
 func _input(event: InputEvent) -> void:
 	if not _has_authority():
@@ -211,8 +190,6 @@ func _physics_process(_delta: float) -> void:
 	if _sync_timer >= SYNC_INTERVAL:
 		_sync_timer = 0.0
 		_send_position_sync()
-	
-	_controll_sound_value(_delta)
 
 func _get_camera_relative_direction(input_dir: Vector2) -> Vector3:
 	if input_dir.length() < 0.01:

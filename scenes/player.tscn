@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://biigvp1n1fx7f"]
+[gd_scene load_steps=4 format=3 uid="uid://biigvp1n1fx7f"]
 
 [ext_resource type="Script" uid="uid://doydjtp6bwfud" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/models/godot_plush_model.glb" id="2_g2els"]
@@ -6,10 +6,6 @@
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.26123047
 height = 1.3770813
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_g2els"]
-height = 3.4748535
-radius = 1.5415039
 
 [node name="Player" type="CharacterBody3D" groups=["players"]]
 collision_layer = 3
@@ -43,9 +39,3 @@ spot_range = 15.0
 spot_attenuation = 0.5
 spot_angle = 20.0
 spot_angle_attenuation = 0.7
-
-[node name="SoundArea3D" type="Area3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SoundArea3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8199463, 0)
-shape = SubResource("CylinderShape3D_g2els")
