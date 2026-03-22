@@ -11,7 +11,7 @@ data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999
 [node name="CemeteryRight1" instance=ExtResource("1_lnq5u")]
 
 [node name="Wall" type="MeshInstance3D" parent="World" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.925, 2.5516224, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.965102, 2.5516224, 0)
 mesh = SubResource("BoxMesh_rkt2a")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="World/Wall" index="0"]

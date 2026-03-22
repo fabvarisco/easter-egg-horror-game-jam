@@ -2,33 +2,28 @@ extends Node3D
 ## ChunkCamera - Ativa câmera quando jogador local entra
 
 @onready var camera: Camera3D = $Camera3D
+@onready var _detection_area: Area3D = $Area3D
 
-var _detection_area: Area3D = null
 var _players_in_chunk: int = 0
 
 func _ready() -> void:
-	_create_detection_area()
+	_setup_detection_area()
 	# Check for players already inside after physics processes
 	call_deferred("_check_initial_players")
 	# Desativar outlines inicialmente
 	_set_chunk_outlines_active(false)
 
-func _create_detection_area() -> void:
-	_detection_area = Area3D.new()
-	_detection_area.name = "CameraDetectionArea"
+func _setup_detection_area() -> void:
+	if not _detection_area:
+		push_error("[ChunkCamera] Area3D not found in chunk scene!")
+		return
+
+	# Configurar propriedades do Area3D existente
 	_detection_area.collision_layer = 0
 	_detection_area.collision_mask = 1  # Detecta players na layer 1
 	_detection_area.monitoring = true
 
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = Vector3(20.0, 10.0, 20.0)  # Tamanho do chunk
-	shape.shape = box
-	shape.position = Vector3(0, 5, 0)
-
-	_detection_area.add_child(shape)
-	add_child(_detection_area)
-
+	# Conectar sinais
 	_detection_area.body_entered.connect(_on_body_entered)
 	_detection_area.body_exited.connect(_on_body_exited)
 
@@ -54,7 +49,8 @@ func _on_body_entered(body: Node3D) -> void:
 
 	# Ativar outlines quando primeiro player entra
 	if _players_in_chunk == 1:
-		print("[ChunkCamera] Activating outlines for chunk: ", get_parent().name if get_parent() else "no parent")
+		var chunk_name := str(get_parent().name) if get_parent() else "no parent"
+		print("[ChunkCamera] Activating outlines for chunk: ", chunk_name)
 		_set_chunk_outlines_active(true)
 
 	# Só ativar câmera para jogador local
@@ -81,7 +77,8 @@ func _on_body_exited(body: Node3D) -> void:
 
 func _set_chunk_outlines_active(active: bool) -> void:
 	var chunk_parent = get_parent()
-	print("[ChunkCamera] Setting outlines active: ", active, " for chunk: ", chunk_parent.name if chunk_parent else "no parent")
+	var chunk_name := str(chunk_parent.name) if chunk_parent else "no parent"
+	print("[ChunkCamera] Setting outlines active: ", active, " for chunk: ", chunk_name)
 
 	# Encontrar todos os itens filhos do chunk
 	if not chunk_parent:

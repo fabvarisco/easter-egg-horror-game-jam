@@ -25,7 +25,7 @@ const MIN_STAMINA_TO_SPRINT: float = 10.0
 @onready var model: Node3D = $model
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
 
-var _texture: Texture2D = preload("res://assets/godot_plush_albedo.png")
+var _texture: Texture2D = preload("res://assets/models/godot_plush_albedo.png")
 
 var _sync_timer: float = 0.0
 

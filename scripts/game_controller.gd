@@ -3,6 +3,10 @@ extends Node3D
 
 @export var list_of_points_for_eggs: Array[Vector3] = []
 
+# Procedural map generation
+@export var grid_size: Vector2i = Vector2i(8, 8)
+@export var generation_seed: int = 0  # 0 = random
+
 var _player_scene: PackedScene = preload("res://scenes/player.tscn")
 var _egg_scene: PackedScene = preload("res://scenes/egg.tscn")
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
@@ -15,6 +19,7 @@ var _game_hud: CanvasLayer = null
 @onready var players_container: Node3D = $Players
 
 var _is_singleplayer: bool = true
+var _map_generator: ProceduralMapGenerator = null
 var _game_over_scene: PackedScene = preload("res://scenes/game_over.tscn")
 var _game_over_instance: Node3D = null
 var _is_spectating: bool = false
@@ -30,6 +35,10 @@ var _car_area: Area3D = null
 
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
+
+	# Generate procedural map BEFORE everything else
+	_map_generator = ProceduralMapGenerator.new()
+	_generate_procedural_map()
 
 	# Setup pause menu
 	_pause_menu = _pause_menu_scene.instantiate()
@@ -48,6 +57,39 @@ func _ready() -> void:
 	# Spawn players and start game (deferred to ensure chunks are ready)
 	call_deferred("_start_game")
 	call_deferred("_connect_bunny_signals")
+
+
+func _generate_procedural_map() -> void:
+	"""Generates the procedural map using cemetery definition"""
+	var cemetery_map := load("res://resources/maps/cemetery_map.tres") as MapTypeDefinition
+	if not cemetery_map:
+		push_error("[GameController] Failed to load cemetery_map.tres")
+		return
+
+	# Determine seed
+	var seed_value := generation_seed
+	if seed_value == 0:
+		seed_value = randi()
+
+	# Multiplayer: host shares seed with clients
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		_sync_map_seed.rpc(seed_value)
+
+	# Generate chunks
+	var generated_chunks := _map_generator.generate_map(cemetery_map, grid_size, seed_value)
+
+	# Add chunks to scene
+	for chunk in generated_chunks:
+		chunks.add_child(chunk)
+
+	print("[GameController] Generated %d chunks with seed %d" % [generated_chunks.size(), seed_value])
+
+
+@rpc("authority", "call_local", "reliable")
+func _sync_map_seed(seed_value: int) -> void:
+	"""Receives seed from host for deterministic map generation"""
+	generation_seed = seed_value
+	print("[GameController] Received seed from host: %d" % seed_value)
 
 
 func _start_game() -> void:

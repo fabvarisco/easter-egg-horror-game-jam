@@ -1,23 +1,47 @@
 extends Node3D
+class_name InteractableItem
 
 var _nearby_players: Array = []
 var _is_showing_item: bool = false
-@export var model: Mesh
 @export var descriptionValue: String = ""
 @export var is_static: bool = false
 
-var showing_item_scene = preload("res://scenes/showing_item.tscn")
+# Animation settings
+@export_group("Animation")
+@export var enable_rotation: bool = true
+@export var rotation_speed: float = 0.1  
+@export var enable_floating: bool = true
+@export var float_amplitude: float = .5
+@export var float_speed: float = 0.3
+@export var float_lerp_speed: float = 3.0  
+
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+
+var showing_item_scene = preload("res://scenes/showing_item.tscn")
+var _time: float = 0.0
+var _initial_y: float = 0.0
+var _target_y: float = 0.0
 
 func _ready() -> void:
 	add_to_group("interactable_items")
-	# Outline começa desativado
 	set_outline_active(false)
+	_initial_y = position.y
 
 
 func _process(_delta: float) -> void:
 	pass
 
+
+func _physics_process(delta: float) -> void:
+	_time += delta
+
+	if enable_rotation:
+		rotation.y += delta * rotation_speed * TAU  # TAU = 2π
+
+	if enable_floating:
+		var float_offset := sin(_time * float_speed * TAU) * float_amplitude
+		_target_y = _initial_y + float_offset
+		position.y = lerp(position.y, _target_y, delta * float_lerp_speed)
 
 func _input(_event: InputEvent) -> void:
 	if _event.is_action_pressed("interact") and _is_local_player_nearby() and not _is_showing_item:
@@ -65,8 +89,7 @@ func show_item() -> void:
 	showing_item_instance.set_static(is_static)
 	showing_item_instance.set_description_value(descriptionValue)
 
-	if model:
-		showing_item_instance.mesh_instance.mesh = model
+	showing_item_instance.mesh_instance.mesh = mesh_instance.mesh
 
 	# Passar referência do player e do interactable_item
 	if player:

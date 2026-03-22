@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://1v6tvwpp3els"]
+[gd_scene load_steps=5 format=3 uid="uid://1v6tvwpp3els"]
 
 [ext_resource type="Script" uid="uid://bomcwixmsxrq5" path="res://scripts/chunk_camera.gd" id="1_oc2dp"]
 
@@ -6,6 +6,9 @@
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_o1atq"]
 data = PackedVector3Array(1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1, 1, 0, -1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_oc2dp"]
+size = Vector3(19, 19, 19)
 
 [node name="ChunkMaster" type="Node3D"]
 script = ExtResource("1_oc2dp")
@@ -21,6 +24,8 @@ shape = SubResource("ConcavePolygonShape3D_o1atq")
 
 [node name="PlayerSpawnPoints" type="Node3D" parent="."]
 
+[node name="IntectableItemSpawnPoints" type="Node3D" parent="."]
+
 [node name="EggSpawnPoints" type="Node3D" parent="."]
 
 [node name="World" type="Node3D" parent="."]
@@ -31,3 +36,9 @@ transform = Transform3D(1, 0, 0, 0, 0.56562924, 0.8246597, 0, -0.8246597, 0.5656
 [node name="FogVolume" type="FogVolume" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.14916992, 0, 0.33044434)
 size = Vector3(19.958496, 2, 20.181396)
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0.2515869)
+shape = SubResource("BoxShape3D_oc2dp")
