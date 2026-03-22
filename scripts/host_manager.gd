@@ -103,12 +103,23 @@ func bunny_kill_player(player_id: int) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _bunny_kill_player_rpc(player_id: int) -> void:
+	print("[HostManager] Received bunny_kill RPC for player %d" % player_id)
+
 	var current_scene := get_tree().current_scene
 	if not current_scene or "lobby" in current_scene.name.to_lower():
 		return
 
-	var player := current_scene.get_node_or_null("Players/" + str(player_id))
-	if player and is_instance_valid(player) and player.has_method("die"):
+	# Validar que player existe antes de processar
+	if not MultiplayerManager.players.has(player_id):
+		print("[HostManager] Player %d not in MultiplayerManager.players, skipping kill RPC" % player_id)
+		return
+
+	var player: Node3D = MultiplayerManager.players[player_id]
+	if not is_instance_valid(player):
+		print("[HostManager] Player %d is invalid, skipping kill RPC" % player_id)
+		return
+
+	if player.has_method("die"):
 		player.die()
 
 
@@ -124,12 +135,14 @@ func pickup_egg(egg_name: String, player_id: int) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func _pickup_egg_rpc(egg_name: String, player_id: int) -> void:
-	var player: Node3D = null
-	var players_node := get_tree().current_scene.get_node_or_null("Players")
-	if players_node:
-		player = players_node.get_node_or_null(str(player_id))
+	# Validar player existe
+	if not MultiplayerManager.players.has(player_id):
+		print("[HostManager] Player %d not found for pickup_egg RPC" % player_id)
+		return
 
-	if not player:
+	var player: Node3D = MultiplayerManager.players[player_id]
+	if not is_instance_valid(player):
+		print("[HostManager] Player %d is invalid for pickup_egg RPC" % player_id)
 		return
 
 	# Se este cliente tem authority sobre o player, ele já processou localmente
@@ -174,12 +187,14 @@ func drop_egg(egg_name: String, player_id: int, drop_position: Vector3) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func _drop_egg_rpc(_egg_name: String, player_id: int, drop_position: Vector3) -> void:
-	var player: Node3D = null
-	var players_node := get_tree().current_scene.get_node_or_null("Players")
-	if players_node:
-		player = players_node.get_node_or_null(str(player_id))
+	# Validar player existe
+	if not MultiplayerManager.players.has(player_id):
+		print("[HostManager] Player %d not found for drop_egg RPC" % player_id)
+		return
 
-	if not player:
+	var player: Node3D = MultiplayerManager.players[player_id]
+	if not is_instance_valid(player):
+		print("[HostManager] Player %d is invalid for drop_egg RPC" % player_id)
 		return
 
 	# Se este cliente tem authority sobre o player, ele já processou localmente

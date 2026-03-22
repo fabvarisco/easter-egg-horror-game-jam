@@ -295,6 +295,7 @@ func spawn_eggs() -> int:
 
 		# Nome determinístico para sincronização multiplayer
 		egg.name = "Egg_" + str(i)
+		egg.add_to_group("eggs")
 		add_child(egg)
 		egg.global_position = spawn_point.global_position
 

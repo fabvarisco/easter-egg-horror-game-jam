@@ -387,12 +387,18 @@ func _generate_lobby_code(lobby_id: String) -> String:
 
 
 func leave_game() -> void:
+	print("[MultiplayerManager] Leaving game...")
+
+	# Aguardar RPCs pendentes
+	await get_tree().create_timer(0.3).timeout
+
 	match current_mode:
 		NetworkMode.LAN:
 			_leave_lan()
 		NetworkMode.EOS:
 			await _leave_eos()
 
+	# Agora sim limpar
 	current_mode = NetworkMode.NONE
 	_clear_players()
 	connected_peers.clear()
@@ -401,6 +407,8 @@ func leave_game() -> void:
 	room_code = ""
 	is_host = false
 	my_peer_id = 0
+
+	print("[MultiplayerManager] Leave complete")
 
 
 func _leave_lan() -> void:
@@ -713,7 +721,6 @@ func _get_player_spawn_points() -> Array[Node3D]:
 	# Sort spawn points by name to ensure consistent order (SpawnPoint1, SpawnPoint2, etc.)
 	if not spawn_points.is_empty():
 		spawn_points.sort_custom(func(a, b): return a.name < b.name)
-		print("[MultiplayerManager] Spawn points sorted order: ", [sp.name for sp in spawn_points])
 
 	return spawn_points
 

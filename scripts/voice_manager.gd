@@ -25,10 +25,25 @@ func _ready() -> void:
 	MultiplayerManager.server_disconnected.connect(_on_server_disconnected)
 	MultiplayerManager.player_disconnected.connect(_on_player_disconnected)
 
-	if IEOS.rtc_audio_participant_updated:
-		IEOS.rtc_audio_participant_updated.connect(_on_rtc_audio_participant_updated)
-
 	print("[VoiceManager] Initialized - waiting for connection")
+
+	# Conectar ao signal RTC de forma segura, com defer
+	call_deferred("_connect_rtc_signal")
+
+
+func _connect_rtc_signal() -> void:
+	"""Conecta ao signal RTC após todos os autoloads estarem prontos"""
+	if not is_instance_valid(IEOS):
+		print("[VoiceManager] ERROR: IEOS not available")
+		return
+
+	if not IEOS.has_signal("rtc_audio_participant_updated"):
+		print("[VoiceManager] WARNING: rtc_audio_participant_updated signal not found")
+		return
+
+	if not IEOS.rtc_audio_participant_updated.is_connected(_on_rtc_audio_participant_updated):
+		IEOS.rtc_audio_participant_updated.connect(_on_rtc_audio_participant_updated)
+		print("[VoiceManager] ✓ Connected to RTC audio participant updates")
 
 
 func _exit_tree() -> void:
@@ -38,8 +53,12 @@ func _exit_tree() -> void:
 		MultiplayerManager.server_disconnected.disconnect(_on_server_disconnected)
 	if MultiplayerManager.player_disconnected.is_connected(_on_player_disconnected):
 		MultiplayerManager.player_disconnected.disconnect(_on_player_disconnected)
-	if IEOS.rtc_audio_participant_updated and IEOS.rtc_audio_participant_updated.is_connected(_on_rtc_audio_participant_updated):
-		IEOS.rtc_audio_participant_updated.disconnect(_on_rtc_audio_participant_updated)
+
+	# Desconectar RTC com segurança
+	if is_instance_valid(IEOS) and IEOS.has_signal("rtc_audio_participant_updated"):
+		if IEOS.rtc_audio_participant_updated.is_connected(_on_rtc_audio_participant_updated):
+			IEOS.rtc_audio_participant_updated.disconnect(_on_rtc_audio_participant_updated)
+
 	_cleanup()
 
 
