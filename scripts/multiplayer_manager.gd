@@ -710,6 +710,11 @@ func _get_player_spawn_points() -> Array[Node3D]:
 			for spawn_point in root_spawns.get_children():
 				spawn_points.append(spawn_point)
 
+	# Sort spawn points by name to ensure consistent order (SpawnPoint1, SpawnPoint2, etc.)
+	if not spawn_points.is_empty():
+		spawn_points.sort_custom(func(a, b): return a.name < b.name)
+		print("[MultiplayerManager] Spawn points sorted order: ", [sp.name for sp in spawn_points])
+
 	return spawn_points
 
 
