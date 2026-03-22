@@ -112,7 +112,8 @@ func spawn_eggs() -> void:
 
 	# Usar seed fixa para garantir mesma ordem em todos os clientes
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 12345
+	rng.randomize()
+	rng.seed = rng.randi()
 
 	# Criar array de índices e embaralhar com RNG determinístico
 	var indices: Array[int] = []
