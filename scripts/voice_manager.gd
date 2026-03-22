@@ -105,13 +105,25 @@ func _update_voice_volumes() -> void:
 
 		var zone_settings: Dictionary = _get_zone_settings_for_players(local_peer_id, peer_id)
 
+		# Get remote player's sound radius (affected by their actions and voice)
+		var remote_sound_radius: float = _get_player_sound_radius(remote_player)
+
+		# Use the larger of: zone max_distance or player's sound radius
+		var effective_max_distance: float = max(zone_settings.max_distance, remote_sound_radius)
+
 		var distance: float = local_position.distance_to(remote_player.global_position)
 		var volume: float = _calculate_volume_with_zone(
 			distance,
-			zone_settings.max_distance,
+			effective_max_distance,
 			zone_settings.min_distance,
 			zone_settings.volume_multiplier
 		)
+
+		# Debug log (a cada 5 segundos para não spammar)
+		if _update_timer < 0.1 and volume > 0.0:  # Primeiro update do ciclo e volume audível
+			print("[VoiceManager] Player %d: dist=%.1f, radius=%.1f, vol=%.1f" % [
+				peer_id, distance, remote_sound_radius, volume
+			])
 
 		_set_participant_volume(puid, volume)
 
@@ -146,6 +158,26 @@ func _get_player_by_peer_id(peer_id: int) -> Node3D:
 			return player
 
 	return null
+
+
+func _get_player_sound_radius(player: Node3D) -> float:
+	"""
+	Obtém o raio de som atual do jogador.
+	Se o jogador tiver o método get_sound_radius(), usa esse valor dinâmico.
+	Caso contrário, retorna o padrão MAX_VOICE_DISTANCE.
+	"""
+	if not is_instance_valid(player):
+		return MAX_VOICE_DISTANCE
+
+	# Tentar obter raio dinâmico do player
+	if player.has_method("get_sound_radius"):
+		var radius: float = player.get_sound_radius()
+		# Validar valor retornado (evitar valores inválidos)
+		if radius > 0.0 and radius < 1000.0:  # Sanity check
+			return radius
+
+	# Fallback: usar distância padrão
+	return MAX_VOICE_DISTANCE
 
 
 func _calculate_volume(distance: float) -> float:

@@ -723,8 +723,15 @@ func _spawn_player(id: int) -> void:
 	if players_node:
 		players_node.add_child(player)
 
-	var spawn_index := players.size() % spawn_points.size()
+	# Calculate spawn index based on peer position in connected_peers list
+	var peer_index := connected_peers.find(id)
+	if peer_index == -1:
+		peer_index = players.size()  # Fallback if not found
+
+	var spawn_index := peer_index % spawn_points.size()
 	var spawn_point: Node3D = spawn_points[spawn_index]
+
+	print("[MultiplayerManager] Spawning player %d at spawn point %d/%d" % [id, spawn_index, spawn_points.size()])
 
 	# Calculate global position from spawn point's transform
 	if spawn_point.is_inside_tree():
