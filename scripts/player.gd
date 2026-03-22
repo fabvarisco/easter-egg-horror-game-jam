@@ -547,7 +547,10 @@ func _connect_voice_detection() -> void:
 
 	if voice_manager.has_signal("player_speaking_changed"):
 		voice_manager.player_speaking_changed.connect(_on_player_speaking_changed)
-		print("[Player] Connected to VoiceManager for speech detection")
+		var my_peer_id: int = get_meta("peer_id", 1)
+		print("[Player %d] Connected to VoiceManager for speech detection" % my_peer_id)
+	else:
+		print("[Player] VoiceManager signal 'player_speaking_changed' not found")
 
 
 func _on_player_speaking_changed(peer_id: int, is_speaking: bool) -> void:
@@ -555,8 +558,11 @@ func _on_player_speaking_changed(peer_id: int, is_speaking: bool) -> void:
 	var my_peer_id: int = get_meta("peer_id", 1)
 
 	if peer_id == my_peer_id:
+		var was_speaking = _is_speaking
 		_is_speaking = is_speaking
-		print("[Player] Speaking state changed: %s" % is_speaking)
+		print("[Player %d] Speaking state changed: %s -> %s" % [my_peer_id, was_speaking, is_speaking])
+		if is_speaking:
+			print("[Player %d] Voice detected - sound radius will increase" % my_peer_id)
 
 
 func get_sound_radius() -> float:

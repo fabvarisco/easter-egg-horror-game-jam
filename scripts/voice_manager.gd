@@ -12,10 +12,11 @@ var _current_lobby: HLobby = null
 var _is_active: bool = false
 var _mic_muted: bool = false
 var _mic_volume: float = 100.0
-var _speaking_states: Dictionary = {} 
+var _speaking_states: Dictionary = {}
+var _last_rtc_update_time: float = 0.0
 
 # Voice zones system
-var _voice_zones: Array[Dictionary] = []  
+var _voice_zones: Array[Dictionary] = []
 var _players_in_zones: Dictionary = {}  
 
 
@@ -26,6 +27,8 @@ func _ready() -> void:
 
 	if IEOS.rtc_audio_participant_updated:
 		IEOS.rtc_audio_participant_updated.connect(_on_rtc_audio_participant_updated)
+
+	print("[VoiceManager] Initialized - waiting for connection")
 
 
 func _exit_tree() -> void:
@@ -42,6 +45,8 @@ func _exit_tree() -> void:
 
 func _process(delta: float) -> void:
 	if not _is_active:
+		if Engine.get_frames_drawn() % 300 == 0:  # A cada 5 segundos
+			print("[VoiceManager] WARNING: Not active - voice proximity disabled")
 		return
 
 	_update_timer += delta
@@ -49,19 +54,39 @@ func _process(delta: float) -> void:
 		_update_timer = 0.0
 		_update_voice_volumes()
 
+	# Detectar se RTC updates pararam de chegar
+	if _is_active and Time.get_ticks_msec() - _last_rtc_update_time > 5000:
+		if Engine.get_frames_drawn() % 300 == 0:
+			print("[VoiceManager] WARNING: No RTC updates for 5+ seconds")
+
 
 func _on_connection_succeeded() -> void:
-	if MultiplayerManager.current_mode != MultiplayerManager.NetworkMode.EOS:
+	print("[VoiceManager] Connection succeeded callback triggered")
+	print("[VoiceManager] Current mode: ", MultiplayerManager.current_mode)
+	print("[VoiceManager] EOS mode value: ", MultiplayerManager.NetworkMode.EOS)
+
+	# Suportar EOS e LAN
+	if MultiplayerManager.current_mode == MultiplayerManager.NetworkMode.NONE:
+		print("[VoiceManager] Singleplayer mode - voice disabled")
 		return
 
-	_current_lobby = MultiplayerManager.get_current_lobby()
-	if _current_lobby:
-		_is_active = true
-		print("[VoiceManager] Proximity voice chat activated")
+	# Para EOS, precisa de lobby
+	if MultiplayerManager.current_mode == MultiplayerManager.NetworkMode.EOS:
+		_current_lobby = MultiplayerManager.get_current_lobby()
+		print("[VoiceManager] Current lobby: ", _current_lobby)
 
-		if _mic_muted:
-			set_mic_muted(true)
-			print("[VoiceManager] Applied saved mute state to new session")
+		if not _current_lobby:
+			print("[VoiceManager] ERROR: No lobby in EOS mode")
+			return
+
+	# Ativar proximity voice
+	_is_active = true
+	print("[VoiceManager] ✓ Proximity voice chat ACTIVATED")
+
+	# Aplicar mute state salvo
+	if _mic_muted:
+		set_mic_muted(true)
+		print("[VoiceManager] Applied saved mute state")
 
 
 func _on_server_disconnected() -> void:
@@ -84,15 +109,26 @@ func _cleanup() -> void:
 
 func _update_voice_volumes() -> void:
 	if not _current_lobby:
+		if Engine.get_frames_drawn() % 300 == 0:
+			print("[VoiceManager] ERROR: No current lobby")
 		return
 
 	var local_player = _get_local_player()
 	if not local_player:
+		if Engine.get_frames_drawn() % 300 == 0:
+			print("[VoiceManager] ERROR: Local player not found")
 		return
 
 	var local_position: Vector3 = local_player.global_position
 	var local_peer_id: int = MultiplayerManager.my_peer_id
 
+	var puid_count = MultiplayerManager.puid_to_peer_id.size()
+	if puid_count == 0:
+		if Engine.get_frames_drawn() % 300 == 0:
+			print("[VoiceManager] WARNING: puid_to_peer_id is empty - no players to process")
+		return
+
+	var players_processed = 0
 	for puid in MultiplayerManager.puid_to_peer_id:
 		var peer_id = MultiplayerManager.puid_to_peer_id[puid] as int
 
@@ -126,6 +162,10 @@ func _update_voice_volumes() -> void:
 			])
 
 		_set_participant_volume(puid, volume)
+		players_processed += 1
+
+	if players_processed == 0 and Engine.get_frames_drawn() % 300 == 0:
+		print("[VoiceManager] WARNING: No players processed in update loop")
 
 
 func _get_local_player() -> Node3D:
@@ -167,14 +207,27 @@ func _get_player_sound_radius(player: Node3D) -> float:
 	Caso contrário, retorna o padrão MAX_VOICE_DISTANCE.
 	"""
 	if not is_instance_valid(player):
+		if Engine.get_frames_drawn() % 600 == 0:
+			print("[VoiceManager] Invalid player in get_sound_radius")
 		return MAX_VOICE_DISTANCE
 
 	# Tentar obter raio dinâmico do player
 	if player.has_method("get_sound_radius"):
 		var radius: float = player.get_sound_radius()
+
+		# Debug periódico
+		if Engine.get_frames_drawn() % 600 == 0:  # A cada 10 segundos
+			print("[VoiceManager] Player sound radius: %.1f" % radius)
+
 		# Validar valor retornado (evitar valores inválidos)
 		if radius > 0.0 and radius < 1000.0:  # Sanity check
 			return radius
+		else:
+			if Engine.get_frames_drawn() % 600 == 0:
+				print("[VoiceManager] WARNING: Invalid radius value: %.1f" % radius)
+	else:
+		if Engine.get_frames_drawn() % 600 == 0:
+			print("[VoiceManager] Player missing get_sound_radius() method")
 
 	# Fallback: usar distância padrão
 	return MAX_VOICE_DISTANCE
@@ -424,16 +477,24 @@ func set_mic_volume(volume: float) -> void:
 
 
 func _on_rtc_audio_participant_updated(data: Dictionary) -> void:
+	_last_rtc_update_time = Time.get_ticks_msec()
+
 	if not _current_lobby:
+		if Engine.get_frames_drawn() % 300 == 0:
+			print("[VoiceManager] RTC update but no lobby")
 		return
 
 	if data.room_name != _current_lobby.lobby_id:
+		if Engine.get_frames_drawn() % 300 == 0:
+			print("[VoiceManager] RTC update for wrong room")
 		return
 
 	var puid: String = data.participant_id
 	var is_speaking: bool = data.speaking
 
 	if not MultiplayerManager.puid_to_peer_id.has(puid):
+		if Engine.get_frames_drawn() % 300 == 0:
+			print("[VoiceManager] WARNING: PUID not in dictionary: ", puid)
 		return
 
 	var peer_id: int = MultiplayerManager.puid_to_peer_id[puid]
@@ -441,6 +502,7 @@ func _on_rtc_audio_participant_updated(data: Dictionary) -> void:
 	var previous_state: bool = _speaking_states.get(peer_id, false)
 	if previous_state != is_speaking:
 		_speaking_states[peer_id] = is_speaking
+		print("[VoiceManager] Player %d speaking state: %s" % [peer_id, is_speaking])
 		player_speaking_changed.emit(peer_id, is_speaking)
 
 

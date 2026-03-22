@@ -676,6 +676,18 @@ func spawn_all_players() -> void:
 	for peer_id in connected_peers:
 		_spawn_player(peer_id)
 
+	# Aguardar registro de PUIDs antes de ativar voice (EOS apenas)
+	if current_mode == NetworkMode.EOS:
+		call_deferred("_verify_puid_registration")
+
+
+func _verify_puid_registration() -> void:
+	"""Verifica e loga o estado do registro de PUIDs para debug"""
+	await get_tree().create_timer(0.5).timeout
+	print("[MultiplayerManager] PUID count: ", puid_to_peer_id.size())
+	print("[MultiplayerManager] Connected peers: ", connected_peers)
+	print("[MultiplayerManager] PUID mappings: ", puid_to_peer_id)
+
 
 func _get_player_spawn_points() -> Array[Node3D]:
 	var spawn_points: Array[Node3D] = []
