@@ -33,6 +33,9 @@ var my_peer_id: int = 0
 var host_name: String = "Player"
 var current_mode: NetworkMode = NetworkMode.NONE
 
+# Spawn system
+var _next_spawn_index: int = 0  # Incremental index for spawn points
+
 # Ready system
 var _ready_states: Dictionary = {}  # peer_id -> bool
 
@@ -182,6 +185,7 @@ func host_game_lan(player_name: String = "Host") -> void:
 	is_host = true
 	my_peer_id = 1
 	room_code = host_name
+	_next_spawn_index = 0  # Reset spawn index for new session
 
 	_start_broadcasting()
 	if not connected_peers.has(my_peer_id):
@@ -271,6 +275,7 @@ func host_game_eos(room_name: String = "Game") -> void:
 	multiplayer.multiplayer_peer = _eos_peer
 	room_code = _generate_lobby_code(_current_lobby.lobby_id)
 	my_peer_id = 1
+	_next_spawn_index = 0  # Reset spawn index for new session
 
 	print("[EOS] Lobby criado! Código: ", room_code)
 	if not connected_peers.has(my_peer_id):
@@ -678,6 +683,7 @@ func _clear_players() -> void:
 	for id in players.keys():
 		_remove_player(id)
 	players.clear()
+	_next_spawn_index = 0  # Reset spawn index for new session
 
 
 func spawn_all_players() -> void:
@@ -755,22 +761,14 @@ func _spawn_player(id: int) -> void:
 	if players_node:
 		players_node.add_child(player)
 
-	# Calculate spawn index based on peer position in connected_peers list
-	print("[MultiplayerManager] connected_peers: %s" % str(connected_peers))
-	print("[MultiplayerManager] Current players.size(): %d" % players.size())
-
-	var peer_index := connected_peers.find(id)
-	print("[MultiplayerManager] peer_index for id %d: %d" % [id, peer_index])
-
-	if peer_index == -1:
-		print("[MultiplayerManager] ERROR: Peer %d not in connected_peers! This should not happen!" % id)
-		# Use the peer ID directly as index to avoid collisions
-		peer_index = id
-
-	var spawn_index := peer_index % spawn_points.size()
+	# Use incremental spawn index to ensure each player gets a different spawn point
+	var spawn_index := _next_spawn_index % spawn_points.size()
 	var spawn_point: Node3D = spawn_points[spawn_index]
 
-	print("[MultiplayerManager] Spawning player %d at spawn point %d/%d (peer_index: %d)" % [id, spawn_index, spawn_points.size(), peer_index])
+	print("[MultiplayerManager] Spawning player %d at spawn point %d/%d (spawn_index: %d)" % [id, spawn_index, spawn_points.size(), _next_spawn_index])
+
+	# Increment spawn index for next player
+	_next_spawn_index += 1
 
 	# Calculate global position from spawn point's transform
 	var final_position: Vector3
