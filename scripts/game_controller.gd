@@ -222,65 +222,43 @@ func _connect_bunny_signals() -> void:
 
 
 func spawn_eggs() -> int:
-	var selected_spawn_points: Array[Node3D] = []
+	var all_spawn_points: Array[Node3D] = []
 
-	# RNG determinístico (mesmo seed para consistência)
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	rng.seed = rng.randi()
-	# Para cada chunk, sortear UM spawn point
 	for chunk in chunks.get_children():
 		var egg_spawns = chunk.get_node_or_null("EggSpawnPoints")
 		if egg_spawns and egg_spawns.get_child_count() > 0:
-			# Obter todos os spawn points deste chunk
-			var chunk_spawn_points: Array[Node3D] = []
 			for spawn_point in egg_spawns.get_children():
-				chunk_spawn_points.append(spawn_point)
+				all_spawn_points.append(spawn_point)
 
-			# SORTEAR UM spawn point aleatório deste chunk
-			var random_index: int = rng.randi_range(0, chunk_spawn_points.size() - 1)
-			var selected_point: Node3D = chunk_spawn_points[random_index]
-			selected_spawn_points.append(selected_point)
-
-			print("[GameController] Chunk '%s': Selected spawn point %d/%d" % [
-				chunk.name,
-				random_index,
-				chunk_spawn_points.size()
-			])
-
-	var egg_count: int = selected_spawn_points.size()
-	print("[GameController] Total eggs to spawn: ", egg_count)
-
+	var egg_count: int = all_spawn_points.size()
 	if egg_count == 0:
 		return 0
 
-	# Resetar RNG para shuffle (manter seed)
-	rng.randomize()
-	rng.seed = rng.randi()
+	# Shuffle spawn points and pick first half as monster positions
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 12345 
 
-	# Fisher-Yates shuffle (mantém lógica existente)
-	for i in range(egg_count - 1, 0, -1):
-		var j: int = rng.randi_range(0, i)
-		var temp = selected_spawn_points[i]
-		selected_spawn_points[i] = selected_spawn_points[j]
-		selected_spawn_points[j] = temp
+	var shuffled_indices: Array[int] = []
+	for i in range(egg_count):
+		shuffled_indices.append(i)
 
-	# Calcular quantos ovos serão monstros (metade)
+	# Fisher-Yates shuffle com RNG determinístico
+	for i in range(shuffled_indices.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var temp := shuffled_indices[i]
+		shuffled_indices[i] = shuffled_indices[j]
+		shuffled_indices[j] = temp
+
 	var monster_count: int = egg_count / 2
 	var monster_indices: Array[int] = []
+	for i in range(monster_count):
+		monster_indices.append(shuffled_indices[i])
 
-	# Sortear quais ovos serão monstros
-	while monster_indices.size() < monster_count:
-		var random_index: int = rng.randi_range(0, egg_count - 1)
-		if not random_index in monster_indices:
-			monster_indices.append(random_index)
-
-	# Spawnar ovos
 	var good_egg_count: int = 0
 	var actual_monster_count: int = 0
 
 	for i in range(egg_count):
-		var spawn_point: Node3D = selected_spawn_points[i]
+		var spawn_point: Node3D = all_spawn_points[i]
 		if not is_instance_valid(spawn_point) or not spawn_point.is_inside_tree():
 			continue
 
@@ -299,12 +277,7 @@ func spawn_eggs() -> int:
 		add_child(egg)
 		egg.global_position = spawn_point.global_position
 
-	print("[GameController] Eggs spawned - Good: %d | Monsters: %d | Total: %d" % [
-		good_egg_count,
-		actual_monster_count,
-		egg_count
-	])
-
+	print("Spawned eggs: ", good_egg_count, " good, ", actual_monster_count, " monsters")
 	return good_egg_count
 
 

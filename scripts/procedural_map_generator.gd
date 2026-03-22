@@ -21,7 +21,6 @@ func generate_map(map_def: MapTypeDefinition, grid_size: Vector2i, seed_value: i
 	var validated_grid := _validate_grid_size(grid_size)
 
 	var rng := RandomNumberGenerator.new()
-	rng.randomize()
 	rng.seed = seed_value
 
 	print("[ProceduralMapGenerator] Gerando mapa '%s' com grid %dx%d (seed: %d)" %

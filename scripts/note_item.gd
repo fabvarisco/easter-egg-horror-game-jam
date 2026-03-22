@@ -95,7 +95,7 @@ func show_item() -> void:
 	showing_item_instance.position = Vector3(0, 0, -5)
 
 	showing_item_instance.set_static(is_static)
-	showing_item_instance.hide_description_label()  
+	showing_item_instance.hide_description_label()  # Esconder UI text, usaremos textura no mesh
 
 	showing_item_instance.mesh_instance.mesh = mesh_instance.mesh.duplicate()
 
@@ -110,19 +110,19 @@ func show_item() -> void:
 	_apply_text_texture_async(showing_item_instance)
 
 
-func _apply_text_texture_async(_showing_item_instance: Node3D) -> void:
+func _apply_text_texture_async(showing_item_instance: Node3D) -> void:
 	"""Aplica a textura com texto ao mesh de forma assíncrona"""
 	var text_texture := await _create_text_texture()
 
-	if not is_instance_valid(_showing_item_instance):
+	if not is_instance_valid(showing_item_instance):
 		print("[NoteItem] showing_item was destroyed before texture could be applied")
 		return
 
 	var material := StandardMaterial3D.new()
 	material.albedo_texture = text_texture
 	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED 
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED  # Sem sombras para melhor legibilidade
 
-	_showing_item_instance.mesh_instance.material_override = material
+	showing_item_instance.mesh_instance.material_override = material
 
 	print("[NoteItem] Text texture applied to showing_item mesh")
