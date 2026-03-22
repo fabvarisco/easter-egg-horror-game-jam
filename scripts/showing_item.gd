@@ -70,3 +70,10 @@ func set_custom_font(font_path: String) -> void:
 			print("[ShowingItem] ERROR: Failed to load font: ", font_path)
 		if not description:
 			print("[ShowingItem] ERROR: description node is null")
+
+
+func hide_description_label() -> void:
+	"""Esconde o RichTextLabel (usado quando texto está renderizado no mesh)"""
+	if description:
+		description.visible = false
+		print("[ShowingItem] Description label hidden")

@@ -31,7 +31,7 @@ Eles apenas... observam.
 
 FUJA!"
 note_title = "Diário Abandonado"
-showing_item_scale = 4.0
+showing_item_scale = 6.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(-0.30033514, -0.92038524, -0.25037962, -0.27858862, 0.33569598, -0.8998314, 0.9122428, -0.20049818, -0.3572301, 0, 0, 0)
