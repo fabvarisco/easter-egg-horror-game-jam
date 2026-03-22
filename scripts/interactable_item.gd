@@ -7,9 +7,12 @@ var _is_showing_item: bool = false
 @export var is_static: bool = false
 
 var showing_item_scene = preload("res://scenes/showing_item.tscn")
+@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 
 func _ready() -> void:
-	pass # Replace with function body.
+	add_to_group("interactable_items")
+	# Outline começa desativado
+	set_outline_active(false)
 
 
 func _process(_delta: float) -> void:
@@ -86,6 +89,38 @@ func _get_local_player() -> Node:
 
 func _on_showing_item_closed() -> void:
 	_is_showing_item = false
+
+
+func set_outline_active(active: bool) -> void:
+	print("[InteractableItem] ", name, " - set_outline_active called: ", active)
+
+	if not mesh_instance:
+		print("[InteractableItem] ", name, " - WARNING: mesh_instance is null!")
+		return
+
+	if active:
+		print("[InteractableItem] ", name, " - Activating outline")
+		# Ativar o material overlay (outline)
+		if mesh_instance.material_overlay == null:
+			# Recriar o material do outline
+			var outline_shader := load("res://shaders/enhanced_outline.gdshader")
+			var material := ShaderMaterial.new()
+			material.shader = outline_shader
+			material.set_shader_parameter("outline_color", Color(1, 0.7, 0, 1))
+			material.set_shader_parameter("outline_width", 0.08)
+			material.set_shader_parameter("pulse_speed", 3.0)
+			material.set_shader_parameter("pulse_amount", 0.35)
+			material.set_shader_parameter("glow_intensity", 4.5)
+			material.set_shader_parameter("enable_pulse", true)
+			material.render_priority = 1
+			mesh_instance.material_overlay = material
+			print("[InteractableItem] ", name, " - Outline material created and applied")
+		else:
+			print("[InteractableItem] ", name, " - Outline already active")
+	else:
+		print("[InteractableItem] ", name, " - Deactivating outline")
+		# Desativar o material overlay (outline)
+		mesh_instance.material_overlay = null
 
 
 func collect(_player: Player) -> void:

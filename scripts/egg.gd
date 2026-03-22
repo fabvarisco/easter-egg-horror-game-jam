@@ -7,11 +7,13 @@ const SHAKE_DURATION: float = 1.0
 
 var _was_picked_up: bool = false
 var _bunny_laugh: AudioStream = preload("res://assets/sounds/assasin_bunny/assassin_bunny_laugh.wav")
+@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 
 signal monster_released
 
 func _ready() -> void:
-	pass
+	# Outline começa desativado
+	set_outline_active(false)
 
 func on_picked_up() -> void:
 	is_multiplayer_authority()
@@ -92,3 +94,35 @@ func _connect_bunny_to_scene(bunny: Node) -> void:
 	if scene_controller and scene_controller.has_method("_on_all_players_dead"):
 		if bunny.has_signal("all_players_dead") and not bunny.all_players_dead.is_connected(scene_controller._on_all_players_dead):
 			bunny.all_players_dead.connect(scene_controller._on_all_players_dead)
+
+
+func set_outline_active(active: bool) -> void:
+	print("[Egg] ", name, " - set_outline_active called: ", active)
+
+	if not mesh_instance:
+		print("[Egg] ", name, " - WARNING: mesh_instance is null!")
+		return
+
+	if active:
+		print("[Egg] ", name, " - Activating outline")
+		# Ativar o material overlay (outline)
+		if mesh_instance.material_overlay == null:
+			# Recriar o material do outline
+			var outline_shader := load("res://shaders/enhanced_outline.gdshader")
+			var material := ShaderMaterial.new()
+			material.shader = outline_shader
+			material.set_shader_parameter("outline_color", Color(0, 1, 0.6, 1))
+			material.set_shader_parameter("outline_width", 0.07)
+			material.set_shader_parameter("pulse_speed", 2.5)
+			material.set_shader_parameter("pulse_amount", 0.4)
+			material.set_shader_parameter("glow_intensity", 5.0)
+			material.set_shader_parameter("enable_pulse", true)
+			material.render_priority = 1
+			mesh_instance.material_overlay = material
+			print("[Egg] ", name, " - Outline material created and applied")
+		else:
+			print("[Egg] ", name, " - Outline already active")
+	else:
+		print("[Egg] ", name, " - Deactivating outline")
+		# Desativar o material overlay (outline)
+		mesh_instance.material_overlay = null
