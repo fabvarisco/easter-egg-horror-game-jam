@@ -62,6 +62,9 @@ var _movement_enabled: bool = true
 signal player_died
 
 func _ready() -> void:
+	var peer_id = get_meta("peer_id", -1)
+	print("[Player %d] _ready() called - initial position: %s" % [peer_id, global_position])
+
 	if not _has_authority():
 		set_process_input(false)
 
@@ -76,6 +79,10 @@ func _ready() -> void:
 		set_process_input(false)
 
 	_connect_voice_detection()
+
+	# Log position after ready
+	await get_tree().process_frame
+	print("[Player %d] Position after _ready() + 1 frame: %s" % [peer_id, global_position])
 
 func _input(event: InputEvent) -> void:
 	if not _has_authority():
@@ -261,6 +268,9 @@ func _rotate_to_mouse(_delta: float) -> void:
 func _send_position_sync() -> void:
 	if not _is_multiplayer_connected():
 		return
+	var peer_id = get_meta("peer_id", -1)
+	if Engine.get_frames_drawn() % 60 == 0:  # Log every 60 frames to avoid spam
+		print("[Player %d] _send_position_sync - sending position: %s" % [peer_id, global_position])
 	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting, is_on_floor())
 
 
@@ -280,6 +290,9 @@ func _is_multiplayer_connected() -> bool:
 
 @rpc("authority", "call_remote", "unreliable")
 func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool, on_floor: bool = true) -> void:
+	var peer_id = get_meta("peer_id", -1)
+	if Engine.get_frames_drawn() % 60 == 0:  # Log every 60 frames to avoid spam
+		print("[Player %d] _sync_position called - old pos: %s, new pos: %s" % [peer_id, global_position, pos])
 	global_position = pos
 	rotation.y = rot_y
 	_current_speed = speed

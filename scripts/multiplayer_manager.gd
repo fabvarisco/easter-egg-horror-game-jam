@@ -186,6 +186,7 @@ func host_game_lan(player_name: String = "Host") -> void:
 	my_peer_id = 1
 	room_code = host_name
 	_next_spawn_index = 0  # Reset spawn index for new session
+	print("[MultiplayerManager] LAN host created - spawn index reset to 0")
 
 	_start_broadcasting()
 	if not connected_peers.has(my_peer_id):
@@ -276,6 +277,7 @@ func host_game_eos(room_name: String = "Game") -> void:
 	room_code = _generate_lobby_code(_current_lobby.lobby_id)
 	my_peer_id = 1
 	_next_spawn_index = 0  # Reset spawn index for new session
+	print("[MultiplayerManager] EOS lobby created - spawn index reset to 0")
 
 	print("[EOS] Lobby criado! Código: ", room_code)
 	if not connected_peers.has(my_peer_id):
@@ -680,6 +682,7 @@ func _remove_player(id: int) -> void:
 
 
 func _clear_players() -> void:
+	print("[MultiplayerManager] _clear_players called - resetting spawn index")
 	for id in players.keys():
 		_remove_player(id)
 	players.clear()
@@ -687,8 +690,15 @@ func _clear_players() -> void:
 
 
 func spawn_all_players() -> void:
+	print("[MultiplayerManager] ========== SPAWN ALL PLAYERS ==========")
+	print("[MultiplayerManager] connected_peers: %s" % str(connected_peers))
+	print("[MultiplayerManager] Current _next_spawn_index before spawning: %d" % _next_spawn_index)
+
 	for peer_id in connected_peers:
 		_spawn_player(peer_id)
+
+	print("[MultiplayerManager] ========== SPAWN ALL COMPLETE ==========")
+	print("[MultiplayerManager] Final _next_spawn_index: %d" % _next_spawn_index)
 
 	# Aguardar registro de PUIDs antes de ativar voice (EOS apenas)
 	if current_mode == NetworkMode.EOS:
@@ -765,16 +775,24 @@ func _spawn_player(id: int) -> void:
 	var spawn_index := _next_spawn_index % spawn_points.size()
 	var spawn_point: Node3D = spawn_points[spawn_index]
 
-	print("[MultiplayerManager] Spawning player %d at spawn point %d/%d (spawn_index: %d)" % [id, spawn_index, spawn_points.size(), _next_spawn_index])
+	print("[MultiplayerManager] ========== SPAWN DEBUG ==========")
+	print("[MultiplayerManager] Player ID: %d" % id)
+	print("[MultiplayerManager] Current _next_spawn_index: %d" % _next_spawn_index)
+	print("[MultiplayerManager] Calculated spawn_index: %d" % spawn_index)
+	print("[MultiplayerManager] Total spawn_points: %d" % spawn_points.size())
+	print("[MultiplayerManager] Selected spawn_point: %s" % spawn_point.name)
+	print("[MultiplayerManager] Spawn point position: %s" % spawn_point.global_position)
 
 	# Increment spawn index for next player
 	_next_spawn_index += 1
+	print("[MultiplayerManager] Incremented _next_spawn_index to: %d" % _next_spawn_index)
 
 	# Calculate global position from spawn point's transform
 	var final_position: Vector3
 	if spawn_point.is_inside_tree():
 		final_position = spawn_point.global_position
 		player.global_position = final_position
+		print("[MultiplayerManager] Set player.global_position to: %s (from spawn_point.global_position)" % final_position)
 	else:
 		# Fallback: use local position relative to parent chain
 		var pos := spawn_point.position
@@ -784,8 +802,12 @@ func _spawn_player(id: int) -> void:
 			parent = parent.get_parent()
 		final_position = pos
 		player.global_position = pos
+		print("[MultiplayerManager] Set player.global_position to: %s (from calculated position)" % final_position)
 
-	print("[MultiplayerManager] Player %d spawned at position: %s" % [id, final_position])
+	# Wait one frame and check position again
+	await get_tree().process_frame
+	print("[MultiplayerManager] Player %d FINAL position after 1 frame: %s" % [id, player.global_position])
+	print("[MultiplayerManager] ========================================")
 
 	players[id] = player
 
