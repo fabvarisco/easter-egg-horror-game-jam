@@ -715,12 +715,20 @@ func _get_player_spawn_points() -> Array[Node3D]:
 
 func _spawn_player(id: int) -> void:
 	if players.has(id):
+		print("[MultiplayerManager] Player %d already spawned, skipping" % id)
 		return
 
 	var spawn_points := _get_player_spawn_points()
 	if spawn_points.is_empty():
-		push_error("No player spawn points found!")
+		push_error("[MultiplayerManager] No player spawn points found!")
 		return
+
+	print("[MultiplayerManager] Found %d spawn points" % spawn_points.size())
+
+	# Debug: print spawn point positions
+	for i in range(spawn_points.size()):
+		var sp_pos = spawn_points[i].global_position if spawn_points[i].is_inside_tree() else spawn_points[i].position
+		print("[MultiplayerManager] Spawn point %d: %s at %s" % [i, spawn_points[i].name, sp_pos])
 
 	var player := player_scene.instantiate()
 	player.name = str(id)
@@ -736,18 +744,26 @@ func _spawn_player(id: int) -> void:
 		players_node.add_child(player)
 
 	# Calculate spawn index based on peer position in connected_peers list
+	print("[MultiplayerManager] connected_peers: %s" % str(connected_peers))
+	print("[MultiplayerManager] Current players.size(): %d" % players.size())
+
 	var peer_index := connected_peers.find(id)
+	print("[MultiplayerManager] peer_index for id %d: %d" % [id, peer_index])
+
 	if peer_index == -1:
+		print("[MultiplayerManager] WARNING: Peer %d not in connected_peers, using fallback" % id)
 		peer_index = players.size()  # Fallback if not found
 
 	var spawn_index := peer_index % spawn_points.size()
 	var spawn_point: Node3D = spawn_points[spawn_index]
 
-	print("[MultiplayerManager] Spawning player %d at spawn point %d/%d" % [id, spawn_index, spawn_points.size()])
+	print("[MultiplayerManager] Spawning player %d at spawn point %d/%d (peer_index: %d)" % [id, spawn_index, spawn_points.size(), peer_index])
 
 	# Calculate global position from spawn point's transform
+	var final_position: Vector3
 	if spawn_point.is_inside_tree():
-		player.global_position = spawn_point.global_position
+		final_position = spawn_point.global_position
+		player.global_position = final_position
 	else:
 		# Fallback: use local position relative to parent chain
 		var pos := spawn_point.position
@@ -755,7 +771,10 @@ func _spawn_player(id: int) -> void:
 		while parent and parent is Node3D:
 			pos = parent.transform * pos
 			parent = parent.get_parent()
+		final_position = pos
 		player.global_position = pos
+
+	print("[MultiplayerManager] Player %d spawned at position: %s" % [id, final_position])
 
 	players[id] = player
 
