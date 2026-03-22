@@ -1,34 +1,34 @@
 extends Node
-## Voice Manager - Proximity-based voice chat volume control using EOS RTC
 
 signal player_speaking_changed(peer_id: int, is_speaking: bool)
 
-const UPDATE_INTERVAL: float = 0.1  # Update volume every 100ms
-const MAX_VOICE_DISTANCE: float = 6.0  # Volume = 0 at this distance
-const MIN_VOICE_DISTANCE: float = 1.0   # Volume = 50 (normal) at this distance
-const MAX_VOLUME: float = 50.0  # EOS uses 0-100, 50 is normal
+const UPDATE_INTERVAL: float = 0.1  
+const MAX_VOICE_DISTANCE: float = 6.0 
+const MIN_VOICE_DISTANCE: float = 1.0   
+const MAX_VOLUME: float = 50.0 
 
 var _update_timer: float = 0.0
 var _current_lobby: HLobby = null
 var _is_active: bool = false
 var _mic_muted: bool = false
 var _mic_volume: float = 100.0
-var _speaking_states: Dictionary = {}  # peer_id -> bool
+var _speaking_states: Dictionary = {} 
+
+# Voice zones system
+var _voice_zones: Array[Dictionary] = []  
+var _players_in_zones: Dictionary = {}  
 
 
 func _ready() -> void:
-	# Connect to multiplayer events
 	MultiplayerManager.connection_succeeded.connect(_on_connection_succeeded)
 	MultiplayerManager.server_disconnected.connect(_on_server_disconnected)
 	MultiplayerManager.player_disconnected.connect(_on_player_disconnected)
 
-	# Connect to RTC audio events for speaking detection
 	if IEOS.rtc_audio_participant_updated:
 		IEOS.rtc_audio_participant_updated.connect(_on_rtc_audio_participant_updated)
 
 
 func _exit_tree() -> void:
-	# Disconnect signals to prevent issues during shutdown
 	if MultiplayerManager.connection_succeeded.is_connected(_on_connection_succeeded):
 		MultiplayerManager.connection_succeeded.disconnect(_on_connection_succeeded)
 	if MultiplayerManager.server_disconnected.is_connected(_on_server_disconnected):
@@ -51,14 +51,17 @@ func _process(delta: float) -> void:
 
 
 func _on_connection_succeeded() -> void:
-	# Only activate for EOS mode
 	if MultiplayerManager.current_mode != MultiplayerManager.NetworkMode.EOS:
 		return
 
 	_current_lobby = MultiplayerManager.get_current_lobby()
 	if _current_lobby:
 		_is_active = true
-		print("[Voice] Proximity voice chat activated")
+		print("[VoiceManager] Proximity voice chat activated")
+
+		if _mic_muted:
+			set_mic_muted(true)
+			print("[VoiceManager] Applied saved mute state to new session")
 
 
 func _on_server_disconnected() -> void:
@@ -66,7 +69,6 @@ func _on_server_disconnected() -> void:
 
 
 func _on_player_disconnected(_peer_id: int) -> void:
-	# Volume will be updated on next tick, no special handling needed
 	pass
 
 
@@ -75,6 +77,8 @@ func _cleanup() -> void:
 	_current_lobby = null
 	_update_timer = 0.0
 	_speaking_states.clear()
+	_voice_zones.clear()
+	_players_in_zones.clear()
 	print("[Voice] Proximity voice chat deactivated")
 
 
@@ -87,33 +91,37 @@ func _update_voice_volumes() -> void:
 		return
 
 	var local_position: Vector3 = local_player.global_position
+	var local_peer_id: int = MultiplayerManager.my_peer_id
 
-	# Update volume for each remote player
 	for puid in MultiplayerManager.puid_to_peer_id:
 		var peer_id = MultiplayerManager.puid_to_peer_id[puid] as int
 
-		# Skip local player
-		if peer_id == MultiplayerManager.my_peer_id:
+		if peer_id == local_peer_id:
 			continue
 
 		var remote_player = _get_player_by_peer_id(peer_id)
 		if not remote_player:
 			continue
 
+		var zone_settings: Dictionary = _get_zone_settings_for_players(local_peer_id, peer_id)
+
 		var distance: float = local_position.distance_to(remote_player.global_position)
-		var volume: float = _calculate_volume(distance)
+		var volume: float = _calculate_volume_with_zone(
+			distance,
+			zone_settings.max_distance,
+			zone_settings.min_distance,
+			zone_settings.volume_multiplier
+		)
 
 		_set_participant_volume(puid, volume)
 
 
 func _get_local_player() -> Node3D:
-	# First try the dictionary
 	if MultiplayerManager.players.has(MultiplayerManager.my_peer_id):
 		var player = MultiplayerManager.players[MultiplayerManager.my_peer_id]
 		if is_instance_valid(player):
 			return player
 
-	# Fallback: find player in tree by peer_id
 	var players_container := get_tree().current_scene.get_node_or_null("Players")
 	if players_container:
 		var player := players_container.get_node_or_null(str(MultiplayerManager.my_peer_id))
@@ -141,9 +149,6 @@ func _get_player_by_peer_id(peer_id: int) -> Node3D:
 
 
 func _calculate_volume(distance: float) -> float:
-	# At MIN_VOICE_DISTANCE or closer: full volume (MAX_VOLUME)
-	# At MAX_VOICE_DISTANCE or farther: muted (0)
-	# Linear falloff between
 
 	if distance <= MIN_VOICE_DISTANCE:
 		return MAX_VOLUME
@@ -154,6 +159,34 @@ func _calculate_volume(distance: float) -> float:
 	# Linear interpolation
 	var t := (distance - MIN_VOICE_DISTANCE) / (MAX_VOICE_DISTANCE - MIN_VOICE_DISTANCE)
 	return MAX_VOLUME * (1.0 - t)
+
+
+func _calculate_volume_with_zone(
+	distance: float,
+	max_distance: float,
+	min_distance: float,
+	volume_multiplier: float
+) -> float:
+	"""Calcula volume considerando configurações customizadas de zona"""
+	if volume_multiplier <= 0.0:
+		return 0.0
+
+	if max_distance <= 0.0:
+		return 0.0
+
+	var base_volume: float
+
+	if distance <= min_distance:
+		base_volume = MAX_VOLUME
+	elif distance >= max_distance:
+		base_volume = 0.0
+	else:
+		var t := (distance - min_distance) / (max_distance - min_distance)
+		base_volume = MAX_VOLUME * (1.0 - t)
+
+	var final_volume := base_volume * volume_multiplier
+
+	return clamp(final_volume, 0.0, 100.0)
 
 
 func _set_participant_volume(puid: String, volume: float) -> void:
@@ -173,6 +206,149 @@ func _set_participant_volume(puid: String, volume: float) -> void:
 
 
 # ==========================================
+# VOICE ZONES SYSTEM
+# ==========================================
+
+func register_voice_zone(
+	area: Area3D,
+	max_distance: float = MAX_VOICE_DISTANCE,
+	min_distance: float = MIN_VOICE_DISTANCE,
+	volume_multiplier: float = 1.0,
+	mute_outside: bool = false
+) -> void:
+	"""
+	Registra uma Area3D como zona de voz customizada.
+
+	Parâmetros:
+	- area: Area3D que define a zona
+	- max_distance: Distância máxima de voz dentro da zona (padrão: 6.0)
+	- min_distance: Distância mínima de voz dentro da zona (padrão: 1.0)
+	- volume_multiplier: Multiplicador de volume (0.0 a 1.0, padrão: 1.0)
+	- mute_outside: Se true, jogadores fora desta zona são mutados (padrão: false)
+
+	Exemplo de uso:
+	VoiceManager.register_voice_zone($SilentArea, 0.0, 0.0, 0.0, true)  # Zona de silêncio
+	VoiceManager.register_voice_zone($LoudArea, 20.0, 5.0, 2.0)  # Zona com alcance ampliado
+	"""
+	if not area:
+		push_error("[VoiceManager] Cannot register null area as voice zone")
+		return
+
+	for zone in _voice_zones:
+		if zone.area == area:
+			print("[VoiceManager] Voice zone already registered: ", area.name)
+			return
+
+	var zone_data := {
+		"area": area,
+		"max_distance": max_distance,
+		"min_distance": min_distance,
+		"volume_multiplier": volume_multiplier,
+		"mute_outside": mute_outside
+	}
+
+	_voice_zones.append(zone_data)
+
+	if not area.body_entered.is_connected(_on_voice_zone_body_entered):
+		area.body_entered.connect(_on_voice_zone_body_entered.bind(area))
+	if not area.body_exited.is_connected(_on_voice_zone_body_exited):
+		area.body_exited.connect(_on_voice_zone_body_exited.bind(area))
+
+	print("[VoiceManager] Voice zone registered: %s (max: %.1f, min: %.1f, mult: %.2f, mute_outside: %s)" % [
+		area.name, max_distance, min_distance, volume_multiplier, mute_outside
+	])
+
+
+func unregister_voice_zone(area: Area3D) -> void:
+	"""Remove uma zona de voz registrada"""
+	if not area:
+		return
+
+	for i in range(_voice_zones.size() - 1, -1, -1):
+		if _voice_zones[i].area == area:
+			_voice_zones.remove_at(i)
+			print("[VoiceManager] Voice zone unregistered: ", area.name)
+			break
+
+	if area.body_entered.is_connected(_on_voice_zone_body_entered):
+		area.body_entered.disconnect(_on_voice_zone_body_entered)
+	if area.body_exited.is_connected(_on_voice_zone_body_exited):
+		area.body_exited.disconnect(_on_voice_zone_body_exited)
+
+	for peer_id in _players_in_zones:
+		var zones: Array = _players_in_zones[peer_id]
+		if area in zones:
+			zones.erase(area)
+
+
+func _on_voice_zone_body_entered(body: Node3D, area: Area3D) -> void:
+	"""Callback quando um jogador entra em uma zona de voz"""
+	if not body.is_in_group("players"):
+		return
+
+	var peer_id: int = body.get_meta("peer_id", -1)
+	if peer_id == -1:
+		return
+
+	if not _players_in_zones.has(peer_id):
+		_players_in_zones[peer_id] = []
+
+	var zones: Array = _players_in_zones[peer_id]
+	if not area in zones:
+		zones.append(area)
+		print("[VoiceManager] Player %d entered voice zone: %s" % [peer_id, area.name])
+
+
+func _on_voice_zone_body_exited(body: Node3D, area: Area3D) -> void:
+	"""Callback quando um jogador sai de uma zona de voz"""
+	if not body.is_in_group("players"):
+		return
+
+	var peer_id: int = body.get_meta("peer_id", -1)
+	if peer_id == -1:
+		return
+
+	if _players_in_zones.has(peer_id):
+		var zones: Array = _players_in_zones[peer_id]
+		if area in zones:
+			zones.erase(area)
+			print("[VoiceManager] Player %d exited voice zone: %s" % [peer_id, area.name])
+
+
+func _get_zone_settings_for_players(local_peer_id: int, remote_peer_id: int) -> Dictionary:
+	"""
+	Retorna as configurações de zona aplicáveis entre dois jogadores.
+	Prioriza zonas com mute_outside ativado.
+	"""
+	var local_zones: Array = _players_in_zones.get(local_peer_id, [])
+	var remote_zones: Array = _players_in_zones.get(remote_peer_id, [])
+
+	for zone_data in _voice_zones:
+		var area: Area3D = zone_data.area
+
+		var local_in_zone: bool = area in local_zones
+		var remote_in_zone: bool = area in remote_zones
+
+		if zone_data.mute_outside:
+			if local_in_zone != remote_in_zone:
+				# Mutar completamente
+				return {
+					"max_distance": 0.0,
+					"min_distance": 0.0,
+					"volume_multiplier": 0.0
+				}
+
+		if local_in_zone and remote_in_zone:
+			return zone_data
+
+	return {
+		"max_distance": MAX_VOICE_DISTANCE,
+		"min_distance": MIN_VOICE_DISTANCE,
+		"volume_multiplier": 1.0
+	}
+
+
+# ==========================================
 # MIC CONTROL
 # ==========================================
 
@@ -183,14 +359,17 @@ func is_mic_muted() -> bool:
 
 func set_mic_muted(muted: bool) -> void:
 	_mic_muted = muted
+	print("[VoiceManager] Mic muted state set to: %s" % muted)
 
 	if not _current_lobby:
+		print("[VoiceManager] No active lobby - mute state saved for later")
 		return
 
 	var room_name = _current_lobby.lobby_id as String
 	var local_puid = MultiplayerManager.get_local_puid()
 
 	if local_puid.is_empty():
+		print("[VoiceManager] ERROR: Local PUID is empty")
 		return
 
 	var mute_opts = EOS.RTCAudio.UpdateSendingOptions.new()
@@ -199,14 +378,11 @@ func set_mic_muted(muted: bool) -> void:
 	mute_opts.audio_status = EOS.RTCAudio.AudioStatus.Disabled if muted else EOS.RTCAudio.AudioStatus.Enabled
 
 	EOS.RTCAudio.RTCAudioInterface.update_sending(mute_opts)
-	print("[Voice] Mic muted: ", muted)
+	print("[VoiceManager] Mic mute applied to EOS: %s" % muted)
 
 
 func set_mic_volume(volume: float) -> void:
 	_mic_volume = volume
-	# EOS doesn't have a direct mic volume control in the same way
-	# Volume is typically controlled at the OS level
-	# This stores the value for potential future use
 	print("[Voice] Mic volume set to: ", volume)
 
 
@@ -219,20 +395,17 @@ func _on_rtc_audio_participant_updated(data: Dictionary) -> void:
 	if not _current_lobby:
 		return
 
-	# Verify this is for our room
 	if data.room_name != _current_lobby.lobby_id:
 		return
 
 	var puid: String = data.participant_id
 	var is_speaking: bool = data.speaking
 
-	# Convert PUID to peer_id
 	if not MultiplayerManager.puid_to_peer_id.has(puid):
 		return
 
 	var peer_id: int = MultiplayerManager.puid_to_peer_id[puid]
 
-	# Check if state changed
 	var previous_state: bool = _speaking_states.get(peer_id, false)
 	if previous_state != is_speaking:
 		_speaking_states[peer_id] = is_speaking

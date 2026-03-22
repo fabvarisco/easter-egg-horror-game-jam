@@ -16,14 +16,29 @@ const SYNC_INTERVAL: float = 0.05
 # Stamina
 const MAX_STAMINA: float = 100.0
 const STAMINA_DRAIN_RATE: float = 25.0
-const STAMINA_REGEN_RATE: float = 8.0  # Slower default recovery
-const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
-const MIN_STAMINA_TO_SPRINT: float = 10.0  
+const STAMINA_REGEN_RATE: float = 8.0 
+const STAMINA_REGEN_RATE_WALKING: float = 20.0  
+const MIN_STAMINA_TO_SPRINT: float = 10.0
+
+# Sound Radius System
+const SOUND_RADIUS_IDLE: float = 2.0      
+const SOUND_RADIUS_WALK_SLOW: float = 4.0  
+const SOUND_RADIUS_WALK: float = 6.0     
+const SOUND_RADIUS_SPRINT: float = 12.0
+const SOUND_RADIUS_VOICE: float = 8.0      
+const SOUND_RADIUS_LERP_SPEED: float = 3.0
+const SOUND_RADIUS_DECAY: float = 5.0     
 
 @onready var flashlight: SpotLight3D = $SpotLight3D
 @onready var vision_light: SpotLight3D = $VisionLight
 @onready var model: Node3D = $model
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
+@onready var sound_area_3d: Area3D = $SoundArea3D
+
+
+var _sound_radius_current: float = SOUND_RADIUS_IDLE
+var _sound_radius_target: float = SOUND_RADIUS_IDLE
+var _is_speaking: bool = false
 
 var _texture: Texture2D = preload("res://assets/models/godot_plush_albedo.png")
 
@@ -59,6 +74,8 @@ func _ready() -> void:
 	if not visible:
 		set_physics_process(false)
 		set_process_input(false)
+
+	_connect_voice_detection()
 
 func _input(event: InputEvent) -> void:
 	if not _has_authority():
@@ -187,6 +204,8 @@ func _physics_process(_delta: float) -> void:
 	if _sync_timer >= SYNC_INTERVAL:
 		_sync_timer = 0.0
 		_send_position_sync()
+	
+	_controll_sound_value(_delta)
 
 func _get_camera_relative_direction(input_dir: Vector2) -> Vector3:
 	if input_dir.length() < 0.01:
@@ -517,3 +536,78 @@ func set_movement_enabled(enabled: bool) -> void:
 		velocity = Vector3.ZERO
 		_current_speed = 0.0
 		_move_direction = Vector3.ZERO
+
+
+func _connect_voice_detection() -> void:
+	"""Conecta com VoiceManager para detectar quando jogador está falando"""
+	var voice_manager := get_node_or_null("/root/VoiceManager")
+	if not voice_manager:
+		print("[Player] VoiceManager not found - voice detection disabled")
+		return
+
+	if voice_manager.has_signal("player_speaking_changed"):
+		voice_manager.player_speaking_changed.connect(_on_player_speaking_changed)
+		print("[Player] Connected to VoiceManager for speech detection")
+
+
+func _on_player_speaking_changed(peer_id: int, is_speaking: bool) -> void:
+	"""Callback quando detecção de fala muda (qualquer jogador)"""
+	var my_peer_id: int = get_meta("peer_id", 1)
+
+	if peer_id == my_peer_id:
+		_is_speaking = is_speaking
+		print("[Player] Speaking state changed: %s" % is_speaking)
+
+
+func get_sound_radius() -> float:
+	"""Retorna o raio de som atual (útil para inimigos e outras mecânicas)"""
+	return _sound_radius_current
+
+
+func is_making_noise() -> bool:
+	"""Verifica se está fazendo barulho significativo (correndo ou falando)"""
+	return _is_sprinting or _is_speaking or _current_speed > WALK_SPEED
+
+
+func _controll_sound_value(_delta: float) -> void:
+	"""
+	Controla o raio de som do jogador baseado em suas ações.
+	O raio aumenta quando: corre, anda, fala no mic.
+	O raio diminui naturalmente até o valor mínimo (idle).
+	"""
+	var base_radius: float = SOUND_RADIUS_IDLE
+
+	if _current_speed > 0.1:
+		if _is_sprinting:
+			base_radius = SOUND_RADIUS_SPRINT
+		elif _is_walking:
+			base_radius = SOUND_RADIUS_WALK_SLOW
+		else:
+			base_radius = SOUND_RADIUS_WALK
+
+	var voice_bonus: float = SOUND_RADIUS_VOICE if _is_speaking else 0.0
+	_sound_radius_target = base_radius + voice_bonus
+
+	_sound_radius_current = lerp(_sound_radius_current, _sound_radius_target, SOUND_RADIUS_LERP_SPEED * _delta)
+
+	if _sound_radius_current > _sound_radius_target:
+		_sound_radius_current = move_toward(_sound_radius_current, _sound_radius_target, SOUND_RADIUS_DECAY * _delta)
+
+	sound_area_3d.scale = Vector3.ONE * _sound_radius_current
+
+	if _has_authority() and Engine.get_frames_drawn() % 60 == 0:  # A cada 60 frames
+		_debug_print_sound_radius()
+
+
+func _debug_print_sound_radius() -> void:
+	"""Debug: mostra raio atual no console"""
+	var state := "IDLE"
+	if _is_sprinting:
+		state = "SPRINT"
+	elif _is_walking:
+		state = "WALK_SLOW"
+	elif _current_speed > 0.1:
+		state = "WALK"
+
+	var voice_text := " +VOICE" if _is_speaking else ""
+	print("[SoundRadius] %s%s | Radius: %.1f -> %.1f" % [state, voice_text, _sound_radius_current, _sound_radius_target])

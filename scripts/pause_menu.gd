@@ -101,6 +101,7 @@ func _on_master_volume_changed(value: float) -> void:
 	var master_bus_idx := AudioServer.get_bus_index("Master")
 	var db := linear_to_db(value / 100.0)
 	AudioServer.set_bus_volume_db(master_bus_idx, db)
+	print("[PauseMenu] Master volume changed to: %.1f%% (%.2f dB)" % [value, db])
 
 
 func _on_mic_volume_changed(value: float) -> void:
@@ -109,22 +110,30 @@ func _on_mic_volume_changed(value: float) -> void:
 	var voice_manager := get_node_or_null("/root/VoiceManager")
 	if voice_manager and voice_manager.has_method("set_mic_volume"):
 		voice_manager.set_mic_volume(value)
+		print("[PauseMenu] Mic volume changed to: %.1f%%" % value)
+	else:
+		print("[PauseMenu] ERROR: VoiceManager not found or method missing")
 
 
 func _on_mic_mute_toggled(is_muted: bool) -> void:
 	var voice_manager := get_node_or_null("/root/VoiceManager")
 	if voice_manager and voice_manager.has_method("set_mic_muted"):
 		voice_manager.set_mic_muted(is_muted)
+		print("[PauseMenu] Mic muted: %s" % is_muted)
+	else:
+		print("[PauseMenu] ERROR: VoiceManager not found or method missing")
 
 
 func _on_audio_output_selected(index: int) -> void:
 	var device_name := audio_output_dropdown.get_item_text(index)
 	AudioServer.output_device = device_name
+	print("[PauseMenu] Audio output device changed to: %s" % device_name)
 
 
 func _on_mic_input_selected(index: int) -> void:
 	var device_name := mic_input_dropdown.get_item_text(index)
 	AudioServer.input_device = device_name
+	print("[PauseMenu] Mic input device changed to: %s" % device_name)
 
 
 func _on_resume_pressed() -> void:
