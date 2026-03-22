@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3 uid="uid://vtxtai7mctuu"]
+
+[ext_resource type="Script" path="res://scripts/note_item.gd" id="1_note_item"]
+[ext_resource type="Texture2D" uid="uid://d04tmxfy8mwr0" path="res://assets/papers_textures/Paper Texture4.jpg" id="2_paper_texture"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_paper"]
+albedo_texture = ExtResource("2_paper_texture")
+
+[sub_resource type="BoxMesh" id="BoxMesh_paper"]
+size = Vector3(0, 0.5, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_area"]
+size = Vector3(1, 1, 1)
+
+[node name="NoteEvacuation" type="Node3D"]
+script = ExtResource("1_note_item")
+descriptionValue = ""
+is_static = true
+enable_rotation = true
+rotation_speed = 0.05
+enable_floating = true
+float_amplitude = 0.35
+float_speed = 0.3
+float_lerp_speed = 3.0
+note_text = "Colete TODOS os ovos bons.
+Leve-os ao carro.
+Não deixe nenhum para trás.
+
+A evacuação depende disso.
+
+CORRA."
+note_title = "Instruções de Evacuação"
+showing_item_scale = 3.8
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.30033514, -0.92038524, -0.25037962, -0.27858862, 0.33569598, -0.8998314, 0.9122428, -0.20049818, -0.3572301, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_paper")
+mesh = SubResource("BoxMesh_paper")
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_area")
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
+[connection signal="body_exited" from="Area3D" to="." method="_on_area_3d_body_exited"]

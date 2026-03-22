@@ -1,7 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://jj3rrsclryqf"]
+[gd_scene load_steps=9 format=3 uid="uid://jj3rrsclryqf"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_3tqts"]
-[ext_resource type="PackedScene" uid="uid://bf8tfcgg6jpkk" path="res://scenes/notes/note.tscn" id="2_6bq2s"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_bunny_threat.tscn" id="2_cso0v"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_diary.tscn" id="3_5ltrt"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_egg_warning.tscn" id="4_0o1cq"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_evacuation.tscn" id="5_aiw8s"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_3tqts"]
 size = Vector3(0.1, 5, 20)
@@ -64,5 +67,14 @@ shape = SubResource("BoxShape3D_car")
 [node name="Camera3D" parent="." index="6"]
 transform = Transform3D(-0.9975628, 0.05753966, -0.03946612, -0.011828166, 0.41798574, 0.9083766, 0.06876396, 0.9066295, -0.41628644, 0, 10.952211, -7.0106153)
 
-[node name="note" parent="." index="9" instance=ExtResource("2_6bq2s")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.828071, 1.1784189, 2.51378)
+[node name="NoteBunnyThreat" parent="." index="9" instance=ExtResource("2_cso0v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8586936, 0.30888185, 0.7021487)
+
+[node name="NoteDiary" parent="." index="10" instance=ExtResource("3_5ltrt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8627782, 0.30888125, 3.8064146)
+
+[node name="NoteEggWarning" parent="." index="11" instance=ExtResource("4_0o1cq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0846461, 0.30888185, 4.7434926)
+
+[node name="NoteEvacuation" parent="." index="12" instance=ExtResource("5_aiw8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2051377, 0.30888245, 1.6231656)

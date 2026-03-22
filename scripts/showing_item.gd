@@ -56,3 +56,17 @@ func set_mesh(_value: MeshInstance3D) -> void:
 
 func set_static(_value:bool) ->void:
 	_is_static = _value
+
+
+func set_custom_font(font_path: String) -> void:
+	"""Aplica fonte customizada ao RichTextLabel"""
+	var font_file := load(font_path) as FontFile
+	if font_file and description:
+		description.add_theme_font_override("normal_font", font_file)
+		description.add_theme_font_override("bold_font", font_file)
+		print("[ShowingItem] Custom font applied: ", font_path)
+	else:
+		if not font_file:
+			print("[ShowingItem] ERROR: Failed to load font: ", font_path)
+		if not description:
+			print("[ShowingItem] ERROR: description node is null")
