@@ -763,8 +763,9 @@ func _spawn_player(id: int) -> void:
 	print("[MultiplayerManager] peer_index for id %d: %d" % [id, peer_index])
 
 	if peer_index == -1:
-		print("[MultiplayerManager] WARNING: Peer %d not in connected_peers, using fallback" % id)
-		peer_index = players.size()  # Fallback if not found
+		print("[MultiplayerManager] ERROR: Peer %d not in connected_peers! This should not happen!" % id)
+		# Use the peer ID directly as index to avoid collisions
+		peer_index = id
 
 	var spawn_index := peer_index % spawn_points.size()
 	var spawn_point: Node3D = spawn_points[spawn_index]

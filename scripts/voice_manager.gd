@@ -30,6 +30,9 @@ func _ready() -> void:
 	# Conectar ao signal RTC de forma segura, com defer
 	call_deferred("_connect_rtc_signal")
 
+	# Se já estiver conectado ao entrar na cena do jogo, ativar voice chat
+	call_deferred("_check_if_already_connected")
+
 
 func _connect_rtc_signal() -> void:
 	"""Conecta ao signal RTC após todos os autoloads estarem prontos"""
@@ -44,6 +47,13 @@ func _connect_rtc_signal() -> void:
 	if not IEOS.rtc_audio_participant_updated.is_connected(_on_rtc_audio_participant_updated):
 		IEOS.rtc_audio_participant_updated.connect(_on_rtc_audio_participant_updated)
 		print("[VoiceManager] ✓ Connected to RTC audio participant updates")
+
+
+func _check_if_already_connected() -> void:
+	"""Verifica se já há uma conexão ativa e ativa voice chat se necessário"""
+	if MultiplayerManager.current_mode != MultiplayerManager.NetworkMode.NONE and not _is_active:
+		print("[VoiceManager] Already connected to multiplayer, activating voice chat...")
+		_on_connection_succeeded()
 
 
 func _exit_tree() -> void:

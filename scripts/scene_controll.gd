@@ -139,6 +139,7 @@ func spawn_eggs() -> void:
 		if indices.find(i) < monster_count:
 			egg.is_monster = true
 
+		egg.add_to_group("eggs")
 		add_child(egg)
 
 
