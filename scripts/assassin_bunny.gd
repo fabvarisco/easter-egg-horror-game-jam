@@ -2,7 +2,7 @@ extends bunny_entity
 
 @onready var raycast: RayCast3D = $RayCast3D
 @onready var left_eye: OmniLight3D = $LeftEye
-@onready var right_eye: OmniLight3D = $RightEye
+@onready var right_eye: OmniLight3D = $RightEye`
 
 const BLINK_INTERVAL: float = 2.0 
 const BLINK_DURATION: float = 0.15 

@@ -14,6 +14,7 @@ var _is_active: bool = false
 var _mic_muted: bool = false
 var _mic_volume: float = 100.0
 var _speaking_states: Dictionary = {}  # peer_id -> bool
+var _last_rtc_update_time: int = 0
 
 
 func _ready() -> void:
@@ -110,6 +111,7 @@ func _update_voice_volumes() -> void:
 		return
 
 	var local_position: Vector3 = local_player.global_position
+	var players_processed: int = 0
 
 	# Update volume for each remote player
 	for puid in MultiplayerManager.puid_to_peer_id:
@@ -124,6 +126,7 @@ func _update_voice_volumes() -> void:
 			continue
 
 		var distance: float = local_position.distance_to(remote_player.global_position)
+		var remote_sound_radius: float = remote_player.get_sound_radius() if remote_player.has_method("get_sound_radius") else 0.0
 		var volume: float = _calculate_volume(distance)
 
 		# Debug log (a cada 5 segundos para não spammar)

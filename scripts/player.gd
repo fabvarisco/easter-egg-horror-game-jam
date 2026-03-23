@@ -18,12 +18,23 @@ const MAX_STAMINA: float = 100.0
 const STAMINA_DRAIN_RATE: float = 25.0
 const STAMINA_REGEN_RATE: float = 8.0  # Slower default recovery
 const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
-const MIN_STAMINA_TO_SPRINT: float = 10.0  
+const MIN_STAMINA_TO_SPRINT: float = 10.0
+
+# Sound radius constants
+const SOUND_RADIUS_IDLE: float = 1.0
+const SOUND_RADIUS_WALK_SLOW: float = 2.0
+const SOUND_RADIUS_WALK: float = 3.0
+const SOUND_RADIUS_SPRINT: float = 6.0
+const SOUND_RADIUS_VOICE: float = 2.0
+const SOUND_RADIUS_LERP_SPEED: float = 5.0
+const SOUND_RADIUS_DECAY: float = 3.0
 
 @onready var flashlight: SpotLight3D = $SpotLight3D
 @onready var vision_light: SpotLight3D = $VisionLight
 @onready var model: Node3D = $model
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
+@onready var sound_area_3d: Area3D = $SoundArea3D
+
 
 var _texture: Texture2D = preload("res://assets/models/godot_plush_albedo.png")
 
@@ -35,6 +46,9 @@ var _current_speed: float = 0.0
 var _stamina: float = MAX_STAMINA
 var _is_sprinting: bool = false
 var _is_walking: bool = false
+var _is_speaking: bool = false
+var _sound_radius_current: float = SOUND_RADIUS_IDLE
+var _sound_radius_target: float = SOUND_RADIUS_IDLE
 var _move_direction: Vector3 = Vector3.ZERO 
 var _carried_egg: Node3D = null
 var _nearby_egg: Node3D = null
