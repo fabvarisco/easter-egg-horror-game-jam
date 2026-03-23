@@ -6,7 +6,7 @@
 script = ExtResource("1_wyo1r")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(2.4545696, 1.7248445, 0, -1.7248445, 2.4545696, 0, 0, 0, 3, 0, 0, 0)
+transform = Transform3D(-1.3113416e-07, 0, -0.1, 0, 3, 0, 3, 0, -4.371139e-09, 0, 0, 0)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
