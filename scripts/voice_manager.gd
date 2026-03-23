@@ -37,20 +37,28 @@ func _check_if_already_connected() -> void:
 
 
 func _exit_tree() -> void:
-	# Disconnect signals to prevent issues during shutdown
-	if MultiplayerManager.connection_succeeded.is_connected(_on_connection_succeeded):
-		MultiplayerManager.connection_succeeded.disconnect(_on_connection_succeeded)
-	if MultiplayerManager.server_disconnected.is_connected(_on_server_disconnected):
-		MultiplayerManager.server_disconnected.disconnect(_on_server_disconnected)
-	if MultiplayerManager.player_disconnected.is_connected(_on_player_disconnected):
-		MultiplayerManager.player_disconnected.disconnect(_on_player_disconnected)
+	# Stop processing immediately
+	set_process(false)
+	_is_active = false
 
-	# Desconectar RTC com segurança
-	if is_instance_valid(IEOS) and IEOS.has_signal("rtc_audio_participant_updated"):
-		if IEOS.rtc_audio_participant_updated.is_connected(_on_rtc_audio_participant_updated):
-			IEOS.rtc_audio_participant_updated.disconnect(_on_rtc_audio_participant_updated)
+	# Disconnect MultiplayerManager signals safely
+	if is_instance_valid(MultiplayerManager):
+		if MultiplayerManager.connection_succeeded.is_connected(_on_connection_succeeded):
+			MultiplayerManager.connection_succeeded.disconnect(_on_connection_succeeded)
+		if MultiplayerManager.server_disconnected.is_connected(_on_server_disconnected):
+			MultiplayerManager.server_disconnected.disconnect(_on_server_disconnected)
+		if MultiplayerManager.player_disconnected.is_connected(_on_player_disconnected):
+			MultiplayerManager.player_disconnected.disconnect(_on_player_disconnected)
 
-	_cleanup()
+	# Disconnect RTC signals safely - wrap in try to avoid crashes
+	if ClassDB.class_exists("IEOS"):
+		var ieos = get_node_or_null("/root/IEOS")
+		if is_instance_valid(ieos) and ieos.has_signal("rtc_audio_participant_updated"):
+			if ieos.rtc_audio_participant_updated.is_connected(_on_rtc_audio_participant_updated):
+				ieos.rtc_audio_participant_updated.disconnect(_on_rtc_audio_participant_updated)
+
+	_current_lobby = null
+	_speaking_states.clear()
 
 
 func _process(delta: float) -> void:

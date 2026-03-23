@@ -21,11 +21,11 @@ const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
 const MIN_STAMINA_TO_SPRINT: float = 10.0
 
 # Sound radius constants
-const SOUND_RADIUS_IDLE: float = 1.0
-const SOUND_RADIUS_WALK_SLOW: float = 2.0
-const SOUND_RADIUS_WALK: float = 3.0
-const SOUND_RADIUS_SPRINT: float = 6.0
-const SOUND_RADIUS_VOICE: float = 2.0
+const SOUND_RADIUS_IDLE: float = 2.0
+const SOUND_RADIUS_WALK_SLOW: float = 4.0
+const SOUND_RADIUS_WALK: float = 5.0
+const SOUND_RADIUS_SPRINT: float = 10.0
+const SOUND_RADIUS_VOICE: float = 4.0
 const SOUND_RADIUS_LERP_SPEED: float = 5.0
 const SOUND_RADIUS_DECAY: float = 3.0
 
@@ -76,6 +76,10 @@ func _ready() -> void:
 	if not visible:
 		set_physics_process(false)
 		set_process_input(false)
+
+	# Conectar detecção de voz para aumentar raio de som quando fala
+	if _has_authority():
+		_connect_voice_detection()
 
 func _input(event: InputEvent) -> void:
 	if not _has_authority():
@@ -205,6 +209,10 @@ func _physics_process(_delta: float) -> void:
 		_sync_timer = 0.0
 		_send_position_sync()
 
+	# Update sound radius based on movement and voice
+	_controll_sound_value(_delta)
+
+
 func _get_camera_relative_direction(input_dir: Vector2) -> Vector3:
 	if input_dir.length() < 0.01:
 		return Vector3.ZERO
@@ -273,6 +281,8 @@ func _has_authority() -> bool:
 
 
 func _is_multiplayer_connected() -> bool:
+	if not is_inside_tree():
+		return false
 	if not multiplayer.has_multiplayer_peer():
 		return false
 	if not is_instance_valid(multiplayer.multiplayer_peer):

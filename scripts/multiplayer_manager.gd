@@ -86,8 +86,35 @@ func _notification(what: int) -> void:
 
 func _handle_quit() -> void:
 	print("[MultiplayerManager] Handling quit...")
-	_cleanup_on_exit()
-	# Quit immediately - don't use await during quit as it can cause hangs
+
+	# Disable all processing immediately to prevent callbacks during shutdown
+	set_process(false)
+	set_physics_process(false)
+
+	# Clear multiplayer peer FIRST to stop any network callbacks
+	if multiplayer.has_multiplayer_peer():
+		multiplayer.multiplayer_peer = null
+
+	# Close peers synchronously without awaiting
+	if _peer:
+		_peer.close()
+		_peer = null
+
+	if _eos_peer:
+		_eos_peer.close()
+		_eos_peer = null
+
+	# Clear references
+	_current_lobby = null
+	players.clear()
+	connected_peers.clear()
+	puid_to_peer_id.clear()
+	peer_id_to_puid.clear()
+
+	_stop_broadcasting()
+	_stop_listening()
+
+	print("[MultiplayerManager] Cleanup complete, quitting...")
 	get_tree().quit()
 
 

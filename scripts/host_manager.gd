@@ -8,7 +8,14 @@ func _ready() -> void:
 	pass
 
 
+func _exit_tree() -> void:
+	set_physics_process(false)
+
+
 func _physics_process(delta: float) -> void:
+	if not is_inside_tree():
+		return
+
 	if not _is_multiplayer_active():
 		return
 
@@ -23,6 +30,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _is_multiplayer_active() -> bool:
+	if not is_inside_tree():
+		return false
 	if not multiplayer.has_multiplayer_peer():
 		return false
 	if not is_instance_valid(multiplayer.multiplayer_peer):
