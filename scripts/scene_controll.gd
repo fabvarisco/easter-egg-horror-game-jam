@@ -91,9 +91,6 @@ func _start_singleplayer() -> void:
 		player.player_died.connect(_on_player_died.bind(player))
 
 
-func _start_multiplayer() -> void:
-	# Spawn all connected players at their spawn points
-	multiplayer_manager.spawn_all_players()
 
 
 func spawn_eggs() -> void:

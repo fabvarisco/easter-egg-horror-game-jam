@@ -15,6 +15,7 @@ var _game_hud_scene: PackedScene = preload("res://scenes/game_hud.tscn")
 var _game_hud: CanvasLayer = null
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
+@onready var spawn_manager: Node = get_node("/root/SpawnManager")
 @onready var chunks: Node3D = $Chunks
 @onready var players_container: Node3D = $Players
 
@@ -106,56 +107,27 @@ func _start_game() -> void:
 	_game_hud.setup_egg_counter(_total_good_eggs)
 
 
-func _get_player_spawn_points() -> Array[Node3D]:
-	var spawn_points: Array[Node3D] = []
-
-	for chunk in chunks.get_children():
-		if "start" in chunk.name.to_lower():
-			var player_spawns = chunk.get_node_or_null("PlayerSpawnPoints")
-			if player_spawns and player_spawns.get_child_count() > 0:
-				for spawn_point in player_spawns.get_children():
-					spawn_points.append(spawn_point)
-				break
-
-	return spawn_points
-
-
 func _spawn_singleplayer() -> void:
-	# Clear old player references from lobby (they were freed when scene changed)
-	multiplayer_manager.players.clear()
+	# Reset spawn state for new scene
+	spawn_manager.reset()
 
-	var spawn_points := _get_player_spawn_points()
-	if spawn_points.is_empty():
-		push_error("No player spawn points found in start chunk!")
+	var player: Node3D = spawn_manager.spawn_singleplayer()
+	if not player:
+		push_error("[GameController] Failed to spawn singleplayer!")
 		return
-
-	var spawn_point: Node3D = spawn_points[0]
-	var player := _player_scene.instantiate()
-	player.name = "1"
-	player.set_meta("peer_id", 1)
-	player.add_to_group("players")
-	player.add_to_group("player")
-	players_container.add_child(player)
-	player.global_position = spawn_point.global_position
-
-	player.visible = true
-	player.set_physics_process(true)
-	player.set_process_input(true)
 
 	if not player.player_died.is_connected(_on_player_died):
 		player.player_died.connect(_on_player_died.bind(player))
-
-	multiplayer_manager.players[1] = player
 
 	# Ativar câmera do chunk inicial diretamente (evita race condition)
 	_activate_start_chunk_camera()
 
 
 func _spawn_multiplayer() -> void:
-	# Clear old player references from lobby (they were freed when scene changed)
-	multiplayer_manager.players.clear()
+	# Reset spawn state for new scene
+	spawn_manager.reset()
 
-	multiplayer_manager.spawn_all_players()
+	spawn_manager.spawn_all_players()
 
 	# Connect death signals for all players
 	for peer_id in multiplayer_manager.players:
@@ -417,7 +389,7 @@ func _cleanup_all_players() -> void:
 			if is_instance_valid(child):
 				child.queue_free()
 
-	multiplayer_manager.players.clear()
+	spawn_manager.clear_all_players()
 
 
 func _cleanup_game_objects() -> void:

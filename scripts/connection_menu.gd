@@ -173,10 +173,9 @@ func _on_server_button_pressed(ip: String) -> void:
 # Room handlers
 func _on_room_created(code: String) -> void:
 	room_code_label.text = "Code: " + code
-	room_status_label.text = "Waiting for connection..."
+	room_status_label.text = "Waiting for players..."
 	_show_menu("room")
-	# For host, immediately emit connection since host is ready
-	_hide_and_emit(false)
+	# Note: Don't emit connection_established here - wait for connection_succeeded
 
 
 func _on_connection_succeeded() -> void:

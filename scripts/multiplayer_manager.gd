@@ -33,9 +33,6 @@ var my_peer_id: int = 0
 var host_name: String = "Player"
 var current_mode: NetworkMode = NetworkMode.NONE
 
-# Spawn system
-var _next_spawn_index: int = 0  # Incremental index for spawn points
-
 # Ready system
 var _ready_states: Dictionary = {}  # peer_id -> bool
 
@@ -90,8 +87,7 @@ func _notification(what: int) -> void:
 func _handle_quit() -> void:
 	print("[MultiplayerManager] Handling quit...")
 	_cleanup_on_exit()
-	# Give a moment for cleanup to process
-	await get_tree().create_timer(0.2).timeout
+	# Quit immediately - don't use await during quit as it can cause hangs
 	get_tree().quit()
 
 
@@ -185,8 +181,7 @@ func host_game_lan(player_name: String = "Host") -> void:
 	is_host = true
 	my_peer_id = 1
 	room_code = host_name
-	_next_spawn_index = 0  # Reset spawn index for new session
-	print("[MultiplayerManager] LAN host created - spawn index reset to 0")
+	print("[MultiplayerManager] LAN host created")
 
 	_start_broadcasting()
 	if not connected_peers.has(my_peer_id):
@@ -276,8 +271,7 @@ func host_game_eos(room_name: String = "Game") -> void:
 	multiplayer.multiplayer_peer = _eos_peer
 	room_code = _generate_lobby_code(_current_lobby.lobby_id)
 	my_peer_id = 1
-	_next_spawn_index = 0  # Reset spawn index for new session
-	print("[MultiplayerManager] EOS lobby created - spawn index reset to 0")
+	print("[MultiplayerManager] EOS lobby created")
 
 	print("[EOS] Lobby criado! Código: ", room_code)
 	if not connected_peers.has(my_peer_id):
@@ -396,14 +390,22 @@ func _generate_lobby_code(lobby_id: String) -> String:
 func leave_game() -> void:
 	print("[MultiplayerManager] Leaving game...")
 
-	# Aguardar RPCs pendentes
-	await get_tree().create_timer(0.3).timeout
+	if _is_quitting:
+		print("[MultiplayerManager] Already quitting, skipping leave_game")
+		return
+
+	# Aguardar RPCs pendentes (with safety check)
+	if is_inside_tree() and get_tree() != null:
+		await get_tree().create_timer(0.3).timeout
 
 	match current_mode:
 		NetworkMode.LAN:
 			_leave_lan()
 		NetworkMode.EOS:
-			await _leave_eos()
+			if is_inside_tree() and get_tree() != null:
+				await _leave_eos()
+			else:
+				_leave_eos_sync()
 
 	# Agora sim limpar
 	current_mode = NetworkMode.NONE
@@ -416,6 +418,15 @@ func leave_game() -> void:
 	my_peer_id = 0
 
 	print("[MultiplayerManager] Leave complete")
+
+
+func _leave_eos_sync() -> void:
+	"""Synchronous EOS cleanup for when tree is not available"""
+	if _eos_peer:
+		_eos_peer.close()
+		_eos_peer = null
+	multiplayer.multiplayer_peer = null
+	_current_lobby = null
 
 
 func _leave_lan() -> void:
@@ -446,8 +457,9 @@ func _leave_eos() -> void:
 		else:
 			lobby_ref.leave_async()
 
-		# Give a brief moment for the cleanup to start
-		await get_tree().create_timer(0.1).timeout
+		# Give a brief moment for the cleanup to start (with safety check)
+		if is_inside_tree() and get_tree() != null:
+			await get_tree().create_timer(0.1).timeout
 	else:
 		_current_lobby = null
 
@@ -660,7 +672,9 @@ func _handle_game_data(from_peer: int, data: Dictionary) -> void:
 			_sync_player_position(from_peer, data)
 		"spawn_player":
 			if not players.has(from_peer):
-				_spawn_player(from_peer)
+				var spawn_manager := get_node_or_null("/root/SpawnManager")
+				if spawn_manager:
+					spawn_manager.spawn_player(from_peer)
 
 
 func _sync_player_position(peer_id: int, data: Dictionary) -> void:
@@ -673,32 +687,40 @@ func _sync_player_position(peer_id: int, data: Dictionary) -> void:
 
 
 func _remove_player(id: int) -> void:
-	if not players.has(id):
-		return
-	var player: Node = players[id]
-	if is_instance_valid(player):
-		player.queue_free()
-	players.erase(id)
+	var spawn_manager := get_node_or_null("/root/SpawnManager")
+	if spawn_manager:
+		spawn_manager.remove_player(id)
+	else:
+		# Fallback if SpawnManager not available
+		if not players.has(id):
+			return
+		var player: Node = players[id]
+		if is_instance_valid(player):
+			player.queue_free()
+		players.erase(id)
 
 
 func _clear_players() -> void:
-	print("[MultiplayerManager] _clear_players called - resetting spawn index")
-	for id in players.keys():
-		_remove_player(id)
-	players.clear()
-	_next_spawn_index = 0  # Reset spawn index for new session
+	print("[MultiplayerManager] _clear_players called")
+	var spawn_manager := get_node_or_null("/root/SpawnManager")
+	if spawn_manager:
+		spawn_manager.clear_all_players()
+	else:
+		# Fallback if SpawnManager not available
+		for id in players.keys():
+			var player: Node = players[id]
+			if is_instance_valid(player):
+				player.queue_free()
+		players.clear()
 
 
 func spawn_all_players() -> void:
-	print("[MultiplayerManager] ========== SPAWN ALL PLAYERS ==========")
-	print("[MultiplayerManager] connected_peers: %s" % str(connected_peers))
-	print("[MultiplayerManager] Current _next_spawn_index before spawning: %d" % _next_spawn_index)
-
-	for peer_id in connected_peers:
-		_spawn_player(peer_id)
-
-	print("[MultiplayerManager] ========== SPAWN ALL COMPLETE ==========")
-	print("[MultiplayerManager] Final _next_spawn_index: %d" % _next_spawn_index)
+	print("[MultiplayerManager] spawn_all_players() - delegating to SpawnManager")
+	var spawn_manager := get_node_or_null("/root/SpawnManager")
+	if spawn_manager:
+		spawn_manager.spawn_all_players()
+	else:
+		push_error("[MultiplayerManager] SpawnManager not found!")
 
 	# Aguardar registro de PUIDs antes de ativar voice (EOS apenas)
 	if current_mode == NetworkMode.EOS:
@@ -711,105 +733,6 @@ func _verify_puid_registration() -> void:
 	print("[MultiplayerManager] PUID count: ", puid_to_peer_id.size())
 	print("[MultiplayerManager] Connected peers: ", connected_peers)
 	print("[MultiplayerManager] PUID mappings: ", puid_to_peer_id)
-
-
-func _get_player_spawn_points() -> Array[Node3D]:
-	var spawn_points: Array[Node3D] = []
-
-	# First try to find spawn points in chunks (game scene)
-	var chunks_node := get_tree().current_scene.get_node_or_null("Chunks")
-	if chunks_node:
-		for chunk in chunks_node.get_children():
-			if "start" in chunk.name.to_lower():
-				var player_spawns = chunk.get_node_or_null("PlayerSpawnPoints")
-				if player_spawns and player_spawns.get_child_count() > 0:
-					for spawn_point in player_spawns.get_children():
-						spawn_points.append(spawn_point)
-					break
-
-	# Fallback: check for PlayerSpawnPoints directly in scene root (lobby)
-	if spawn_points.is_empty():
-		var root_spawns := get_tree().current_scene.get_node_or_null("PlayerSpawnPoints")
-		if root_spawns and root_spawns.get_child_count() > 0:
-			for spawn_point in root_spawns.get_children():
-				spawn_points.append(spawn_point)
-
-	# Sort spawn points by name to ensure consistent order (SpawnPoint1, SpawnPoint2, etc.)
-	if not spawn_points.is_empty():
-		spawn_points.sort_custom(func(a, b): return a.name < b.name)
-
-	return spawn_points
-
-
-func _spawn_player(id: int) -> void:
-	if players.has(id):
-		print("[MultiplayerManager] Player %d already spawned, skipping" % id)
-		return
-
-	var spawn_points := _get_player_spawn_points()
-	if spawn_points.is_empty():
-		push_error("[MultiplayerManager] No player spawn points found!")
-		return
-
-	print("[MultiplayerManager] Found %d spawn points" % spawn_points.size())
-
-	# Debug: print spawn point positions
-	for i in range(spawn_points.size()):
-		var sp_pos = spawn_points[i].global_position if spawn_points[i].is_inside_tree() else spawn_points[i].position
-		print("[MultiplayerManager] Spawn point %d: %s at %s" % [i, spawn_points[i].name, sp_pos])
-
-	var player := player_scene.instantiate()
-	player.name = str(id)
-	player.set_meta("peer_id", id)
-	player.add_to_group("players")
-
-	if current_mode == NetworkMode.LAN or current_mode == NetworkMode.EOS:
-		player.set_multiplayer_authority(id if id != my_peer_id else multiplayer.get_unique_id())
-
-	# Add to tree first, then set position
-	var players_node := get_tree().current_scene.get_node_or_null("Players")
-	if players_node:
-		players_node.add_child(player)
-
-	# Use incremental spawn index to ensure each player gets a different spawn point
-	var spawn_index := _next_spawn_index % spawn_points.size()
-	var spawn_point: Node3D = spawn_points[spawn_index]
-
-	print("[MultiplayerManager] ========== SPAWN DEBUG ==========")
-	print("[MultiplayerManager] Player ID: %d" % id)
-	print("[MultiplayerManager] Current _next_spawn_index: %d" % _next_spawn_index)
-	print("[MultiplayerManager] Calculated spawn_index: %d" % spawn_index)
-	print("[MultiplayerManager] Total spawn_points: %d" % spawn_points.size())
-	print("[MultiplayerManager] Selected spawn_point: %s" % spawn_point.name)
-	print("[MultiplayerManager] Spawn point position: %s" % spawn_point.global_position)
-
-	# Increment spawn index for next player
-	_next_spawn_index += 1
-	print("[MultiplayerManager] Incremented _next_spawn_index to: %d" % _next_spawn_index)
-
-	# Calculate global position from spawn point's transform
-	var final_position: Vector3
-	if spawn_point.is_inside_tree():
-		final_position = spawn_point.global_position
-		player.global_position = final_position
-		print("[MultiplayerManager] Set player.global_position to: %s (from spawn_point.global_position)" % final_position)
-	else:
-		# Fallback: use local position relative to parent chain
-		var pos := spawn_point.position
-		var parent := spawn_point.get_parent()
-		while parent and parent is Node3D:
-			pos = parent.transform * pos
-			parent = parent.get_parent()
-		final_position = pos
-		player.global_position = pos
-		print("[MultiplayerManager] Set player.global_position to: %s (from calculated position)" % final_position)
-
-	# Wait one frame and check position again
-	await get_tree().process_frame
-	print("[MultiplayerManager] Player %d FINAL position after 1 frame: %s" % [id, player.global_position])
-	print("[MultiplayerManager] ========================================")
-
-	players[id] = player
 
 
 func is_local_player(peer_id: int) -> bool:

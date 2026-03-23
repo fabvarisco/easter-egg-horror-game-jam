@@ -13,6 +13,7 @@ const GAME_SCENE_PATH := "res://scenes/main.tscn"
 @onready var players_container: Node3D = $Players
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
+@onready var spawn_manager: Node = get_node("/root/SpawnManager")
 @onready var lobby_camera: Camera3D = $Camera3D
 
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
@@ -181,39 +182,23 @@ func _on_connection_established(is_singleplayer: bool) -> void:
 
 
 func _spawn_local_player() -> void:
-	var peer_id: int
+	# Reset spawn state for new lobby session
+	spawn_manager.reset()
+
 	if _is_singleplayer:
-		peer_id = 1
+		spawn_manager.spawn_singleplayer()
 	else:
-		peer_id = multiplayer_manager.my_peer_id
-
-	# Use multiplayer_manager to spawn if multiplayer
-	if _is_singleplayer:
-		var player_scene: PackedScene = preload("res://scenes/player.tscn")
-		var player := player_scene.instantiate()
-		player.name = str(peer_id)
-		player.set_meta("peer_id", peer_id)
-		player.add_to_group("players")
-
-		# Add to tree first, then position
-		players_container.add_child(player)
-
-		# Position at first spawn point
-		if spawn_points.get_child_count() > 0:
-			player.global_position = spawn_points.get_child(0).global_position
-		multiplayer_manager.players[peer_id] = player
-	else:
-		# Let multiplayer manager handle spawning
-		multiplayer_manager.spawn_all_players()
+		# Let spawn manager handle spawning all connected players
+		spawn_manager.spawn_all_players()
 
 
 func _on_player_connected(peer_id: int) -> void:
 	if _state == LobbyState.MENU:
 		return
 
-	# Spawn the new player visually
-	if not multiplayer_manager.players.has(peer_id):
-		multiplayer_manager._spawn_player(peer_id)
+	# Spawn the new player visually if not already spawned
+	if not spawn_manager.is_player_spawned(peer_id):
+		spawn_manager.spawn_player(peer_id)
 
 	var is_local = multiplayer_manager.is_local_player(peer_id)
 	lobby_hud.add_player(peer_id, is_local)
@@ -305,11 +290,8 @@ func _on_game_starting() -> void:
 
 
 func _cleanup() -> void:
-	# Clear players
-	for child in players_container.get_children():
-		child.queue_free()
-
-	multiplayer_manager.players.clear()
+	# Clear players using SpawnManager
+	spawn_manager.clear_all_players()
 	lobby_hud.clear_players()
 
 
