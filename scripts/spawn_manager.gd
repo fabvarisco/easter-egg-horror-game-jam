@@ -151,9 +151,16 @@ func spawn_all_players() -> void:
 	"""Spawn all connected players (multiplayer)."""
 	print("[SpawnManager] ========== SPAWN ALL PLAYERS ==========")
 	print("[SpawnManager] connected_peers: %s" % str(multiplayer_manager.connected_peers))
-	print("[SpawnManager] Current _next_spawn_index before spawning: %d" % _next_spawn_index)
 
-	for peer_id in multiplayer_manager.connected_peers:
+	# Sort peers for deterministic spawn order across all clients
+	var sorted_peers: Array = multiplayer_manager.connected_peers.duplicate()
+	sorted_peers.sort()
+
+	print("[SpawnManager] Sorted peers for spawn: %s" % str(sorted_peers))
+
+	# Reset spawn index and spawn in sorted order
+	_next_spawn_index = 0
+	for peer_id in sorted_peers:
 		spawn_player(peer_id)
 
 	print("[SpawnManager] ========== SPAWN ALL COMPLETE ==========")
