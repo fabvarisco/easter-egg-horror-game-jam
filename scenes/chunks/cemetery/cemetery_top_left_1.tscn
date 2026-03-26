@@ -29,7 +29,7 @@ mesh = SubResource("BoxMesh_rkt2a")
 shape = SubResource("ConcavePolygonShape3D_rkt2a")
 
 [node name="Wall2" type="MeshInstance3D" parent="World" index="1"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.046325684, 2.5516224, 9.998868)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.046325684, 2.5516224, 9.834123)
 mesh = SubResource("BoxMesh_rkt2a")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2" index="0"]
