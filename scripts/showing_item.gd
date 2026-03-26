@@ -64,16 +64,9 @@ func set_custom_font(font_path: String) -> void:
 	if font_file and description:
 		description.add_theme_font_override("normal_font", font_file)
 		description.add_theme_font_override("bold_font", font_file)
-		print("[ShowingItem] Custom font applied: ", font_path)
-	else:
-		if not font_file:
-			print("[ShowingItem] ERROR: Failed to load font: ", font_path)
-		if not description:
-			print("[ShowingItem] ERROR: description node is null")
 
 
 func hide_description_label() -> void:
 	"""Esconde o RichTextLabel (usado quando texto está renderizado no mesh)"""
 	if description:
 		description.visible = false
-		print("[ShowingItem] Description label hidden")

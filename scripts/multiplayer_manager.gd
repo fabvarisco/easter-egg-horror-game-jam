@@ -85,7 +85,6 @@ func _notification(what: int) -> void:
 
 
 func _handle_quit() -> void:
-	print("[MultiplayerManager] Handling quit...")
 
 	# Disable all processing immediately to prevent callbacks during shutdown
 	set_process(false)
@@ -114,7 +113,6 @@ func _handle_quit() -> void:
 	_stop_broadcasting()
 	_stop_listening()
 
-	print("[MultiplayerManager] Cleanup complete, quitting...")
 	get_tree().quit()
 
 
@@ -126,10 +124,7 @@ func _handle_quit() -> void:
 func _check_eos_available() -> void:
 	_eos_available = ClassDB.class_exists("EOSGMultiplayerPeer")
 
-	if _eos_available:
-		print("[EOS] Plugin detectado - multiplayer online disponível")
-	else:
-		print("[EOS] Plugin não encontrado - modo LAN apenas")
+	pass
 
 
 func is_eos_available() -> bool:
@@ -143,8 +138,6 @@ func _initialize_eos() -> bool:
 	if not _eos_available:
 		return false
 
-	print("[EOS] Inicializando plataforma...")
-
 	# 1. Initialize EOS Platform
 	var init_opts = EOS.Platform.InitializeOptions.new()
 	init_opts.product_name = EOSConfig.PRODUCT_NAME
@@ -154,8 +147,6 @@ func _initialize_eos() -> bool:
 	if init_result != EOS.Result.Success and init_result != EOS.Result.AlreadyConfigured:
 		push_error("[EOS] Falha ao inicializar: " + EOS.result_str(init_result))
 		return false
-
-	print("[EOS] SDK inicializado")
 
 	# 2. Create EOS Platform
 	var create_opts = EOS.Platform.CreateOptions.new()
@@ -171,8 +162,6 @@ func _initialize_eos() -> bool:
 		push_error("[EOS] Falha ao criar plataforma")
 		return false
 
-	print("[EOS] Plataforma criada. Fazendo login anônimo...")
-
 	# 3. Setup logging
 	EOS.Logging.set_log_level(EOS.Logging.LogCategory.AllCategories, EOS.Logging.LogLevel.Info)
 
@@ -185,7 +174,6 @@ func _initialize_eos() -> bool:
 	_local_product_user_id = HAuth.product_user_id
 	_eos_initialized = true
 	my_peer_id = abs(hash(_local_product_user_id)) % 1000000
-	print("[EOS] Login OK! PUID: ", _local_product_user_id, " | peer_id: ", my_peer_id)
 	return true
 
 # ==========================================
@@ -208,7 +196,6 @@ func host_game_lan(player_name: String = "Host") -> void:
 	is_host = true
 	my_peer_id = 1
 	room_code = host_name
-	print("[MultiplayerManager] LAN host created")
 
 	_start_broadcasting()
 	if not connected_peers.has(my_peer_id):
@@ -270,8 +257,6 @@ func host_game_eos(room_name: String = "Game") -> void:
 			current_mode = NetworkMode.NONE
 			return
 
-	print("[EOS] Criando lobby...")
-
 	# Create lobby using high-level API
 	var create_opts := EOS.Lobby.CreateLobbyOptions.new()
 	create_opts.bucket_id = GAME_ID
@@ -298,9 +283,7 @@ func host_game_eos(room_name: String = "Game") -> void:
 	multiplayer.multiplayer_peer = _eos_peer
 	room_code = _generate_lobby_code(_current_lobby.lobby_id)
 	my_peer_id = 1
-	print("[MultiplayerManager] EOS lobby created")
 
-	print("[EOS] Lobby criado! Código: ", room_code)
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
 
@@ -328,8 +311,6 @@ func join_game_eos(code: String) -> void:
 			current_mode = NetworkMode.NONE
 			return
 
-	print("[EOS] Buscando lobby com código: ", room_code)
-
 	# Search for lobbies by bucket_id
 	var lobbies = await HLobbies.search_by_bucket_id_async(GAME_ID)
 	if not lobbies or lobbies.size() == 0:
@@ -337,13 +318,10 @@ func join_game_eos(code: String) -> void:
 		current_mode = NetworkMode.NONE
 		return
 
-	print("[EOS] Encontrados ", lobbies.size(), " lobbies")
-
 	# Find lobby matching the code
 	for lobby in lobbies:
 		var found_code := _generate_lobby_code(lobby.lobby_id)
 		if found_code == room_code:
-			print("[EOS] Lobby encontrado! Entrando: ", lobby.lobby_id)
 
 			# Join the lobby
 			var joined_lobby = await HLobbies.join_by_id_async(lobby.lobby_id)
@@ -363,7 +341,6 @@ func join_game_eos(code: String) -> void:
 
 			multiplayer.multiplayer_peer = _eos_peer
 			_current_lobby = joined_lobby
-			print("[EOS] Conectado ao lobby!")
 			return
 
 	lobby_join_failed.emit("Lobby não encontrado: " + room_code)
@@ -415,10 +392,7 @@ func _generate_lobby_code(lobby_id: String) -> String:
 
 
 func leave_game() -> void:
-	print("[MultiplayerManager] Leaving game...")
-
 	if _is_quitting:
-		print("[MultiplayerManager] Already quitting, skipping leave_game")
 		return
 
 	# Aguardar RPCs pendentes (with safety check)
@@ -443,8 +417,6 @@ func leave_game() -> void:
 	room_code = ""
 	is_host = false
 	my_peer_id = 0
-
-	print("[MultiplayerManager] Leave complete")
 
 
 func _leave_eos_sync() -> void:
@@ -493,7 +465,6 @@ func _leave_eos() -> void:
 
 func _cleanup_on_exit() -> void:
 	# Synchronous cleanup when game is closing
-	print("[MultiplayerManager] Cleanup on exit...")
 	_stop_broadcasting()
 	_stop_listening()
 
@@ -513,7 +484,6 @@ func _cleanup_on_exit() -> void:
 	connected_peers.clear()
 	puid_to_peer_id.clear()
 	peer_id_to_puid.clear()
-	print("[MultiplayerManager] Cleanup complete")
 
 
 # ==========================================
@@ -524,8 +494,6 @@ func _cleanup_on_exit() -> void:
 func _on_peer_connected(id: int) -> void:
 	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
-	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
-	print("[%s] Peer conectado: %d" % [mode_str, id])
 	if not connected_peers.has(id):
 		connected_peers.append(id)
 
@@ -544,8 +512,6 @@ func _on_peer_connected(id: int) -> void:
 func _on_peer_disconnected(id: int) -> void:
 	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
-	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
-	print("[%s] Peer desconectado: %d" % [mode_str, id])
 	connected_peers.erase(id)
 	_remove_player(id)
 	player_disconnected.emit(id)
@@ -554,8 +520,6 @@ func _on_peer_disconnected(id: int) -> void:
 func _on_connected_to_server() -> void:
 	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
-	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
-	print("[%s] Conectado ao servidor!" % mode_str)
 	my_peer_id = multiplayer.get_unique_id()
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
@@ -570,16 +534,12 @@ func _on_connected_to_server() -> void:
 func _on_connection_failed() -> void:
 	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
-	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
-	print("[%s] Conexão falhou!" % mode_str)
 	connection_failed.emit()
 
 
 func _on_server_disconnected() -> void:
 	if _is_quitting:
 		return
-	var mode_str = "LAN" if current_mode == NetworkMode.LAN else "EOS"
-	print("[%s] Servidor desconectou!" % mode_str)
 	_clear_players()
 	connected_peers.clear()
 	current_mode = NetworkMode.NONE
@@ -728,7 +688,6 @@ func _remove_player(id: int) -> void:
 
 
 func _clear_players() -> void:
-	print("[MultiplayerManager] _clear_players called")
 	var spawn_manager := get_node_or_null("/root/SpawnManager")
 	if spawn_manager:
 		spawn_manager.clear_all_players()
@@ -742,7 +701,6 @@ func _clear_players() -> void:
 
 
 func spawn_all_players() -> void:
-	print("[MultiplayerManager] spawn_all_players() - delegating to SpawnManager")
 	var spawn_manager := get_node_or_null("/root/SpawnManager")
 	if spawn_manager:
 		spawn_manager.spawn_all_players()
@@ -757,9 +715,6 @@ func spawn_all_players() -> void:
 func _verify_puid_registration() -> void:
 	"""Verifica e loga o estado do registro de PUIDs para debug"""
 	await get_tree().create_timer(0.5).timeout
-	print("[MultiplayerManager] PUID count: ", puid_to_peer_id.size())
-	print("[MultiplayerManager] Connected peers: ", connected_peers)
-	print("[MultiplayerManager] PUID mappings: ", puid_to_peer_id)
 
 
 func is_local_player(peer_id: int) -> bool:
@@ -831,7 +786,6 @@ func _sync_peer_list(peers: Array) -> void:
 		if not connected_peers.has(peer_id):
 			connected_peers.append(peer_id)
 			player_connected.emit(peer_id)
-	print("[Multiplayer] Synced peer list: ", connected_peers)
 
 
 # ==========================================
@@ -843,7 +797,6 @@ func _sync_peer_list(peers: Array) -> void:
 func _register_puid(puid: String, peer_id: int) -> void:
 	puid_to_peer_id[puid] = peer_id
 	peer_id_to_puid[peer_id] = puid
-	print("[Voice] Registered PUID mapping: %s -> peer %d" % [puid, peer_id])
 
 
 func get_current_lobby() -> HLobby:

@@ -36,7 +36,6 @@ func _check_initial_players() -> void:
 
 	# Check for bodies already overlapping
 	var bodies := _detection_area.get_overlapping_bodies()
-	print("[ChunkCamera] ", name, " checking initial players, found: ", bodies.size())
 	for body in bodies:
 		_on_body_entered(body)
 
@@ -45,19 +44,15 @@ func _on_body_entered(body: Node3D) -> void:
 		return
 
 	_players_in_chunk += 1
-	print("[ChunkCamera] Player entered, total in chunk: ", _players_in_chunk)
 
 	# Ativar outlines quando primeiro player entra
 	if _players_in_chunk == 1:
-		var chunk_name := str(get_parent().name) if get_parent() else "no parent"
-		print("[ChunkCamera] Activating outlines for chunk: ", chunk_name)
 		_set_chunk_outlines_active(true)
 
 	# Só ativar câmera para jogador local
 	if not _is_local_player(body):
 		return
 
-	print("[ChunkCamera] Player entered chunk: ", name)
 	var camera_manager := get_node_or_null("/root/CameraManager")
 	if camera_manager:
 		camera_manager.set_active_camera(camera)
@@ -77,42 +72,28 @@ func _on_body_exited(body: Node3D) -> void:
 
 func _set_chunk_outlines_active(active: bool) -> void:
 	var chunk_parent = get_parent()
-	var chunk_name := str(chunk_parent.name) if chunk_parent else "no parent"
-	print("[ChunkCamera] Setting outlines active: ", active, " for chunk: ", chunk_name)
 
 	# Encontrar todos os itens filhos do chunk
 	if not chunk_parent:
-		print("[ChunkCamera] WARNING: No chunk parent found!")
 		return
-
-	var items_count = 0
-	var eggs_count = 0
 
 	# Buscar itens interativos dentro do chunk
 	for child in chunk_parent.get_children():
 		if child.is_in_group("interactable_items") and child.has_method("set_outline_active"):
 			child.set_outline_active(active)
-			items_count += 1
-			print("[ChunkCamera] Set outline for item: ", child.name)
 		elif child.is_in_group("eggs") and child.has_method("set_outline_active"):
 			child.set_outline_active(active)
-			eggs_count += 1
-			print("[ChunkCamera] Set outline for egg: ", child.name)
 
 		# Buscar recursivamente em filhos
 		_set_outlines_recursive(child, active)
-
-	print("[ChunkCamera] Total items found: ", items_count, ", eggs found: ", eggs_count)
 
 
 func _set_outlines_recursive(node: Node, active: bool) -> void:
 	for child in node.get_children():
 		if child.is_in_group("interactable_items") and child.has_method("set_outline_active"):
 			child.set_outline_active(active)
-			print("[ChunkCamera] Set outline for item (recursive): ", child.name)
 		elif child.is_in_group("eggs") and child.has_method("set_outline_active"):
 			child.set_outline_active(active)
-			print("[ChunkCamera] Set outline for egg (recursive): ", child.name)
 
 		# Continuar buscando recursivamente
 		_set_outlines_recursive(child, active)

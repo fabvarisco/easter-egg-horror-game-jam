@@ -31,8 +31,6 @@ func setup_eos_async() -> bool:
 		push_error("[EOS] Plugin não disponível")
 		return false
 
-	print("[EOS] Inicializando...")
-
 	# 1. Initialize EOS Platform
 	var init_opts = EOS.Platform.InitializeOptions.new()
 	init_opts.product_name = EOSConfig.PRODUCT_NAME
@@ -43,8 +41,6 @@ func setup_eos_async() -> bool:
 		push_error("[EOS] Falha ao inicializar: " + EOS.result_str(init_result))
 		login_completed.emit(false)
 		return false
-
-	print("[EOS] SDK inicializado")
 
 	# 2. Create EOS Platform
 	var create_opts = EOS.Platform.CreateOptions.new()
@@ -61,8 +57,6 @@ func setup_eos_async() -> bool:
 		login_completed.emit(false)
 		return false
 
-	print("[EOS] Plataforma criada")
-
 	# 3. Setup logging
 	EOS.get_instance().logging_interface_callback.connect(_on_eos_log)
 	EOS.Logging.set_log_level(EOS.Logging.LogCategory.AllCategories, EOS.Logging.LogLevel.Info)
@@ -73,7 +67,6 @@ func setup_eos_async() -> bool:
 		peer.peer_disconnected.connect(_on_peer_disconnected)
 
 	# 5. Login anonymously
-	print("[EOS] Fazendo login anônimo...")
 	var login_success = await HAuth.login_anonymous_async("Player")
 	if not login_success:
 		push_error("[EOS] Falha no login anônimo")
@@ -82,7 +75,6 @@ func setup_eos_async() -> bool:
 
 	local_user_id = HAuth.product_user_id
 	eos_setup = true
-	print("[EOS] Login OK! PUID: ", local_user_id)
 	login_completed.emit(true)
 	return true
 
@@ -94,16 +86,12 @@ func find_match_async() -> void:
 			connection_failed.emit("Falha ao configurar EOS")
 			return
 
-	print("[EOS] Buscando partida...")
-
 	# Try to find existing lobbies
 	var lobbies = await HLobbies.search_by_bucket_id_async(GAME_BUCKET_ID)
 
 	if lobbies and lobbies.size() > 0:
-		print("[EOS] Lobby encontrado, entrando...")
 		await _join_lobby(lobbies[0])
 	else:
-		print("[EOS] Nenhum lobby, criando...")
 		await _create_lobby()
 
 
@@ -129,7 +117,6 @@ func _create_lobby() -> void:
 	is_server = true
 
 	var code := _generate_lobby_code(local_lobby.lobby_id)
-	print("[EOS] Lobby criado! Código: ", code)
 	lobby_created.emit(code)
 
 
@@ -150,7 +137,6 @@ func _join_lobby(lobby: HLobby) -> void:
 	multiplayer.multiplayer_peer = peer
 	local_lobby = joined
 	is_server = false
-	print("[EOS] Conectado ao lobby!")
 	match_found.emit()
 
 
@@ -178,17 +164,16 @@ func _generate_lobby_code(lobby_id: String) -> String:
 	return code
 
 
-func _on_eos_log(msg) -> void:
-	msg = EOS.Logging.LogMessage.from(msg) as EOS.Logging.LogMessage
-	print("[EOS SDK] %s | %s" % [msg.category, msg.message])
+func _on_eos_log(_msg) -> void:
+	pass
 
 
-func _on_peer_connected(peer_id: int) -> void:
-	print("[EOS] Peer conectado: ", peer_id)
+func _on_peer_connected(_peer_id: int) -> void:
+	pass
 
 
-func _on_peer_disconnected(peer_id: int) -> void:
-	print("[EOS] Peer desconectado: ", peer_id)
+func _on_peer_disconnected(_peer_id: int) -> void:
+	pass
 
 
 func _exit_tree() -> void:

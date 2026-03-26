@@ -25,6 +25,7 @@ shape = SubResource("ConcavePolygonShape3D_o1atq")
 [node name="PlayerSpawnPoints" type="Node3D" parent="."]
 
 [node name="IntectableItemSpawnPoints" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.868619, 0.43873286, 0)
 
 [node name="EggSpawnPoints" type="Node3D" parent="."]
 

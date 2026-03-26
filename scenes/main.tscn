@@ -1,6 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://skdaejm2ow6n"]
+[gd_scene load_steps=7 format=3 uid="uid://skdaejm2ow6n"]
 
 [ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game_controller.gd" id="1_gamectrl"]
+[ext_resource type="PackedScene" uid="uid://dq8tfcgg6jpll" path="res://scenes/notes/note_bunny_threat.tscn" id="2_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://bvtxtai7mctvv" path="res://scenes/notes/note_diary.tscn" id="3_tefeu"]
+[ext_resource type="PackedScene" uid="uid://cq8tfcgg6jpkk" path="res://scenes/notes/note_egg_warning.tscn" id="4_o6xl0"]
+[ext_resource type="PackedScene" uid="uid://vtxtai7mctuu" path="res://scenes/notes/note_evacuation.tscn" id="5_tipki"]
 
 [sub_resource type="Environment" id="Environment_0wfyh"]
 background_mode = 1
@@ -14,6 +18,7 @@ volumetric_fog_enabled = true
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_gamectrl")
+spawnable_items = Array[PackedScene]([ExtResource("2_tbgi4"), ExtResource("3_tefeu"), ExtResource("4_o6xl0"), ExtResource("5_tipki")])
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8660253, -0.35355332, 0.35355374, 0, 0.70710725, 0.7071064, -0.50000024, -0.61237204, 0.61237276, 0, 10, 0)

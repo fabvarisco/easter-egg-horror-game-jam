@@ -333,6 +333,15 @@ points = PackedVector3Array(-1.184817, 1.1502789, 0.10901415, -0.7832055, 1.2040
 [node name="Plane" parent="." index="0"]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, -11.418787, 0)
 
+[node name="Point3" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4743376, -1.3557858, -6.853758)
+
+[node name="Point" type="Node3D" parent="IntectableItemSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.433259, -0.6778929, 2.751008)
+
+[node name="Point2" type="Node3D" parent="IntectableItemSpawnPoints" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.708524, -0.6778929, 2.751008)
+
 [node name="point" type="Node3D" parent="EggSpawnPoints" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8315654, 0, -1.6310606)
 

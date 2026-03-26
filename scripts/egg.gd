@@ -97,14 +97,10 @@ func _connect_bunny_to_scene(bunny: Node) -> void:
 
 
 func set_outline_active(active: bool) -> void:
-	print("[Egg] ", name, " - set_outline_active called: ", active)
-
 	if not mesh_instance:
-		print("[Egg] ", name, " - WARNING: mesh_instance is null!")
 		return
 
 	if active:
-		print("[Egg] ", name, " - Activating outline")
 		# Ativar o material overlay (outline)
 		if mesh_instance.material_overlay == null:
 			# Recriar o material do outline
@@ -119,10 +115,6 @@ func set_outline_active(active: bool) -> void:
 			material.set_shader_parameter("enable_pulse", true)
 			material.render_priority = 1
 			mesh_instance.material_overlay = material
-			print("[Egg] ", name, " - Outline material created and applied")
-		else:
-			print("[Egg] ", name, " - Outline already active")
 	else:
-		print("[Egg] ", name, " - Deactivating outline")
 		# Desativar o material overlay (outline)
 		mesh_instance.material_overlay = null

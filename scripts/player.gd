@@ -61,9 +61,6 @@ var _movement_enabled: bool = true
 signal player_died
 
 func _ready() -> void:
-	var peer_id = get_meta("peer_id", -1)
-	print("[Player %d] _ready() called - initial position: %s" % [peer_id, global_position])
-
 	if not _has_authority():
 		set_process_input(false)
 
@@ -267,9 +264,6 @@ func _rotate_to_mouse(_delta: float) -> void:
 func _send_position_sync() -> void:
 	if not _is_multiplayer_connected():
 		return
-	var peer_id = get_meta("peer_id", -1)
-	if Engine.get_frames_drawn() % 60 == 0:  # Log every 60 frames to avoid spam
-		print("[Player %d] _send_position_sync - sending position: %s" % [peer_id, global_position])
 	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting, is_on_floor())
 
 
@@ -291,9 +285,6 @@ func _is_multiplayer_connected() -> bool:
 
 @rpc("authority", "call_remote", "unreliable")
 func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool, on_floor: bool = true) -> void:
-	var peer_id = get_meta("peer_id", -1)
-	if Engine.get_frames_drawn() % 60 == 0:  # Log every 60 frames to avoid spam
-		print("[Player %d] _sync_position called - old pos: %s, new pos: %s" % [peer_id, global_position, pos])
 	global_position = pos
 	rotation.y = rot_y
 	_current_speed = speed
@@ -556,15 +547,10 @@ func _connect_voice_detection() -> void:
 	"""Conecta com VoiceManager para detectar quando jogador está falando"""
 	var voice_manager := get_node_or_null("/root/VoiceManager")
 	if not voice_manager:
-		print("[Player] VoiceManager not found - voice detection disabled")
 		return
 
 	if voice_manager.has_signal("player_speaking_changed"):
 		voice_manager.player_speaking_changed.connect(_on_player_speaking_changed)
-		var my_peer_id: int = get_meta("peer_id", 1)
-		print("[Player %d] Connected to VoiceManager for speech detection" % my_peer_id)
-	else:
-		print("[Player] VoiceManager signal 'player_speaking_changed' not found")
 
 
 func _on_player_speaking_changed(peer_id: int, is_speaking: bool) -> void:
@@ -572,11 +558,7 @@ func _on_player_speaking_changed(peer_id: int, is_speaking: bool) -> void:
 	var my_peer_id: int = get_meta("peer_id", 1)
 
 	if peer_id == my_peer_id:
-		var was_speaking = _is_speaking
 		_is_speaking = is_speaking
-		print("[Player %d] Speaking state changed: %s -> %s" % [my_peer_id, was_speaking, is_speaking])
-		if is_speaking:
-			print("[Player %d] Voice detected - sound radius will increase" % my_peer_id)
 
 
 func get_sound_radius() -> float:
@@ -621,13 +603,4 @@ func _controll_sound_value(_delta: float) -> void:
 
 func _debug_print_sound_radius() -> void:
 	"""Debug: mostra raio atual no console"""
-	var state := "IDLE"
-	if _is_sprinting:
-		state = "SPRINT"
-	elif _is_walking:
-		state = "WALK_SLOW"
-	elif _current_speed > 0.1:
-		state = "WALK"
-
-	var voice_text := " +VOICE" if _is_speaking else ""
-	print("[SoundRadius] %s%s | Radius: %.1f -> %.1f" % [state, voice_text, _sound_radius_current, _sound_radius_target])
+	pass

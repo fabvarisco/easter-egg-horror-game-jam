@@ -14,19 +14,14 @@ var _next_spawn_index: int = 0
 
 
 func _ready() -> void:
-	print("[SpawnManager] Initialized")
+	pass
 
 
 func reset() -> void:
 	"""Clears spawn state for scene transitions. Called before spawning in a new scene."""
-	print("[SpawnManager] reset() - Clearing all spawn state")
-	print("[SpawnManager] Previous state - spawned_peer_ids: %s, next_spawn_index: %d" % [_spawned_peer_ids.keys(), _next_spawn_index])
-
 	# Don't queue_free here - the scene transition handles that
 	_spawned_peer_ids.clear()
 	_next_spawn_index = 0
-
-	print("[SpawnManager] State after reset - spawned_peer_ids: %s, next_spawn_index: %d" % [_spawned_peer_ids.keys(), _next_spawn_index])
 
 
 func is_player_spawned(peer_id: int) -> bool:
@@ -71,15 +66,12 @@ func get_spawn_points() -> Array[Node3D]:
 func spawn_player(peer_id: int) -> Node3D:
 	"""Spawn a single player at the next available spawn point."""
 	if is_player_spawned(peer_id):
-		print("[SpawnManager] Player %d already spawned, skipping" % peer_id)
 		return _spawned_peer_ids.get(peer_id)
 
 	var spawn_points := get_spawn_points()
 	if spawn_points.is_empty():
 		push_error("[SpawnManager] No player spawn points found!")
 		return null
-
-	print("[SpawnManager] Found %d spawn points" % spawn_points.size())
 
 	var player := player_scene.instantiate()
 	player.name = str(peer_id)
@@ -95,17 +87,8 @@ func spawn_player(peer_id: int) -> Node3D:
 	var spawn_index := _next_spawn_index % spawn_points.size()
 	var spawn_point: Node3D = spawn_points[spawn_index]
 
-	print("[SpawnManager] ========== SPAWN DEBUG ==========")
-	print("[SpawnManager] Player ID: %d" % peer_id)
-	print("[SpawnManager] Current _next_spawn_index: %d" % _next_spawn_index)
-	print("[SpawnManager] Calculated spawn_index: %d" % spawn_index)
-	print("[SpawnManager] Total spawn_points: %d" % spawn_points.size())
-	print("[SpawnManager] Selected spawn_point: %s" % spawn_point.name)
-	print("[SpawnManager] Spawn point position: %s" % spawn_point.global_position)
-
 	# Increment spawn index for next player
 	_next_spawn_index += 1
-	print("[SpawnManager] Incremented _next_spawn_index to: %d" % _next_spawn_index)
 
 	# Calculate spawn position BEFORE adding to tree (prevents physics glitch)
 	var final_position: Vector3
@@ -122,7 +105,6 @@ func spawn_player(peer_id: int) -> Node3D:
 
 	# Set position BEFORE adding to tree to prevent physics glitch
 	player.position = final_position
-	print("[SpawnManager] Set player.position to: %s (before adding to tree)" % final_position)
 
 	# Find Players container and add player
 	var players_node := get_tree().current_scene.get_node_or_null("Players")
@@ -130,13 +112,10 @@ func spawn_player(peer_id: int) -> Node3D:
 		players_node.add_child(player)
 		# Ensure global position is correct after adding to tree
 		player.global_position = final_position
-		print("[SpawnManager] Confirmed player.global_position: %s (after adding to tree)" % player.global_position)
 	else:
 		push_error("[SpawnManager] No 'Players' node found in scene!")
 		player.queue_free()
 		return null
-
-	print("[SpawnManager] ========================================")
 
 	# Track spawned player
 	_spawned_peer_ids[peer_id] = player
@@ -149,28 +128,18 @@ func spawn_player(peer_id: int) -> Node3D:
 
 func spawn_all_players() -> void:
 	"""Spawn all connected players (multiplayer)."""
-	print("[SpawnManager] ========== SPAWN ALL PLAYERS ==========")
-	print("[SpawnManager] connected_peers: %s" % str(multiplayer_manager.connected_peers))
-
 	# Sort peers for deterministic spawn order across all clients
 	var sorted_peers: Array = multiplayer_manager.connected_peers.duplicate()
 	sorted_peers.sort()
-
-	print("[SpawnManager] Sorted peers for spawn: %s" % str(sorted_peers))
 
 	# Reset spawn index and spawn in sorted order
 	_next_spawn_index = 0
 	for peer_id in sorted_peers:
 		spawn_player(peer_id)
 
-	print("[SpawnManager] ========== SPAWN ALL COMPLETE ==========")
-	print("[SpawnManager] Final _next_spawn_index: %d" % _next_spawn_index)
-
 
 func spawn_singleplayer() -> Node3D:
 	"""Spawn the local player for singleplayer mode."""
-	print("[SpawnManager] Spawning singleplayer")
-
 	var player := spawn_player(1)
 
 	if player:
@@ -195,14 +164,11 @@ func remove_player(peer_id: int) -> void:
 	_spawned_peer_ids.erase(peer_id)
 	multiplayer_manager.players.erase(peer_id)
 
-	print("[SpawnManager] Removed player %d" % peer_id)
 	player_removed.emit(peer_id)
 
 
 func clear_all_players() -> void:
 	"""Remove all players and reset spawn state."""
-	print("[SpawnManager] clear_all_players() called")
-
 	for peer_id in _spawned_peer_ids.keys():
 		var player: Node = _spawned_peer_ids[peer_id]
 		if is_instance_valid(player):
@@ -211,8 +177,6 @@ func clear_all_players() -> void:
 	_spawned_peer_ids.clear()
 	multiplayer_manager.players.clear()
 	_next_spawn_index = 0
-
-	print("[SpawnManager] All players cleared, spawn index reset to 0")
 
 
 func get_player(peer_id: int) -> Node3D:

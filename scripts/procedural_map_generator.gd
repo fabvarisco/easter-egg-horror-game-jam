@@ -24,9 +24,6 @@ func generate_map(map_def: MapTypeDefinition, grid_size: Vector2i, seed_value: i
 	rng.randomize()
 	rng.seed = seed_value
 
-	print("[ProceduralMapGenerator] Gerando mapa '%s' com grid %dx%d (seed: %d)" %
-		[map_def.map_name, validated_grid.x, validated_grid.y, seed_value])
-
 	var chunks: Array[Node3D] = []
 	var total_chunks := validated_grid.x * validated_grid.y
 
@@ -40,7 +37,6 @@ func generate_map(map_def: MapTypeDefinition, grid_size: Vector2i, seed_value: i
 			else:
 				push_warning("[ProceduralMapGenerator] Falha ao gerar chunk em (%d, %d)" % [x, y])
 
-	print("[ProceduralMapGenerator] Gerou %d/%d chunks com sucesso" % [chunks.size(), total_chunks])
 	return chunks
 
 

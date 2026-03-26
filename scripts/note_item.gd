@@ -69,8 +69,6 @@ func _create_text_texture() -> ImageTexture:
 
 	viewport.queue_free()
 
-	print("[NoteItem] Text texture created and viewport cleaned up")
-
 	return permanent_texture
 
 
@@ -115,7 +113,6 @@ func _apply_text_texture_async(_showing_item_instance: Node3D) -> void:
 	var text_texture := await _create_text_texture()
 
 	if not is_instance_valid(_showing_item_instance):
-		print("[NoteItem] showing_item was destroyed before texture could be applied")
 		return
 
 	var material := StandardMaterial3D.new()
@@ -124,5 +121,3 @@ func _apply_text_texture_async(_showing_item_instance: Node3D) -> void:
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED 
 
 	_showing_item_instance.mesh_instance.material_override = material
-
-	print("[NoteItem] Text texture applied to showing_item mesh")

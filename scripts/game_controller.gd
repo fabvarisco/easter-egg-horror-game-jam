@@ -7,7 +7,9 @@ extends Node3D
 @export var grid_size: Vector2i = Vector2i(8, 8)
 @export var generation_seed: int = 0  # 0 = random
 
-var _player_scene: PackedScene = preload("res://scenes/player.tscn")
+# Interactable items spawn
+@export var spawnable_items: Array[PackedScene] = []
+
 var _egg_scene: PackedScene = preload("res://scenes/egg.tscn")
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
 var _pause_menu: CanvasLayer = null
@@ -32,7 +34,6 @@ var _total_good_eggs: int = 0
 var _eggs_delivered: int = 0
 var _players_in_car: Dictionary = {}  # peer_id -> bool
 var _car_area: Area3D = null
-
 
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
@@ -83,14 +84,12 @@ func _generate_procedural_map() -> void:
 	for chunk in generated_chunks:
 		chunks.add_child(chunk)
 
-	print("[GameController] Generated %d chunks with seed %d" % [generated_chunks.size(), seed_value])
 
 
 @rpc("authority", "call_local", "reliable")
 func _sync_map_seed(seed_value: int) -> void:
 	"""Receives seed from host for deterministic map generation"""
 	generation_seed = seed_value
-	print("[GameController] Received seed from host: %d" % seed_value)
 
 
 func _start_game() -> void:
@@ -101,6 +100,9 @@ func _start_game() -> void:
 
 	# Spawn eggs after players and get good egg count
 	_total_good_eggs = spawn_eggs()
+
+	# Spawn interactable items
+	spawn_items()
 
 	# Setup car delivery
 	_setup_car()
@@ -146,17 +148,13 @@ func _activate_start_chunk_camera() -> void:
 
 	var camera_manager := get_node_or_null("/root/CameraManager")
 	if not camera_manager:
-		print("[GameController] CameraManager not found!")
 		return
 
 	for chunk in chunks.get_children():
 		if "start" in chunk.name.to_lower():
 			var camera := chunk.get_node_or_null("Camera3D") as Camera3D
 			if camera:
-				print("[GameController] Activating start chunk camera: ", chunk.name)
 				camera_manager.set_active_camera(camera)
-			else:
-				print("[GameController] No Camera3D found in chunk: ", chunk.name)
 			break
 
 
@@ -214,14 +212,7 @@ func spawn_eggs() -> int:
 			var selected_point: Node3D = chunk_spawn_points[random_index]
 			selected_spawn_points.append(selected_point)
 
-			print("[GameController] Chunk '%s': Selected spawn point %d/%d" % [
-				chunk.name,
-				random_index,
-				chunk_spawn_points.size()
-			])
-
 	var egg_count: int = selected_spawn_points.size()
-	print("[GameController] Total eggs to spawn: ", egg_count)
 
 	if egg_count == 0:
 		return 0
@@ -249,7 +240,6 @@ func spawn_eggs() -> int:
 
 	# Spawnar ovos
 	var good_egg_count: int = 0
-	var actual_monster_count: int = 0
 
 	for i in range(egg_count):
 		var spawn_point: Node3D = selected_spawn_points[i]
@@ -261,23 +251,108 @@ func spawn_eggs() -> int:
 
 		if is_monster:
 			egg.is_monster = true
-			actual_monster_count += 1
 		else:
 			good_egg_count += 1
 
 		# Nome determinístico para sincronização multiplayer
 		egg.name = "Egg_" + str(i)
 		egg.add_to_group("eggs")
-		add_child(egg)
+		# Adicionar como filho do chunk (spawn_point -> EggSpawnPoints -> Chunk)
+		var target_chunk: Node3D = spawn_point.get_parent().get_parent()
+		target_chunk.add_child(egg)
 		egg.global_position = spawn_point.global_position
 
-	print("[GameController] Eggs spawned - Good: %d | Monsters: %d | Total: %d" % [
-		good_egg_count,
-		actual_monster_count,
-		egg_count
-	])
-
 	return good_egg_count
+
+
+func _fisher_yates_shuffle(arr: Array, rng: RandomNumberGenerator) -> void:
+	"""Shuffles array in-place using Fisher-Yates algorithm"""
+	for i in range(arr.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var temp = arr[i]
+		arr[i] = arr[j]
+		arr[j] = temp
+
+
+func spawn_items() -> void:
+	"""Spawns interactable items (notes/papers) across chunks"""
+	print("[GameController] spawn_items() - spawnable_items: %d" % spawnable_items.size())
+
+	if spawnable_items.is_empty():
+		print("[GameController] ERRO: spawnable_items está vazio! Configure no inspector.")
+		return
+
+	# Collect all spawn points from IntectableItemSpawnPoints in each chunk
+	var all_spawn_points: Array[Node3D] = []
+	var chunk_for_spawn_point: Dictionary = {}  # spawn_point -> chunk
+
+	for chunk in chunks.get_children():
+		var item_spawns = chunk.get_node_or_null("IntectableItemSpawnPoints")
+		if item_spawns:
+			print("[GameController] Chunk '%s' tem IntectableItemSpawnPoints com %d filhos" % [chunk.name, item_spawns.get_child_count()])
+			if item_spawns.get_child_count() > 0:
+				for spawn_point in item_spawns.get_children():
+					all_spawn_points.append(spawn_point)
+					chunk_for_spawn_point[spawn_point] = chunk
+
+	print("[GameController] spawn_points encontrados: %d" % all_spawn_points.size())
+
+	if all_spawn_points.is_empty():
+		print("[GameController] ERRO: Nenhum IntectableItemSpawnPoints encontrado nos chunks!")
+		return
+
+	# Calculate spawn quantity (at least half of spawn points get items)
+	var total_items: int = spawnable_items.size()
+	var min_spawns: int = ceili(all_spawn_points.size() / 2.0)  # At least half of spawn points
+	var max_spawns: int = all_spawn_points.size()  # Can fill all spawn points
+
+	# RNG for randomization
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+
+	var items_to_spawn: int = rng.randi_range(min_spawns, max_spawns)
+
+	# Create shuffled spawn points
+	var shuffled_spawn_points: Array = []
+	for sp in all_spawn_points:
+		shuffled_spawn_points.append(sp)
+	_fisher_yates_shuffle(shuffled_spawn_points, rng)
+
+	# Track used chunks (max 2 items per chunk)
+	const MAX_ITEMS_PER_CHUNK: int = 2
+	var chunk_item_count: Dictionary = {}  # chunk -> count
+	var spawned_count: int = 0
+
+	for i in range(items_to_spawn):
+		# Cycle through items (allows duplicates when doubled)
+		var item_index: int = i % total_items
+		var item_scene: PackedScene = spawnable_items[item_index]
+
+		# Find a spawn point in a chunk that hasn't reached max
+		var selected_spawn_point: Node3D = null
+		for spawn_point in shuffled_spawn_points:
+			var chunk = chunk_for_spawn_point.get(spawn_point)
+			var current_count: int = chunk_item_count.get(chunk, 0)
+			if chunk and current_count < MAX_ITEMS_PER_CHUNK:
+				selected_spawn_point = spawn_point
+				chunk_item_count[chunk] = current_count + 1
+				shuffled_spawn_points.erase(spawn_point)
+				break
+
+		if not selected_spawn_point:
+			break
+
+		# Instantiate and place item as child of the chunk
+		var item: Node3D = item_scene.instantiate()
+		item.name = "SpawnedItem_" + str(i)
+		item.add_to_group("spawned_items")
+		var target_chunk: Node3D = chunk_for_spawn_point[selected_spawn_point]
+		target_chunk.add_child(item)
+		item.global_position = selected_spawn_point.global_position
+
+		spawned_count += 1
+
+	print("[GameController] Items spawned: %d/%d spawn points (unique items: %d)" % [spawned_count, all_spawn_points.size(), total_items])
 
 
 func _on_player_died(dead_player: Node3D) -> void:
@@ -399,6 +474,10 @@ func _cleanup_game_objects() -> void:
 	for egg in get_tree().get_nodes_in_group("eggs"):
 		if is_instance_valid(egg):
 			egg.queue_free()
+
+	for item in get_tree().get_nodes_in_group("spawned_items"):
+		if is_instance_valid(item):
+			item.queue_free()
 
 	for bunny in get_tree().get_nodes_in_group("assassin_bunny"):
 		if is_instance_valid(bunny):

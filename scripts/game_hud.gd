@@ -152,15 +152,10 @@ func _find_local_player() -> void:
 	for player in players:
 		if not multiplayer.has_multiplayer_peer():
 			_local_player = player
-			print("[GameHUD] Found local player (singleplayer): ", player.name)
 			return
 		if player.is_multiplayer_authority():
 			_local_player = player
-			print("[GameHUD] Found local player (multiplayer): ", player.name)
 			return
-
-	if not _local_player:
-		print("[GameHUD] WARNING: No local player found yet")
 
 
 func _update_stamina_bar() -> void:
