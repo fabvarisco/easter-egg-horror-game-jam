@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://calvedtlb5417"]
+
+[ext_resource type="PackedScene" uid="uid://dr6k67vp3dajy" path="res://scenes/egg.tscn" id="1_hbwja"]
+[ext_resource type="Script" path="res://scripts/assassin_bunny_egg.gd" id="2_script"]
+
+[node name="AssassinBunnyEgg" instance=ExtResource("1_hbwja")]
+script = ExtResource("2_script")

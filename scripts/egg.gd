@@ -1,4 +1,5 @@
 extends Node3D
+class_name Egg 
 
 @export var is_monster: bool = false
 
@@ -12,7 +13,6 @@ var _bunny_laugh: AudioStream = preload("res://assets/sounds/assasin_bunny/assas
 signal monster_released
 
 func _ready() -> void:
-	# Outline começa desativado
 	set_outline_active(false)
 
 func on_picked_up() -> void:
@@ -51,10 +51,9 @@ func _release_monster() -> void:
 
 
 func _is_multiplayer_active() -> bool:
-	# Check if we're actually in a multiplayer game, not just having EOS plugin loaded
 	var single_player := get_tree().get_first_node_in_group("player")
 	if single_player:
-		return false  # Singleplayer mode
+		return false 
 
 	return multiplayer.has_multiplayer_peer() and \
 		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
@@ -77,7 +76,6 @@ func _play_laugh_sound_global() -> void:
 	audio_player.finished.connect(audio_player.queue_free)
 
 func _activate_bunny() -> void:
-	# Always spawn a new bunny for each monster egg
 	_spawn_assassin_bunny()
 
 func _spawn_assassin_bunny() -> void:
@@ -101,9 +99,7 @@ func set_outline_active(active: bool) -> void:
 		return
 
 	if active:
-		# Ativar o material overlay (outline)
 		if mesh_instance.material_overlay == null:
-			# Recriar o material do outline
 			var outline_shader := load("res://shaders/enhanced_outline.gdshader")
 			var material := ShaderMaterial.new()
 			material.shader = outline_shader
@@ -116,5 +112,4 @@ func set_outline_active(active: bool) -> void:
 			material.render_priority = 1
 			mesh_instance.material_overlay = material
 	else:
-		# Desativar o material overlay (outline)
 		mesh_instance.material_overlay = null
