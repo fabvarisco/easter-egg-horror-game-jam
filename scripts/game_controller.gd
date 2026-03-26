@@ -28,6 +28,7 @@ var _game_over_instance: Node3D = null
 var _is_spectating: bool = false
 var _chunk_cameras: Array[Camera3D] = []
 var _spectate_camera_index: int = 0
+var _loading_screen: CanvasLayer = null
 
 # Egg delivery system
 var _total_good_eggs: int = 0
@@ -38,9 +39,8 @@ var _car_area: Area3D = null
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
 
-	# Generate procedural map BEFORE everything else
-	_map_generator = ProceduralMapGenerator.new()
-	_generate_procedural_map()
+	# Show loading screen
+	_show_loading_screen()
 
 	# Setup pause menu
 	_pause_menu = _pause_menu_scene.instantiate()
@@ -56,9 +56,56 @@ func _ready() -> void:
 	# Determine if singleplayer based on network mode
 	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
 
-	# Spawn players and start game (deferred to ensure chunks are ready)
-	call_deferred("_start_game")
-	call_deferred("_connect_bunny_signals")
+	# Generate and start game async
+	call_deferred("_initialize_game_async")
+
+
+func _show_loading_screen() -> void:
+	_loading_screen = CanvasLayer.new()
+	_loading_screen.layer = 100  # Above everything
+
+	var background := ColorRect.new()
+	background.color = Color(0, 0, 0, 1)
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_loading_screen.add_child(background)
+
+	var label := Label.new()
+	label.text = "Loading..."
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.add_theme_font_size_override("font_size", 48)
+	_loading_screen.add_child(label)
+
+	add_child(_loading_screen)
+
+
+func _hide_loading_screen() -> void:
+	if _loading_screen:
+		_loading_screen.queue_free()
+		_loading_screen = null
+
+
+func _initialize_game_async() -> void:
+	# Wait a frame for loading screen to render
+	await get_tree().process_frame
+
+	# Generate procedural map
+	_map_generator = ProceduralMapGenerator.new()
+	_generate_procedural_map()
+
+	# Wait a frame after chunk generation
+	await get_tree().process_frame
+
+	# Start game (spawn players, eggs, items)
+	_start_game()
+	_connect_bunny_signals()
+
+	# Wait a frame before hiding loading screen
+	await get_tree().process_frame
+
+	# Hide loading screen
+	_hide_loading_screen()
 
 
 func _generate_procedural_map() -> void:
