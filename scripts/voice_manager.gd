@@ -77,6 +77,7 @@ func _on_connection_succeeded() -> void:
 	_current_lobby = MultiplayerManager.get_current_lobby()
 	if _current_lobby:
 		_is_active = true
+		_apply_mic_settings()
 
 
 func _on_server_disconnected() -> void:
@@ -215,6 +216,46 @@ func _set_participant_volume(puid: String, volume: float) -> void:
 # ==========================================
 
 
+func _apply_mic_settings() -> void:
+	"""Apply saved mic settings to EOS RTC after connection is established"""
+	if not _current_lobby:
+		return
+
+	var room_name = _current_lobby.lobby_id as String
+	var local_puid = MultiplayerManager.get_local_puid()
+
+	if local_puid.is_empty():
+		return
+
+	var mute_opts = EOS.RTCAudio.UpdateSendingOptions.new()
+	mute_opts.local_user_id = local_puid
+	mute_opts.room_name = room_name
+	mute_opts.audio_status = EOS.RTCAudio.AudioStatus.Disabled if _mic_muted else EOS.RTCAudio.AudioStatus.Enabled
+
+	EOS.RTCAudio.RTCAudioInterface.update_sending(mute_opts)
+
+	_apply_mic_volume()
+
+
+func _apply_mic_volume() -> void:
+	"""Apply mic volume to EOS RTC"""
+	if not _current_lobby:
+		return
+
+	var room_name = _current_lobby.lobby_id as String
+	var local_puid = MultiplayerManager.get_local_puid()
+
+	if local_puid.is_empty():
+		return
+
+	var volume_opts = EOS.RTCAudio.UpdateSendingVolumeOptions.new()
+	volume_opts.local_user_id = local_puid
+	volume_opts.room_name = room_name
+	volume_opts.volume = _mic_volume
+
+	EOS.RTCAudio.RTCAudioInterface.update_sending_volume(volume_opts)
+
+
 func is_mic_muted() -> bool:
 	return _mic_muted
 
@@ -241,9 +282,7 @@ func set_mic_muted(muted: bool) -> void:
 
 func set_mic_volume(volume: float) -> void:
 	_mic_volume = volume
-	# EOS doesn't have a direct mic volume control in the same way
-	# Volume is typically controlled at the OS level
-	# This stores the value for potential future use
+	_apply_mic_volume()
 
 
 # ==========================================

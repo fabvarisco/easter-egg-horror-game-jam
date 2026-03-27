@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bwped3stalgo"]
 
-[ext_resource type="Script" path="res://scripts/start_game_pedestal.gd" id="1_pedestal"]
+[ext_resource type="Script" uid="uid://dvw5vcec4ds8a" path="res://scripts/start_game_pedestal.gd" id="1_pedestal"]
 [ext_resource type="ArrayMesh" uid="uid://c6kw601mo6w5s" path="res://assets/lobby/obj/Barrel_C.obj" id="2_2pvg0"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pedestal"]
@@ -16,5 +16,5 @@ shape = SubResource("BoxShape3D_pedestal")
 [node name="ReadyIndicators" type="Node3D" parent="."]
 
 [node name="BarrelC" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.04153931, 0.34815216, 0.008772373)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.04153931, 0.6636033, 0.008772373)
 mesh = ExtResource("2_2pvg0")
