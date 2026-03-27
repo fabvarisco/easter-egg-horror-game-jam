@@ -128,6 +128,11 @@ func _play_detection_effects() -> void:
 		if camera_manager:
 			camera_manager.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
 
+	# Play roar sound via AudioManager
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.play_roar()
+
 	var audio_player := AudioStreamPlayer.new()
 	audio_player.stream = bunny_wake_up_sound
 	audio_player.volume_db = 3.0

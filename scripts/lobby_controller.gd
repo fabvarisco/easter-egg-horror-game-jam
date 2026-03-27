@@ -27,6 +27,7 @@ var _countdown_value: int = COUNTDOWN_DURATION
 func _ready() -> void:
 	# Connect signals
 	connection_menu.connection_established.connect(_on_connection_established)
+	connection_menu.settings_requested.connect(_on_settings_requested)
 	start_game_pedestal.player_interacted.connect(_on_pedestal_interacted)
 
 	# Multiplayer manager signals
@@ -93,6 +94,9 @@ func _set_state(new_state: LobbyState) -> void:
 			connection_menu.visible = false
 			lobby_hud.visible = true
 			Input.mouse_mode = Input.MOUSE_MODE_CONFINED
+			var audio_manager := get_node_or_null("/root/AudioManager")
+			if audio_manager:
+				audio_manager.play_lobby_music()
 
 		LobbyState.COUNTDOWN:
 			_countdown_timer = COUNTDOWN_DURATION
@@ -101,6 +105,9 @@ func _set_state(new_state: LobbyState) -> void:
 
 		LobbyState.TRANSITIONING:
 			lobby_hud.hide_countdown()
+			var audio_manager := get_node_or_null("/root/AudioManager")
+			if audio_manager:
+				audio_manager.stop_music()
 
 
 func _is_returning_from_game() -> bool:
@@ -293,6 +300,11 @@ func _cleanup() -> void:
 	# Clear players using SpawnManager
 	spawn_manager.clear_all_players()
 	lobby_hud.clear_players()
+
+
+func _on_settings_requested() -> void:
+	if _pause_menu:
+		_pause_menu.show_menu()
 
 
 func _on_pause_menu_disconnect() -> void:

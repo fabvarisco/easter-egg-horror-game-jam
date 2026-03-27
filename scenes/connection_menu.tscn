@@ -58,6 +58,10 @@ text = "Online"
 layout_mode = 2
 text = "LAN"
 
+[node name="SettingsButton" type="Button" parent="Control/VBoxContainer/MainMenu"]
+layout_mode = 2
+text = "Configurações"
+
 [node name="OnlineMenu" type="VBoxContainer" parent="Control/VBoxContainer"]
 visible = false
 layout_mode = 2

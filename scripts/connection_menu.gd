@@ -2,12 +2,14 @@ extends CanvasLayer
 ## Connection Menu - Simplified menu for connecting to games
 
 signal connection_established(is_singleplayer: bool)
+signal settings_requested
 
 # Main menu
 @onready var main_menu: VBoxContainer = $Control/VBoxContainer/MainMenu
 @onready var singleplayer_button: Button = $Control/VBoxContainer/MainMenu/SingleplayerButton
 @onready var online_button: Button = $Control/VBoxContainer/MainMenu/OnlineButton
 @onready var lan_button: Button = $Control/VBoxContainer/MainMenu/LANButton
+@onready var settings_button: Button = $Control/VBoxContainer/MainMenu/SettingsButton
 
 # Online menu (EOS)
 @onready var online_menu: VBoxContainer = $Control/VBoxContainer/OnlineMenu
@@ -42,6 +44,7 @@ func _ready() -> void:
 	singleplayer_button.pressed.connect(_on_singleplayer_pressed)
 	online_button.pressed.connect(_on_online_pressed)
 	lan_button.pressed.connect(_on_lan_pressed)
+	settings_button.pressed.connect(_on_settings_pressed)
 
 	# Online menu
 	online_host_button.pressed.connect(_on_online_host_pressed)
@@ -66,6 +69,11 @@ func _ready() -> void:
 
 	_show_menu("main")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	# Start playing lobby music
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.play_lobby_music()
 
 	# Disable Online button if EOS not available
 	if not multiplayer_manager.is_eos_available():
@@ -104,6 +112,10 @@ func _on_online_pressed() -> void:
 func _on_lan_pressed() -> void:
 	_show_menu("lan")
 	status_label.text = ""
+
+
+func _on_settings_pressed() -> void:
+	settings_requested.emit()
 
 
 func _on_back_pressed() -> void:

@@ -32,6 +32,11 @@ HLeaderboards="*res://addons/epic-online-services-godot/heos/hleaderboards.gd"
 HLobbies="*res://addons/epic-online-services-godot/heos/hlobbies.gd"
 HP2P="*res://addons/epic-online-services-godot/heos/hp2p.gd"
 HSessions="*res://addons/epic-online-services-godot/heos/hsessions.gd"
+AudioManager="*res://scripts/audio_manager.gd"
+
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
 
 [editor_plugins]
 

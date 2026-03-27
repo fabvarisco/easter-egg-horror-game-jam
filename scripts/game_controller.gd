@@ -119,6 +119,10 @@ func _sync_map_seed(seed_value: int) -> void:
 
 
 func _start_game() -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.play_game_music()
+
 	if _is_singleplayer:
 		_spawn_singleplayer()
 	else:
@@ -486,6 +490,10 @@ func _cleanup_game_objects() -> void:
 
 
 func _safe_return_to_lobby() -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.stop_music()
+
 	if not is_inside_tree():
 		return
 
@@ -494,6 +502,10 @@ func _safe_return_to_lobby() -> void:
 
 
 func _return_to_lobby() -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.stop_music()
+
 	_cleanup_spectator()
 
 	if _game_over_instance and is_instance_valid(_game_over_instance):
