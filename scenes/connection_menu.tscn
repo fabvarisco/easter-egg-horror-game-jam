@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cconnmenu123"]
 
-[ext_resource type="Script" path="res://scripts/connection_menu.gd" id="1_connmenu"]
+[ext_resource type="Script" uid="uid://comipmofxtlaa" path="res://scripts/connection_menu.gd" id="1_connmenu"]
 
 [node name="ConnectionMenu" type="CanvasLayer"]
 script = ExtResource("1_connmenu")
@@ -60,7 +60,7 @@ text = "LAN"
 
 [node name="SettingsButton" type="Button" parent="Control/VBoxContainer/MainMenu"]
 layout_mode = 2
-text = "Configurações"
+text = "Settings"
 
 [node name="OnlineMenu" type="VBoxContainer" parent="Control/VBoxContainer"]
 visible = false
@@ -127,6 +127,5 @@ text = "Leave"
 
 [node name="StatusLabel" type="Label" parent="Control/VBoxContainer"]
 layout_mode = 2
-text = ""
 horizontal_alignment = 1
 autowrap_mode = 2

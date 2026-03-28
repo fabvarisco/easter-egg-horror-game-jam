@@ -39,7 +39,7 @@ theme_override_constants/separation = 15
 [node name="Title" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Configurações"
+text = "Settings"
 horizontal_alignment = 1
 
 [node name="Separator1" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
@@ -57,7 +57,7 @@ value = 100.0
 
 [node name="MusicVolumeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Volume Música"
+text = "Music Volume"
 
 [node name="MusicVolumeSlider" type="HSlider" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -67,7 +67,7 @@ value = 100.0
 
 [node name="SFXVolumeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Volume Efeitos"
+text = "SFX Volume"
 
 [node name="SFXVolumeSlider" type="HSlider" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -77,7 +77,7 @@ value = 100.0
 
 [node name="MicVolumeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Volume Microfone"
+text = "Mic Volume"
 
 [node name="MicVolumeSlider" type="HSlider" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -87,21 +87,21 @@ value = 100.0
 
 [node name="MicMuteButton" type="CheckButton" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Mutar Microfone"
+text = "Mute Microphone"
 
 [node name="Separator2" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="AudioOutputLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Dispositivo de Áudio"
+text = "Audio Device"
 
 [node name="AudioOutputDropdown" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="MicInputLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Dispositivo de Microfone"
+text = "Microphone Device"
 
 [node name="MicInputDropdown" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -116,8 +116,8 @@ theme_override_constants/separation = 20
 
 [node name="ResumeButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/ButtonsContainer"]
 layout_mode = 2
-text = "Continuar"
+text = "Resume"
 
 [node name="DisconnectButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/ButtonsContainer"]
 layout_mode = 2
-text = "Desconectar"
+text = "Disconnect"
