@@ -1,7 +1,39 @@
-[gd_scene load_steps=3 format=3 uid="uid://calvedtlb5417"]
+[gd_scene load_steps=7 format=3 uid="uid://calvedtlb5417"]
 
 [ext_resource type="PackedScene" uid="uid://dr6k67vp3dajy" path="res://scenes/egg.tscn" id="1_hbwja"]
-[ext_resource type="Script" path="res://scripts/assassin_bunny_egg.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://cuqjg4btilhck" path="res://scripts/assassin_bunny_egg.gd" id="2_script"]
+[ext_resource type="Shader" uid="uid://cw7iymq7ce5m1" path="res://shaders/eye_glow.gdshader" id="3_eye_glow"]
+[ext_resource type="Texture2D" uid="uid://cls0bx7xgan6e" path="res://assets/flare_texture.jpg" id="4_flare"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_eye"]
+size = Vector2(0.08, 0.08)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eye"]
+render_priority = 1
+shader = ExtResource("3_eye_glow")
+shader_parameter/flare_texture = ExtResource("4_flare")
+shader_parameter/eye_color = Color(1, 0.1, 0.1, 1)
+shader_parameter/intensity = 3.0
+shader_parameter/pulse_speed = 1.5
+shader_parameter/pulse_amount = 0.2
 
 [node name="AssassinBunnyEgg" instance=ExtResource("1_hbwja")]
 script = ExtResource("2_script")
+min_blink_interval = 3.0
+max_blink_interval = 8.0
+blink_duration = 0.15
+double_blink_chance = 0.3
+
+[node name="LeftEyeMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.15, 0.12)
+visible = false
+billboard = 1
+mesh = SubResource("QuadMesh_eye")
+surface_material_override/0 = SubResource("ShaderMaterial_eye")
+
+[node name="RightEyeMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.15, 0.12)
+visible = false
+billboard = 1
+mesh = SubResource("QuadMesh_eye")
+surface_material_override/0 = SubResource("ShaderMaterial_eye")

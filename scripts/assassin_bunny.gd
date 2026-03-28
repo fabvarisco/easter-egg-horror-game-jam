@@ -1,8 +1,8 @@
 extends bunny_entity
 
 @onready var raycast: RayCast3D = $RayCast3D
-@onready var left_eye: OmniLight3D = $LeftEye
-@onready var right_eye: OmniLight3D = $RightEye
+@onready var left_eye_mesh: MeshInstance3D = $LeftEyeMesh
+@onready var right_eye_mesh: MeshInstance3D = $RightEyeMesh
 
 const BLINK_INTERVAL: float = 2.0 
 const BLINK_DURATION: float = 0.15 
@@ -218,10 +218,10 @@ func _update_eyes(delta: float) -> void:
 			_set_eyes_visible(false)
 
 func _set_eyes_visible(eyes_visible: bool) -> void:
-	if left_eye:
-		left_eye.visible = eyes_visible
-	if right_eye:
-		right_eye.visible = eyes_visible
+	if left_eye_mesh:
+		left_eye_mesh.visible = eyes_visible
+	if right_eye_mesh:
+		right_eye_mesh.visible = eyes_visible
 
 func get_state() -> State:
 	return _state
