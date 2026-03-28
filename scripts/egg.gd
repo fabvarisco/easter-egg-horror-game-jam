@@ -1,4 +1,5 @@
 extends Node3D
+class_name Egg 
 
 @export var is_monster: bool = false
 
@@ -6,12 +7,12 @@ const SHAKE_INTENSITY: float = 0.5
 const SHAKE_DURATION: float = 1.0
 
 var _was_picked_up: bool = false
-var _bunny_laugh: AudioStream = preload("res://assets/sounds/assasin_bunny/assassin_bunny_laugh.wav")
+@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 
 signal monster_released
 
 func _ready() -> void:
-	pass
+	set_outline_active(false)
 
 func on_picked_up() -> void:
 	is_multiplayer_authority()
@@ -26,11 +27,14 @@ func on_picked_up() -> void:
 func _release_monster() -> void:
 	monster_released.emit()
 
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.play_scream()
+
 	if _is_multiplayer_active():
 		var host_manager := get_node_or_null("/root/HostManager")
 		if host_manager and multiplayer.is_server():
 			host_manager.release_monster(global_position)
-		_play_laugh_sound_global()
 		_break_egg()
 		await get_tree().create_timer(0.3).timeout
 		queue_free()
@@ -40,8 +44,6 @@ func _release_monster() -> void:
 	if camera_manager:
 		camera_manager.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
 
-	_play_laugh_sound_global()
-
 	_break_egg()
 
 	await get_tree().create_timer(0.3).timeout
@@ -49,10 +51,9 @@ func _release_monster() -> void:
 
 
 func _is_multiplayer_active() -> bool:
-	# Check if we're actually in a multiplayer game, not just having EOS plugin loaded
 	var single_player := get_tree().get_first_node_in_group("player")
 	if single_player:
-		return false  # Singleplayer mode
+		return false 
 
 	return multiplayer.has_multiplayer_peer() and \
 		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
@@ -64,18 +65,8 @@ func _break_egg() -> void:
 		tween.tween_property(mesh, "scale", Vector3.ZERO, 0.2)
 		tween.tween_callback(mesh.queue_free)
 
-func _play_laugh_sound_global() -> void:
-	var audio_player := AudioStreamPlayer.new()
-	audio_player.stream = _bunny_laugh
-	audio_player.volume_db = 5.0
-	audio_player.bus = "Master"
-	get_tree().current_scene.add_child(audio_player)
-	audio_player.play()
-
-	audio_player.finished.connect(audio_player.queue_free)
 
 func _activate_bunny() -> void:
-	# Always spawn a new bunny for each monster egg
 	_spawn_assassin_bunny()
 
 func _spawn_assassin_bunny() -> void:
@@ -92,3 +83,24 @@ func _connect_bunny_to_scene(bunny: Node) -> void:
 	if scene_controller and scene_controller.has_method("_on_all_players_dead"):
 		if bunny.has_signal("all_players_dead") and not bunny.all_players_dead.is_connected(scene_controller._on_all_players_dead):
 			bunny.all_players_dead.connect(scene_controller._on_all_players_dead)
+
+
+func set_outline_active(active: bool) -> void:
+	if not mesh_instance:
+		return
+
+	if active:
+		if mesh_instance.material_overlay == null:
+			var outline_shader := load("res://shaders/enhanced_outline.gdshader")
+			var material := ShaderMaterial.new()
+			material.shader = outline_shader
+			material.set_shader_parameter("outline_color", Color(0, 1, 0.6, 1))
+			material.set_shader_parameter("outline_width", 0.07)
+			material.set_shader_parameter("pulse_speed", 2.5)
+			material.set_shader_parameter("pulse_amount", 0.4)
+			material.set_shader_parameter("glow_intensity", 5.0)
+			material.set_shader_parameter("enable_pulse", true)
+			material.render_priority = 1
+			mesh_instance.material_overlay = material
+	else:
+		mesh_instance.material_overlay = null

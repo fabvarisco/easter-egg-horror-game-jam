@@ -1,0 +1,53 @@
+[gd_scene load_steps=9 format=3 uid="uid://calvedtlb5417"]
+
+[ext_resource type="PackedScene" uid="uid://dr6k67vp3dajy" path="res://scenes/egg.tscn" id="1_hbwja"]
+[ext_resource type="Script" uid="uid://cuqjg4btilhck" path="res://scripts/assassin_bunny_egg.gd" id="2_script"]
+[ext_resource type="Shader" uid="uid://cw7iymq7ce5m1" path="res://shaders/eye_glow.gdshader" id="3_eye_glow"]
+[ext_resource type="Texture2D" uid="uid://b16kswidynyfr" path="res://assets/bunny_eyes.png" id="4_eyes"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_eye"]
+size = Vector2(0.08, 0.08)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eye"]
+render_priority = 1
+shader = ExtResource("3_eye_glow")
+shader_parameter/eye_texture = ExtResource("4_eyes")
+shader_parameter/eye_color = Color(1, 0.1, 0.1, 1)
+shader_parameter/intensity = 3.0
+shader_parameter/pulse_speed = 1.5
+shader_parameter/pulse_amount = 0.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_detection"]
+radius = 5.0
+
+[sub_resource type="PrismMesh" id="PrismMesh_qjnlk"]
+
+[node name="AssassinBunnyEgg" instance=ExtResource("1_hbwja")]
+script = ExtResource("2_script")
+min_blink_interval = 3.0
+max_blink_interval = 8.0
+blink_duration = 0.15
+double_blink_chance = 0.3
+
+[node name="LeftEyeMesh" type="MeshInstance3D" parent="." index="2"]
+transform = Transform3D(2.8405929, 0, 0, 0, 2.0602906, 0, 0, 0, 1, -0.30704254, 0.65349686, 0.23799586)
+visible = false
+mesh = SubResource("QuadMesh_eye")
+surface_material_override/0 = SubResource("ShaderMaterial_eye")
+
+[node name="RightEyeMesh" type="MeshInstance3D" parent="." index="3"]
+transform = Transform3D(4.455599, 0, 0, 0, 2.2483578, 0, 0, 0, 1, -0.11411826, 0.6506181, 0.24302188)
+visible = false
+mesh = SubResource("QuadMesh_eye")
+surface_material_override/0 = SubResource("ShaderMaterial_eye")
+
+[node name="DetectionArea" type="Area3D" parent="." index="4"]
+collision_layer = 0
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" index="0"]
+shape = SubResource("SphereShape3D_detection")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2045622, 0)
+mesh = SubResource("PrismMesh_qjnlk")

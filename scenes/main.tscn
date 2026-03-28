@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://skdaejm2ow6n"]
+[gd_scene load_steps=7 format=3 uid="uid://skdaejm2ow6n"]
 
-[ext_resource type="Script" path="res://scripts/game_controller.gd" id="1_gamectrl"]
-[ext_resource type="PackedScene" uid="uid://jj3rrsclryqf" path="res://scenes/chunks/cemetery/cemetery_start.tscn" id="2_jyhfs"]
-[ext_resource type="PackedScene" uid="uid://beb8al3yv600p" path="res://scenes/chunks/cemetery/cemetery_center_1.tscn" id="3_tbgi4"]
-[ext_resource type="PackedScene" uid="uid://b62erwxr56mmo" path="res://scenes/chunks/cemetery/cemetery_center_2.tscn" id="4_tefeu"]
+[ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game_controller.gd" id="1_gamectrl"]
+[ext_resource type="PackedScene" uid="uid://dq8tfcgg6jpll" path="res://scenes/notes/note_bunny_threat.tscn" id="2_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://bvtxtai7mctvv" path="res://scenes/notes/note_diary.tscn" id="3_tefeu"]
+[ext_resource type="PackedScene" uid="uid://cq8tfcgg6jpkk" path="res://scenes/notes/note_egg_warning.tscn" id="4_o6xl0"]
+[ext_resource type="PackedScene" uid="uid://vtxtai7mctuu" path="res://scenes/notes/note_evacuation.tscn" id="5_tipki"]
 
 [sub_resource type="Environment" id="Environment_0wfyh"]
 background_mode = 1
@@ -12,19 +13,15 @@ ambient_light_source = 2
 ambient_light_color = Color(0.15, 0.15, 0.2, 1)
 ambient_light_energy = 0.3
 fog_enabled = true
-fog_mode = 1
-fog_density = 1.0
 fog_aerial_perspective = 0.5
 volumetric_fog_enabled = true
-volumetric_fog_density = 0.1358
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_gamectrl")
+spawnable_items = Array[PackedScene]([ExtResource("2_tbgi4"), ExtResource("3_tefeu"), ExtResource("4_o6xl0"), ExtResource("5_tipki")])
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8660253, -0.35355332, 0.35355374, 0, 0.70710725, 0.7071064, -0.50000024, -0.61237204, 0.61237276, 0, 10, 0)
-light_color = Color(0.2, 0.2, 0.25, 1)
-light_energy = 0.3
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -33,12 +30,3 @@ environment = SubResource("Environment_0wfyh")
 [node name="Players" type="Node3D" parent="."]
 
 [node name="Chunks" type="Node3D" parent="."]
-
-[node name="CemeteryStart" parent="Chunks" instance=ExtResource("2_jyhfs")]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -0.453, -0.5, 10.015)
-
-[node name="CemeteryCenter1" parent="Chunks" instance=ExtResource("3_tbgi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.238, -0.5, -10.035)
-
-[node name="CemeteryCenter2" parent="Chunks" instance=ExtResource("4_tefeu")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.574, -0.5, -10.011)

@@ -13,6 +13,7 @@ const GAME_SCENE_PATH := "res://scenes/main.tscn"
 @onready var players_container: Node3D = $Players
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
+@onready var spawn_manager: Node = get_node("/root/SpawnManager")
 @onready var lobby_camera: Camera3D = $Camera3D
 
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
@@ -26,6 +27,7 @@ var _countdown_value: int = COUNTDOWN_DURATION
 func _ready() -> void:
 	# Connect signals
 	connection_menu.connection_established.connect(_on_connection_established)
+	connection_menu.settings_requested.connect(_on_settings_requested)
 	start_game_pedestal.player_interacted.connect(_on_pedestal_interacted)
 
 	# Multiplayer manager signals
@@ -92,6 +94,9 @@ func _set_state(new_state: LobbyState) -> void:
 			connection_menu.visible = false
 			lobby_hud.visible = true
 			Input.mouse_mode = Input.MOUSE_MODE_CONFINED
+			var audio_manager := get_node_or_null("/root/AudioManager")
+			if audio_manager:
+				audio_manager.play_lobby_music()
 
 		LobbyState.COUNTDOWN:
 			_countdown_timer = COUNTDOWN_DURATION
@@ -100,6 +105,9 @@ func _set_state(new_state: LobbyState) -> void:
 
 		LobbyState.TRANSITIONING:
 			lobby_hud.hide_countdown()
+			var audio_manager := get_node_or_null("/root/AudioManager")
+			if audio_manager:
+				audio_manager.stop_music()
 
 
 func _is_returning_from_game() -> bool:
@@ -181,39 +189,23 @@ func _on_connection_established(is_singleplayer: bool) -> void:
 
 
 func _spawn_local_player() -> void:
-	var peer_id: int
+	# Reset spawn state for new lobby session
+	spawn_manager.reset()
+
 	if _is_singleplayer:
-		peer_id = 1
+		spawn_manager.spawn_singleplayer()
 	else:
-		peer_id = multiplayer_manager.my_peer_id
-
-	# Use multiplayer_manager to spawn if multiplayer
-	if _is_singleplayer:
-		var player_scene: PackedScene = preload("res://scenes/player.tscn")
-		var player := player_scene.instantiate()
-		player.name = str(peer_id)
-		player.set_meta("peer_id", peer_id)
-		player.add_to_group("players")
-
-		# Add to tree first, then position
-		players_container.add_child(player)
-
-		# Position at first spawn point
-		if spawn_points.get_child_count() > 0:
-			player.global_position = spawn_points.get_child(0).global_position
-		multiplayer_manager.players[peer_id] = player
-	else:
-		# Let multiplayer manager handle spawning
-		multiplayer_manager.spawn_all_players()
+		# Let spawn manager handle spawning all connected players
+		spawn_manager.spawn_all_players()
 
 
 func _on_player_connected(peer_id: int) -> void:
 	if _state == LobbyState.MENU:
 		return
 
-	# Spawn the new player visually
-	if not multiplayer_manager.players.has(peer_id):
-		multiplayer_manager._spawn_player(peer_id)
+	# Spawn the new player visually if not already spawned
+	if not spawn_manager.is_player_spawned(peer_id):
+		spawn_manager.spawn_player(peer_id)
 
 	var is_local = multiplayer_manager.is_local_player(peer_id)
 	lobby_hud.add_player(peer_id, is_local)
@@ -305,12 +297,14 @@ func _on_game_starting() -> void:
 
 
 func _cleanup() -> void:
-	# Clear players
-	for child in players_container.get_children():
-		child.queue_free()
-
-	multiplayer_manager.players.clear()
+	# Clear players using SpawnManager
+	spawn_manager.clear_all_players()
 	lobby_hud.clear_players()
+
+
+func _on_settings_requested() -> void:
+	if _pause_menu:
+		_pause_menu.show_menu()
 
 
 func _on_pause_menu_disconnect() -> void:

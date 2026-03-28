@@ -5,6 +5,8 @@ signal closed
 signal disconnect_requested
 
 @onready var master_volume_slider: HSlider = $Panel/MarginContainer/VBoxContainer/MasterVolumeSlider
+@onready var music_volume_slider: HSlider = $Panel/MarginContainer/VBoxContainer/MusicVolumeSlider
+@onready var sfx_volume_slider: HSlider = $Panel/MarginContainer/VBoxContainer/SFXVolumeSlider
 @onready var mic_volume_slider: HSlider = $Panel/MarginContainer/VBoxContainer/MicVolumeSlider
 @onready var mic_mute_button: CheckButton = $Panel/MarginContainer/VBoxContainer/MicMuteButton
 @onready var audio_output_dropdown: OptionButton = $Panel/MarginContainer/VBoxContainer/AudioOutputDropdown
@@ -18,6 +20,8 @@ var _previous_mouse_mode: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
 func _ready() -> void:
 	# Connect signals
 	master_volume_slider.value_changed.connect(_on_master_volume_changed)
+	music_volume_slider.value_changed.connect(_on_music_volume_changed)
+	sfx_volume_slider.value_changed.connect(_on_sfx_volume_changed)
 	mic_volume_slider.value_changed.connect(_on_mic_volume_changed)
 	mic_mute_button.toggled.connect(_on_mic_mute_toggled)
 	audio_output_dropdown.item_selected.connect(_on_audio_output_selected)
@@ -93,6 +97,12 @@ func _load_current_settings() -> void:
 	var master_linear := db_to_linear(master_db) * 100.0
 	master_volume_slider.value = master_linear
 
+	# Load music and SFX volumes from AudioManager
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		music_volume_slider.value = audio_manager.get_music_volume() * 100.0
+		sfx_volume_slider.value = audio_manager.get_sfx_volume() * 100.0
+
 	# Mic volume - default to 100 if no saved setting
 	mic_volume_slider.value = 100.0
 
@@ -106,15 +116,23 @@ func _on_master_volume_changed(value: float) -> void:
 func _on_mic_volume_changed(value: float) -> void:
 	# Store mic volume for use with EOS voice chat
 	# EOS uses 0-100 scale directly
+	print("[PauseMenu] _on_mic_volume_changed: ", value)
 	var voice_manager := get_node_or_null("/root/VoiceManager")
+	print("[PauseMenu] VoiceManager found: ", voice_manager != null)
 	if voice_manager and voice_manager.has_method("set_mic_volume"):
 		voice_manager.set_mic_volume(value)
+	else:
+		print("[PauseMenu] ERROR: VoiceManager not found or missing method")
 
 
 func _on_mic_mute_toggled(is_muted: bool) -> void:
+	print("[PauseMenu] _on_mic_mute_toggled: ", is_muted)
 	var voice_manager := get_node_or_null("/root/VoiceManager")
+	print("[PauseMenu] VoiceManager found: ", voice_manager != null)
 	if voice_manager and voice_manager.has_method("set_mic_muted"):
 		voice_manager.set_mic_muted(is_muted)
+	else:
+		print("[PauseMenu] ERROR: VoiceManager not found or missing method")
 
 
 func _on_audio_output_selected(index: int) -> void:
@@ -125,6 +143,18 @@ func _on_audio_output_selected(index: int) -> void:
 func _on_mic_input_selected(index: int) -> void:
 	var device_name := mic_input_dropdown.get_item_text(index)
 	AudioServer.input_device = device_name
+
+
+func _on_music_volume_changed(value: float) -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.set_music_volume(value / 100.0)
+
+
+func _on_sfx_volume_changed(value: float) -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.set_sfx_volume(value / 100.0)
 
 
 func _on_resume_pressed() -> void:

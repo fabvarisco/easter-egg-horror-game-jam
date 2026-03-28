@@ -1,148 +1,182 @@
 extends Node3D
-## Game Controller - Manages gameplay (eggs, bunny, game over)
 
-@export var list_of_points_for_eggs: Array[Vector3] = []
+@export var grid_size: Vector2i = Vector2i(4, 4)
+@export var generation_seed: int = 0 
 
-var _player_scene: PackedScene = preload("res://scenes/player.tscn")
+@export var spawnable_items: Array[PackedScene] = []
+
 var _egg_scene: PackedScene = preload("res://scenes/egg.tscn")
+var _assassin_bunny_egg_scene: PackedScene = preload("res://scenes/assassin_bunny_egg.tscn")
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
 var _pause_menu: CanvasLayer = null
 var _game_hud_scene: PackedScene = preload("res://scenes/game_hud.tscn")
 var _game_hud: CanvasLayer = null
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
+@onready var spawn_manager: Node = get_node("/root/SpawnManager")
 @onready var chunks: Node3D = $Chunks
 @onready var players_container: Node3D = $Players
 
 var _is_singleplayer: bool = true
+var _map_generator: ProceduralMapGenerator = null
 var _game_over_scene: PackedScene = preload("res://scenes/game_over.tscn")
 var _game_over_instance: Node3D = null
 var _is_spectating: bool = false
 var _chunk_cameras: Array[Camera3D] = []
 var _spectate_camera_index: int = 0
+var _loading_screen: CanvasLayer = null
 
-# Egg delivery system
 var _total_good_eggs: int = 0
 var _eggs_delivered: int = 0
 var _players_in_car: Dictionary = {}  # peer_id -> bool
 var _car_area: Area3D = null
 
-
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
 
-	# Setup pause menu
+	_show_loading_screen()
+
 	_pause_menu = _pause_menu_scene.instantiate()
 	_pause_menu.process_mode = Node.PROCESS_MODE_ALWAYS
 	_pause_menu.visible = false
 	_pause_menu.disconnect_requested.connect(_on_pause_menu_disconnect)
 	add_child(_pause_menu)
 
-	# Setup game HUD
 	_game_hud = _game_hud_scene.instantiate()
 	add_child(_game_hud)
 
-	# Determine if singleplayer based on network mode
 	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
 
-	# Spawn players and start game (deferred to ensure chunks are ready)
-	call_deferred("_start_game")
-	call_deferred("_connect_bunny_signals")
+	call_deferred("_initialize_game_async")
+
+
+func _show_loading_screen() -> void:
+	_loading_screen = CanvasLayer.new()
+	_loading_screen.layer = 100 
+
+	var background := ColorRect.new()
+	background.color = Color(0, 0, 0, 1)
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_loading_screen.add_child(background)
+
+	var label := Label.new()
+	label.text = "Loading..."
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.add_theme_font_size_override("font_size", 48)
+	_loading_screen.add_child(label)
+
+	add_child(_loading_screen)
+
+
+func _hide_loading_screen() -> void:
+	if _loading_screen:
+		_loading_screen.queue_free()
+		_loading_screen = null
+
+
+func _initialize_game_async() -> void:
+	await get_tree().process_frame
+
+	_map_generator = ProceduralMapGenerator.new()
+	_generate_procedural_map()
+
+	await get_tree().process_frame
+
+	_start_game()
+	_connect_bunny_signals()
+
+	await get_tree().process_frame
+
+	_hide_loading_screen()
+
+
+func _generate_procedural_map() -> void:
+	"""Generates the procedural map using cemetery definition"""
+	var cemetery_map := load("res://resources/maps/cemetery_map.tres") as MapTypeDefinition
+	if not cemetery_map:
+		push_error("[GameController] Failed to load cemetery_map.tres")
+		return
+
+	var seed_value := generation_seed
+	if seed_value == 0:
+		seed_value = randi()
+
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		_sync_map_seed.rpc(seed_value)
+
+	var generated_chunks := _map_generator.generate_map(cemetery_map, grid_size, seed_value)
+
+	for chunk in generated_chunks:
+		chunks.add_child(chunk)
+
+
+
+@rpc("authority", "call_local", "reliable")
+func _sync_map_seed(seed_value: int) -> void:
+	"""Receives seed from host for deterministic map generation"""
+	generation_seed = seed_value
 
 
 func _start_game() -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.play_game_music()
+
 	if _is_singleplayer:
 		_spawn_singleplayer()
 	else:
 		_spawn_multiplayer()
 
-	# Spawn eggs after players and get good egg count
 	_total_good_eggs = spawn_eggs()
 
-	# Setup car delivery
+	spawn_items()
+
 	_setup_car()
 	_game_hud.setup_egg_counter(_total_good_eggs)
 
 
-func _get_player_spawn_points() -> Array[Node3D]:
-	var spawn_points: Array[Node3D] = []
-
-	for chunk in chunks.get_children():
-		if "start" in chunk.name.to_lower():
-			var player_spawns = chunk.get_node_or_null("PlayerSpawnPoints")
-			if player_spawns and player_spawns.get_child_count() > 0:
-				for spawn_point in player_spawns.get_children():
-					spawn_points.append(spawn_point)
-				break
-
-	return spawn_points
-
-
 func _spawn_singleplayer() -> void:
-	# Clear old player references from lobby (they were freed when scene changed)
-	multiplayer_manager.players.clear()
+	spawn_manager.reset()
 
-	var spawn_points := _get_player_spawn_points()
-	if spawn_points.is_empty():
-		push_error("No player spawn points found in start chunk!")
+	var player: Node3D = spawn_manager.spawn_singleplayer()
+	if not player:
+		push_error("[GameController] Failed to spawn singleplayer!")
 		return
-
-	var spawn_point: Node3D = spawn_points[0]
-	var player := _player_scene.instantiate()
-	player.name = "1"
-	player.set_meta("peer_id", 1)
-	player.add_to_group("players")
-	player.add_to_group("player")
-	players_container.add_child(player)
-	player.global_position = spawn_point.global_position
-
-	player.visible = true
-	player.set_physics_process(true)
-	player.set_process_input(true)
 
 	if not player.player_died.is_connected(_on_player_died):
 		player.player_died.connect(_on_player_died.bind(player))
 
-	multiplayer_manager.players[1] = player
-
-	# Ativar câmera do chunk inicial diretamente (evita race condition)
 	_activate_start_chunk_camera()
 
 
 func _spawn_multiplayer() -> void:
-	# Clear old player references from lobby (they were freed when scene changed)
-	multiplayer_manager.players.clear()
+	spawn_manager.reset()
 
-	multiplayer_manager.spawn_all_players()
+	spawn_manager.spawn_all_players()
 
-	# Connect death signals for all players
 	for peer_id in multiplayer_manager.players:
 		var player = multiplayer_manager.players[peer_id] as Node3D
 		if is_instance_valid(player) and player.has_signal("player_died") and not player.player_died.is_connected(_on_player_died):
 			player.player_died.connect(_on_player_died.bind(player))
 
-	# Ativar câmera do chunk inicial diretamente (evita race condition)
 	_activate_start_chunk_camera()
 
 
 func _activate_start_chunk_camera() -> void:
-	# Aguardar frames para garantir que tudo está inicializado
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
 	var camera_manager := get_node_or_null("/root/CameraManager")
 	if not camera_manager:
-		print("[GameController] CameraManager not found!")
 		return
 
 	for chunk in chunks.get_children():
 		if "start" in chunk.name.to_lower():
 			var camera := chunk.get_node_or_null("Camera3D") as Camera3D
 			if camera:
-				print("[GameController] Activating start chunk camera: ", chunk.name)
 				camera_manager.set_active_camera(camera)
-			else:
-				print("[GameController] No Camera3D found in chunk: ", chunk.name)
 			break
 
 
@@ -154,7 +188,6 @@ func _on_server_disconnected() -> void:
 
 
 func _on_pause_menu_disconnect() -> void:
-	# Disconnect from multiplayer and return to lobby
 	await multiplayer_manager.leave_game()
 	_safe_return_to_lobby()
 
@@ -180,62 +213,149 @@ func _connect_bunny_signals() -> void:
 
 
 func spawn_eggs() -> int:
-	var all_spawn_points: Array[Node3D] = []
+	var selected_spawn_points: Array[Node3D] = []
 
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	rng.seed = rng.randi()
 	for chunk in chunks.get_children():
 		var egg_spawns = chunk.get_node_or_null("EggSpawnPoints")
 		if egg_spawns and egg_spawns.get_child_count() > 0:
+			var chunk_spawn_points: Array[Node3D] = []
 			for spawn_point in egg_spawns.get_children():
-				all_spawn_points.append(spawn_point)
+				chunk_spawn_points.append(spawn_point)
 
-	var egg_count: int = all_spawn_points.size()
+			var random_index: int = rng.randi_range(0, chunk_spawn_points.size() - 1)
+			var selected_point: Node3D = chunk_spawn_points[random_index]
+			selected_spawn_points.append(selected_point)
+
+	var egg_count: int = selected_spawn_points.size()
+
 	if egg_count == 0:
 		return 0
 
-	# Shuffle spawn points and pick first half as monster positions
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 12345 
+	rng.randomize()
+	rng.seed = rng.randi()
 
-	var shuffled_indices: Array[int] = []
-	for i in range(egg_count):
-		shuffled_indices.append(i)
+	for i in range(egg_count - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var temp = selected_spawn_points[i]
+		selected_spawn_points[i] = selected_spawn_points[j]
+		selected_spawn_points[j] = temp
 
-	# Fisher-Yates shuffle com RNG determinístico
-	for i in range(shuffled_indices.size() - 1, 0, -1):
-		var j := rng.randi_range(0, i)
-		var temp := shuffled_indices[i]
-		shuffled_indices[i] = shuffled_indices[j]
-		shuffled_indices[j] = temp
-
-	var monster_count: int = egg_count / 2
+	var monster_count: int = ceili(egg_count / 2.0)
 	var monster_indices: Array[int] = []
-	for i in range(monster_count):
-		monster_indices.append(shuffled_indices[i])
+
+	while monster_indices.size() < monster_count:
+		var random_index: int = rng.randi_range(0, egg_count - 1)
+		if not random_index in monster_indices:
+			monster_indices.append(random_index)
 
 	var good_egg_count: int = 0
-	var actual_monster_count: int = 0
 
 	for i in range(egg_count):
-		var spawn_point: Node3D = all_spawn_points[i]
+		var spawn_point: Node3D = selected_spawn_points[i]
 		if not is_instance_valid(spawn_point) or not spawn_point.is_inside_tree():
 			continue
 
-		var egg: Node3D = _egg_scene.instantiate()
 		var is_monster: bool = i in monster_indices
+		var egg: Node3D
 
 		if is_monster:
-			egg.is_monster = true
-			actual_monster_count += 1
+			egg = _assassin_bunny_egg_scene.instantiate()
 		else:
+			egg = _egg_scene.instantiate()
 			good_egg_count += 1
 
-		# Nome determinístico para sincronização multiplayer
 		egg.name = "Egg_" + str(i)
-		add_child(egg)
+		egg.add_to_group("eggs")
+		var target_chunk: Node3D = spawn_point.get_parent().get_parent()
+		target_chunk.add_child(egg)
 		egg.global_position = spawn_point.global_position
 
-	print("Spawned eggs: ", good_egg_count, " good, ", actual_monster_count, " monsters")
 	return good_egg_count
+
+
+func _fisher_yates_shuffle(arr: Array, rng: RandomNumberGenerator) -> void:
+	"""Shuffles array in-place using Fisher-Yates algorithm"""
+	for i in range(arr.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var temp = arr[i]
+		arr[i] = arr[j]
+		arr[j] = temp
+
+
+func spawn_items() -> void:
+	"""Spawns interactable items (notes/papers) across chunks"""
+	print("[GameController] spawn_items() - spawnable_items: %d" % spawnable_items.size())
+
+	if spawnable_items.is_empty():
+		print("[GameController] ERRO: spawnable_items está vazio! Configure no inspector.")
+		return
+
+	var all_spawn_points: Array[Node3D] = []
+	var chunk_for_spawn_point: Dictionary = {}  
+
+	for chunk in chunks.get_children():
+		var item_spawns = chunk.get_node_or_null("IntectableItemSpawnPoints")
+		if item_spawns:
+			print("[GameController] Chunk '%s' tem IntectableItemSpawnPoints com %d filhos" % [chunk.name, item_spawns.get_child_count()])
+			if item_spawns.get_child_count() > 0:
+				for spawn_point in item_spawns.get_children():
+					all_spawn_points.append(spawn_point)
+					chunk_for_spawn_point[spawn_point] = chunk
+
+	print("[GameController] spawn_points encontrados: %d" % all_spawn_points.size())
+
+	if all_spawn_points.is_empty():
+		print("[GameController] ERRO: Nenhum IntectableItemSpawnPoints encontrado nos chunks!")
+		return
+
+	var total_items: int = spawnable_items.size()
+	var min_spawns: int = ceili(all_spawn_points.size() / 3.0) 
+	var max_spawns: int = ceili(all_spawn_points.size() / 2.0)
+
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+
+	var items_to_spawn: int = rng.randi_range(min_spawns, max_spawns)
+
+	var shuffled_spawn_points: Array = []
+	for sp in all_spawn_points:
+		shuffled_spawn_points.append(sp)
+	_fisher_yates_shuffle(shuffled_spawn_points, rng)
+
+	const MAX_ITEMS_PER_CHUNK: int = 1
+	var chunk_item_count: Dictionary = {} 
+	var spawned_count: int = 0
+
+	for i in range(items_to_spawn):
+		var item_index: int = i % total_items
+		var item_scene: PackedScene = spawnable_items[item_index]
+
+		var selected_spawn_point: Node3D = null
+		for spawn_point in shuffled_spawn_points:
+			var chunk = chunk_for_spawn_point.get(spawn_point)
+			var current_count: int = chunk_item_count.get(chunk, 0)
+			if chunk and current_count < MAX_ITEMS_PER_CHUNK:
+				selected_spawn_point = spawn_point
+				chunk_item_count[chunk] = current_count + 1
+				shuffled_spawn_points.erase(spawn_point)
+				break
+
+		if not selected_spawn_point:
+			break
+
+		var item: Node3D = item_scene.instantiate()
+		item.name = "SpawnedItem_" + str(i)
+		item.add_to_group("spawned_items")
+		var target_chunk: Node3D = chunk_for_spawn_point[selected_spawn_point]
+		target_chunk.add_child(item)
+		item.global_position = selected_spawn_point.global_position
+
+		spawned_count += 1
+
+	print("[GameController] Items spawned: %d/%d spawn points (unique items: %d)" % [spawned_count, all_spawn_points.size(), total_items])
 
 
 func _on_player_died(dead_player: Node3D) -> void:
@@ -347,7 +467,7 @@ func _cleanup_all_players() -> void:
 			if is_instance_valid(child):
 				child.queue_free()
 
-	multiplayer_manager.players.clear()
+	spawn_manager.clear_all_players()
 
 
 func _cleanup_game_objects() -> void:
@@ -357,6 +477,10 @@ func _cleanup_game_objects() -> void:
 	for egg in get_tree().get_nodes_in_group("eggs"):
 		if is_instance_valid(egg):
 			egg.queue_free()
+
+	for item in get_tree().get_nodes_in_group("spawned_items"):
+		if is_instance_valid(item):
+			item.queue_free()
 
 	for bunny in get_tree().get_nodes_in_group("assassin_bunny"):
 		if is_instance_valid(bunny):
@@ -368,6 +492,10 @@ func _cleanup_game_objects() -> void:
 
 
 func _safe_return_to_lobby() -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.stop_music()
+
 	if not is_inside_tree():
 		return
 
@@ -376,6 +504,10 @@ func _safe_return_to_lobby() -> void:
 
 
 func _return_to_lobby() -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.stop_music()
+
 	_cleanup_spectator()
 
 	if _game_over_instance and is_instance_valid(_game_over_instance):
@@ -389,14 +521,12 @@ func _return_to_lobby() -> void:
 		if is_instance_valid(bunny):
 			bunny.queue_free()
 
-	# Em multiplayer, o host sincroniza o retorno ao lobby para todos
 	if not _is_singleplayer and multiplayer.is_server():
 		var host_manager := get_node_or_null("/root/HostManager")
 		if host_manager:
 			host_manager.sync_return_to_lobby()
 			return
 
-	# Singleplayer ou cliente (fallback)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file("res://scenes/lobby_3d.tscn")
 
@@ -418,16 +548,14 @@ func deliver_egg(player: Node3D) -> bool:
 
 	var egg: Node3D = player.get_carried_egg()
 	if egg.get("is_monster"):
-		return false  # Cannot deliver monster egg
+		return false 
 
-	# Remove egg from player and destroy
 	player._clear_carried_egg()
 	egg.queue_free()
 
 	_eggs_delivered += 1
 	_update_hud_eggs()
 
-	# Sync multiplayer
 	if not _is_singleplayer:
 		_sync_egg_delivered()
 
@@ -447,14 +575,12 @@ func player_enter_car(peer_id: int) -> void:
 
 	_players_in_car[peer_id] = true
 
-	# Hide player
 	var player := _get_player_by_peer_id(peer_id)
 	if player:
 		player.visible = false
 		player.set_physics_process(false)
 		player.set_process_input(false)
 
-	# Sync multiplayer
 	if not _is_singleplayer:
 		_sync_player_entered_car(peer_id)
 
@@ -467,7 +593,6 @@ func _check_mission_complete() -> void:
 		var pid: int = p.get_meta("peer_id", 1)
 		if not _players_in_car.get(pid, false):
 			return
-	# All players in car!
 	_on_mission_complete()
 
 

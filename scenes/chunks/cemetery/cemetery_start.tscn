@@ -52,9 +52,6 @@ mesh = SubResource("BoxMesh_3tqts")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall3/StaticBody3D" index="0"]
 shape = SubResource("ConcavePolygonShape3D_6bq2s")
 
-[node name="Camera3D" parent="." index="4"]
-transform = Transform3D(-0.9975628, 0.05753966, -0.03946612, -0.011828166, 0.41798574, 0.9083766, 0.06876396, 0.9066295, -0.41628644, 0, 10.952211, -7.0106153)
-
 [node name="Car" type="Area3D" parent="." index="5" groups=["car_delivery"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.3391304)
 
@@ -62,3 +59,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.3391304)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Car" index="1"]
 shape = SubResource("BoxShape3D_car")
+
+[node name="Camera3D" parent="." index="6"]
+transform = Transform3D(-0.9975628, 0.05753966, -0.03946612, -0.011828166, 0.41798574, 0.9083766, 0.06876396, 0.9066295, -0.41628644, 0, 10.952211, -7.0106153)

@@ -55,3 +55,25 @@ theme_override_font_sizes/font_size = 28
 horizontal_alignment = 1
 text = ""
 visible = false
+
+[node name="StaminaContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -60.0
+offset_right = 210.0
+offset_bottom = -10.0
+grow_vertical = 0
+
+[node name="StaminaLabel" type="Label" parent="Control/StaminaContainer"]
+layout_mode = 2
+text = "Stamina"
+theme_override_font_sizes/font_size = 14
+
+[node name="StaminaBar" type="ProgressBar" parent="Control/StaminaContainer"]
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false

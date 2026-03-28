@@ -29,6 +29,9 @@ data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999
 
 [node name="CemeteryBottomLeft1" instance=ExtResource("1_iulgy")]
 
+[node name="Point" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.427413, -0.6778929, 2.751008)
+
 [node name="Point" type="Node3D" parent="EggSpawnPoints" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8539677, 0.44941187, -8.055209)
 

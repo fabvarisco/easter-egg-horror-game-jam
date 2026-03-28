@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://dr6k67vp3dajy"]
+[gd_scene load_steps=3 format=3 uid="uid://dr6k67vp3dajy"]
 
 [ext_resource type="Script" uid="uid://cxvk3hja8uygw" path="res://scripts/egg.gd" id="1_maxla"]
 

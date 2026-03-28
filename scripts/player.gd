@@ -1,3 +1,4 @@
+class_name Player 
 extends CharacterBody3D
 
 const SLOW_WALK_SPEED: float = 1.5
@@ -17,14 +18,35 @@ const MAX_STAMINA: float = 100.0
 const STAMINA_DRAIN_RATE: float = 25.0
 const STAMINA_REGEN_RATE: float = 8.0  # Slower default recovery
 const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
-const MIN_STAMINA_TO_SPRINT: float = 10.0  
+const MIN_STAMINA_TO_SPRINT: float = 10.0
+
+# Sound radius constants
+const SOUND_RADIUS_IDLE: float = 2.0
+const SOUND_RADIUS_WALK_SLOW: float = 4.0
+const SOUND_RADIUS_WALK: float = 5.0
+const SOUND_RADIUS_SPRINT: float = 10.0
+const SOUND_RADIUS_VOICE: float = 4.0
+const SOUND_RADIUS_LERP_SPEED: float = 5.0
+const SOUND_RADIUS_DECAY: float = 3.0
+
+# Animation names
+const ANIM_PREFIX := "CharacterArmature|CharacterArmature|CharacterArmature|"
+const ANIM_IDLE := ANIM_PREFIX + "Idle"
+const ANIM_WALK := ANIM_PREFIX + "Walk"
+const ANIM_RUN := ANIM_PREFIX + "Run"
+const ANIM_JUMP := ANIM_PREFIX + "Jump"
+const ANIM_IDLE_HOLDING := ANIM_PREFIX + "Idle_Holding"
+const ANIM_WALK_HOLDING := ANIM_PREFIX + "Walk_Holding"
+const ANIM_RUN_HOLDING := ANIM_PREFIX + "Run_Holding"
 
 @onready var flashlight: SpotLight3D = $SpotLight3D
 @onready var vision_light: SpotLight3D = $VisionLight
 @onready var model: Node3D = $model
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
+@onready var sound_area_3d: Area3D = $SoundArea3D
 
-var _texture: Texture2D = preload("res://assets/godot_plush_albedo.png")
+
+var _texture: Texture2D = preload("res://assets/models/PlayerGenericModel_Sushi_Atlas.png")
 
 var _sync_timer: float = 0.0
 
@@ -34,13 +56,17 @@ var _current_speed: float = 0.0
 var _stamina: float = MAX_STAMINA
 var _is_sprinting: bool = false
 var _is_walking: bool = false
+var _is_speaking: bool = false
+var _sound_radius_current: float = SOUND_RADIUS_IDLE
+var _sound_radius_target: float = SOUND_RADIUS_IDLE
 var _move_direction: Vector3 = Vector3.ZERO 
 var _carried_egg: Node3D = null
 var _nearby_egg: Node3D = null
 var _nearby_pedestal: Area3D = null
 var _nearby_car: Area3D = null
 var _is_dead: bool = false
-var _is_on_floor_synced: bool = true  
+var _is_on_floor_synced: bool = true
+var _movement_enabled: bool = true  
 
 signal player_died
 
@@ -58,8 +84,16 @@ func _ready() -> void:
 		set_physics_process(false)
 		set_process_input(false)
 
+	# Conectar detecção de voz para aumentar raio de som quando fala
+	if _has_authority():
+		_connect_voice_detection()
+
 func _input(event: InputEvent) -> void:
 	if not _has_authority():
+		return
+
+	# Bloquear inputs se movimento desabilitado
+	if not _movement_enabled:
 		return
 
 	if event.is_action_pressed("toggle_flashlight") and not is_carrying_egg():
@@ -84,6 +118,14 @@ func _physics_process(_delta: float) -> void:
 	if not _has_authority():
 		_update_animation()
 		_update_carried_egg()  # Atualizar ovo mesmo em players remotos
+		return
+
+	# Se movimento desabilitado, parar completamente
+	if not _movement_enabled:
+		velocity = Vector3.ZERO
+		_current_speed = 0.0
+		_move_direction = Vector3.ZERO
+		_update_animation()
 		return
 
 	# Gravity
@@ -174,6 +216,10 @@ func _physics_process(_delta: float) -> void:
 		_sync_timer = 0.0
 		_send_position_sync()
 
+	# Update sound radius based on movement and voice
+	_controll_sound_value(_delta)
+
+
 func _get_camera_relative_direction(input_dir: Vector2) -> Vector3:
 	if input_dir.length() < 0.01:
 		return Vector3.ZERO
@@ -239,6 +285,8 @@ func _has_authority() -> bool:
 
 
 func _is_multiplayer_connected() -> bool:
+	if not is_inside_tree():
+		return false
 	if not multiplayer.has_multiplayer_peer():
 		return false
 	if not is_instance_valid(multiplayer.multiplayer_peer):
@@ -298,19 +346,20 @@ func _update_animation() -> void:
 		return
 
 	var anim_name: String
+	var is_holding := is_carrying_egg()
 
 	# Usar valor sincronizado para players remotos, is_on_floor() para local
 	var on_floor: bool = is_on_floor() if _has_authority() else _is_on_floor_synced
 
 	if not on_floor:
-		anim_name = "jump"
+		anim_name = ANIM_JUMP
 	elif _current_speed > 0.1:
 		if _is_sprinting:
-			anim_name = "run"
+			anim_name = ANIM_RUN_HOLDING if is_holding else ANIM_RUN
 		else:
-			anim_name = "walk"
+			anim_name = ANIM_WALK_HOLDING if is_holding else ANIM_WALK
 	else:
-		anim_name = "idle"
+		anim_name = ANIM_IDLE_HOLDING if is_holding else ANIM_IDLE
 
 	if anim_player.has_animation(anim_name) and anim_player.current_animation != anim_name:
 		anim_player.play(anim_name)
@@ -493,3 +542,76 @@ func shake_camera(intensity: float, duration: float) -> void:
 	var camera_manager := get_node_or_null("/root/CameraManager")
 	if camera_manager:
 		camera_manager.shake_camera(intensity, duration)
+
+func add_item_to_inventory() -> void:
+	pass
+
+func set_movement_enabled(enabled: bool) -> void:
+	_movement_enabled = enabled
+	if not enabled:
+		velocity = Vector3.ZERO
+		_current_speed = 0.0
+		_move_direction = Vector3.ZERO
+
+
+func _connect_voice_detection() -> void:
+	"""Conecta com VoiceManager para detectar quando jogador está falando"""
+	var voice_manager := get_node_or_null("/root/VoiceManager")
+	if not voice_manager:
+		return
+
+	if voice_manager.has_signal("player_speaking_changed"):
+		voice_manager.player_speaking_changed.connect(_on_player_speaking_changed)
+
+
+func _on_player_speaking_changed(peer_id: int, is_speaking: bool) -> void:
+	"""Callback quando detecção de fala muda (qualquer jogador)"""
+	var my_peer_id: int = get_meta("peer_id", 1)
+
+	if peer_id == my_peer_id:
+		_is_speaking = is_speaking
+
+
+func get_sound_radius() -> float:
+	"""Retorna o raio de som atual (útil para inimigos e outras mecânicas)"""
+	return _sound_radius_current
+
+
+func is_making_noise() -> bool:
+	"""Verifica se está fazendo barulho significativo (correndo ou falando)"""
+	return _is_sprinting or _is_speaking or _current_speed > WALK_SPEED
+
+
+func _controll_sound_value(_delta: float) -> void:
+	"""
+	Controla o raio de som do jogador baseado em suas ações.
+	O raio aumenta quando: corre, anda, fala no mic.
+	O raio diminui naturalmente até o valor mínimo (idle).
+	"""
+	var base_radius: float = SOUND_RADIUS_IDLE
+
+	if _current_speed > 0.1:
+		if _is_sprinting:
+			base_radius = SOUND_RADIUS_SPRINT
+		elif _is_walking:
+			base_radius = SOUND_RADIUS_WALK_SLOW
+		else:
+			base_radius = SOUND_RADIUS_WALK
+
+	var voice_bonus: float = SOUND_RADIUS_VOICE if _is_speaking else 0.0
+	_sound_radius_target = base_radius + voice_bonus
+
+	_sound_radius_current = lerp(_sound_radius_current, _sound_radius_target, SOUND_RADIUS_LERP_SPEED * _delta)
+
+	if _sound_radius_current > _sound_radius_target:
+		_sound_radius_current = move_toward(_sound_radius_current, _sound_radius_target, SOUND_RADIUS_DECAY * _delta)
+
+	sound_area_3d.scale = Vector3.ONE * _sound_radius_current
+
+	if _has_authority() and Engine.get_frames_drawn() % 60 == 0:  # A cada 60 frames
+		_debug_print_sound_radius()
+
+
+func _debug_print_sound_radius() -> void:
+	"""Debug: mostra raio atual no console"""
+	pass

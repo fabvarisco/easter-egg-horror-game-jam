@@ -4,9 +4,11 @@ extends CanvasLayer
 @onready var _player_list: VBoxContainer = $Control/PlayerList
 @onready var _egg_counter: Label = $Control/EggCounter
 @onready var _car_message: Label = $Control/CarMessage
+@onready var _stamina_bar: ProgressBar = $Control/StaminaContainer/StaminaBar
 
 var _player_panels: Dictionary = {}  # peer_id -> HBoxContainer
 var _is_singleplayer: bool = false
+var _local_player: Node = null
 
 const COLOR_DEFAULT := Color.WHITE
 const COLOR_SPEAKING := Color.GREEN
@@ -25,6 +27,11 @@ func _ready() -> void:
 
 	# Add existing players (deferred to ensure scene is fully loaded)
 	call_deferred("_initialize_players")
+	call_deferred("_find_local_player")
+
+
+func _process(_delta: float) -> void:
+	_update_stamina_bar()
 
 
 func _initialize_players() -> void:
@@ -134,6 +141,42 @@ func show_mission_complete() -> void:
 		_car_message.text = "MISSÃO COMPLETA!"
 		_car_message.add_theme_color_override("font_color", Color.GOLD)
 		_car_message.visible = true
+
+
+func _find_local_player() -> void:
+	var players := get_tree().get_nodes_in_group("players")
+	if players.is_empty():
+		# Tentar grupo alternativo
+		players = get_tree().get_nodes_in_group("player")
+
+	for player in players:
+		if not multiplayer.has_multiplayer_peer():
+			_local_player = player
+			return
+		if player.is_multiplayer_authority():
+			_local_player = player
+			return
+
+
+func _update_stamina_bar() -> void:
+	# Se ainda não encontrou o player, tentar novamente
+	if not is_instance_valid(_local_player):
+		_find_local_player()
+
+	if not _stamina_bar or not is_instance_valid(_local_player):
+		return
+
+	if _local_player and _local_player.has_method("get_stamina_percent"):
+		var stamina_percent: float = _local_player.get_stamina_percent()
+		_stamina_bar.value = stamina_percent * 100.0
+
+		# Mudar cor baseado no nível de stamina
+		if stamina_percent < 0.2:
+			_stamina_bar.modulate = Color.RED
+		elif stamina_percent < 0.5:
+			_stamina_bar.modulate = Color.ORANGE
+		else:
+			_stamina_bar.modulate = Color.WHITE
 
 
 func _exit_tree() -> void:

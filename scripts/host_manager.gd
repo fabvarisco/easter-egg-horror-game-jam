@@ -8,7 +8,14 @@ func _ready() -> void:
 	pass
 
 
+func _exit_tree() -> void:
+	set_physics_process(false)
+
+
 func _physics_process(delta: float) -> void:
+	if not is_inside_tree():
+		return
+
 	if not _is_multiplayer_active():
 		return
 
@@ -23,6 +30,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _is_multiplayer_active() -> bool:
+	if not is_inside_tree():
+		return false
 	if not multiplayer.has_multiplayer_peer():
 		return false
 	if not is_instance_valid(multiplayer.multiplayer_peer):
@@ -107,8 +116,15 @@ func _bunny_kill_player_rpc(player_id: int) -> void:
 	if not current_scene or "lobby" in current_scene.name.to_lower():
 		return
 
-	var player := current_scene.get_node_or_null("Players/" + str(player_id))
-	if player and is_instance_valid(player) and player.has_method("die"):
+	# Validar que player existe antes de processar
+	if not MultiplayerManager.players.has(player_id):
+		return
+
+	var player: Node3D = MultiplayerManager.players[player_id]
+	if not is_instance_valid(player):
+		return
+
+	if player.has_method("die"):
 		player.die()
 
 
@@ -124,12 +140,12 @@ func pickup_egg(egg_name: String, player_id: int) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func _pickup_egg_rpc(egg_name: String, player_id: int) -> void:
-	var player: Node3D = null
-	var players_node := get_tree().current_scene.get_node_or_null("Players")
-	if players_node:
-		player = players_node.get_node_or_null(str(player_id))
+	# Validar player existe
+	if not MultiplayerManager.players.has(player_id):
+		return
 
-	if not player:
+	var player: Node3D = MultiplayerManager.players[player_id]
+	if not is_instance_valid(player):
 		return
 
 	# Se este cliente tem authority sobre o player, ele já processou localmente
@@ -174,12 +190,12 @@ func drop_egg(egg_name: String, player_id: int, drop_position: Vector3) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func _drop_egg_rpc(_egg_name: String, player_id: int, drop_position: Vector3) -> void:
-	var player: Node3D = null
-	var players_node := get_tree().current_scene.get_node_or_null("Players")
-	if players_node:
-		player = players_node.get_node_or_null(str(player_id))
+	# Validar player existe
+	if not MultiplayerManager.players.has(player_id):
+		return
 
-	if not player:
+	var player: Node3D = MultiplayerManager.players[player_id]
+	if not is_instance_valid(player):
 		return
 
 	# Se este cliente tem authority sobre o player, ele já processou localmente

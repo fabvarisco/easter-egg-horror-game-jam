@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://ddappt7o6s13k"]
 
 [ext_resource type="Script" uid="uid://dxrarl27rg2y7" path="res://scripts/game_over.gd" id="1_wqhvx"]
-[ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/godot_plush_model.glb" id="2_tbwuq"]
+[ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/models/godot_plush_model.glb" id="2_tbwuq"]
 
 [node name="game_over" type="Node3D"]
 script = ExtResource("1_wqhvx")
