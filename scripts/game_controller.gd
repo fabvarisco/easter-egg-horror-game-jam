@@ -6,6 +6,7 @@ extends Node3D
 @export var spawnable_items: Array[PackedScene] = []
 
 var _egg_scene: PackedScene = preload("res://scenes/egg.tscn")
+var _assassin_bunny_egg_scene: PackedScene = preload("res://scenes/assassin_bunny_egg.tscn")
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
 var _pause_menu: CanvasLayer = null
 var _game_hud_scene: PackedScene = preload("res://scenes/game_hud.tscn")
@@ -257,12 +258,13 @@ func spawn_eggs() -> int:
 		if not is_instance_valid(spawn_point) or not spawn_point.is_inside_tree():
 			continue
 
-		var egg: Node3D = _egg_scene.instantiate()
 		var is_monster: bool = i in monster_indices
+		var egg: Node3D
 
 		if is_monster:
-			egg.is_monster = true
+			egg = _assassin_bunny_egg_scene.instantiate()
 		else:
+			egg = _egg_scene.instantiate()
 			good_egg_count += 1
 
 		egg.name = "Egg_" + str(i)

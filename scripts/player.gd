@@ -29,6 +29,16 @@ const SOUND_RADIUS_VOICE: float = 4.0
 const SOUND_RADIUS_LERP_SPEED: float = 5.0
 const SOUND_RADIUS_DECAY: float = 3.0
 
+# Animation names
+const ANIM_PREFIX := "CharacterArmature|CharacterArmature|CharacterArmature|"
+const ANIM_IDLE := ANIM_PREFIX + "Idle"
+const ANIM_WALK := ANIM_PREFIX + "Walk"
+const ANIM_RUN := ANIM_PREFIX + "Run"
+const ANIM_JUMP := ANIM_PREFIX + "Jump"
+const ANIM_IDLE_HOLDING := ANIM_PREFIX + "Idle_Holding"
+const ANIM_WALK_HOLDING := ANIM_PREFIX + "Walk_Holding"
+const ANIM_RUN_HOLDING := ANIM_PREFIX + "Run_Holding"
+
 @onready var flashlight: SpotLight3D = $SpotLight3D
 @onready var vision_light: SpotLight3D = $VisionLight
 @onready var model: Node3D = $model
@@ -36,7 +46,7 @@ const SOUND_RADIUS_DECAY: float = 3.0
 @onready var sound_area_3d: Area3D = $SoundArea3D
 
 
-var _texture: Texture2D = preload("res://assets/models/godot_plush_albedo.png")
+var _texture: Texture2D = preload("res://assets/models/PlayerGenericModel_Sushi_Atlas.png")
 
 var _sync_timer: float = 0.0
 
@@ -336,19 +346,20 @@ func _update_animation() -> void:
 		return
 
 	var anim_name: String
+	var is_holding := is_carrying_egg()
 
 	# Usar valor sincronizado para players remotos, is_on_floor() para local
 	var on_floor: bool = is_on_floor() if _has_authority() else _is_on_floor_synced
 
 	if not on_floor:
-		anim_name = "jump"
+		anim_name = ANIM_JUMP
 	elif _current_speed > 0.1:
 		if _is_sprinting:
-			anim_name = "run"
+			anim_name = ANIM_RUN_HOLDING if is_holding else ANIM_RUN
 		else:
-			anim_name = "walk"
+			anim_name = ANIM_WALK_HOLDING if is_holding else ANIM_WALK
 	else:
-		anim_name = "idle"
+		anim_name = ANIM_IDLE_HOLDING if is_holding else ANIM_IDLE
 
 	if anim_player.has_animation(anim_name) and anim_player.current_animation != anim_name:
 		anim_player.play(anim_name)
