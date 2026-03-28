@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://c8bhn444c1i2w"]
+[gd_scene load_steps=27 format=3 uid="uid://c8bhn444c1i2w"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_stxak"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="2_xp1yl"]
@@ -25,12 +25,7 @@
 [ext_resource type="ArrayMesh" uid="uid://2dn23w1ejf3u" path="res://assets/obj/pumpkin_orange_small.obj" id="23_3kwfv"]
 [ext_resource type="ArrayMesh" uid="uid://ba7op8ujr8aff" path="res://assets/obj/shrine.obj" id="24_tp1va"]
 [ext_resource type="ArrayMesh" uid="uid://cejvf2xcywlao" path="res://assets/obj/skull.obj" id="26_uxg4n"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_rkt2a"]
-size = Vector3(0.1, 5, 20)
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_rkt2a"]
-data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, -10, 0.049999997, -2.5, -10, -0.049999997, 2.5, -10, -0.049999997, -2.5, -10, 0.049999997, -2.5, -10, 0.049999997, 2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, -10, 0.049999997, -2.5, 10, -0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, 2.5, 10, -0.049999997, 2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, 2.5, -10, 0.049999997, 2.5, -10, -0.049999997, -2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, -2.5, 10, 0.049999997, -2.5, -10, -0.049999997, -2.5, -10)
+[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="26_ydcy8"]
 
 [node name="CemeteryTop1" instance=ExtResource("1_stxak")]
 
@@ -221,7 +216,7 @@ mesh = ExtResource("15_kqx5v")
 skeleton = NodePath("../..")
 
 [node name="TreePineYellowLarge3" type="MeshInstance3D" parent="World" index="41"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.623536, 0.55476, 8.654162)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.623536, 0.55476, 8.049439)
 mesh = ExtResource("11_2ileb")
 skeleton = NodePath("../..")
 
@@ -325,11 +320,29 @@ transform = Transform3D(-0.99997735, -0.0025518239, 0.0062350044, 0, 0.92548764,
 mesh = ExtResource("26_uxg4n")
 skeleton = NodePath("../..")
 
-[node name="Wall" type="MeshInstance3D" parent="World" index="62"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.040991306, 2.5516224, 9.9281225)
-mesh = SubResource("BoxMesh_rkt2a")
+[node name="Wall" type="Node3D" parent="World" index="62"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 10.189355)
 
-[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall" index="0"]
+[node name="Fence" type="MeshInstance3D" parent="World/Wall" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)
+mesh = ExtResource("26_ydcy8")
+skeleton = NodePath("../../..")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall/StaticBody3D" index="0"]
-shape = SubResource("ConcavePolygonShape3D_rkt2a")
+[node name="Fence2" type="MeshInstance3D" parent="World/Wall" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 0)
+mesh = ExtResource("26_ydcy8")
+skeleton = NodePath("../../..")
+
+[node name="Fence5" type="MeshInstance3D" parent="World/Wall" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
+mesh = ExtResource("26_ydcy8")
+skeleton = NodePath("../../..")
+
+[node name="Fence3" type="MeshInstance3D" parent="World/Wall" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
+mesh = ExtResource("26_ydcy8")
+skeleton = NodePath("../../..")
+
+[node name="Fence4" type="MeshInstance3D" parent="World/Wall" index="4"]
+mesh = ExtResource("26_ydcy8")
+skeleton = NodePath("../../..")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=132 format=3 uid="uid://b62erwxr56mmo"]
+[gd_scene load_steps=132 format=3 uid="uid://cpy5dq7xflldh"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_rcgni"]
 [ext_resource type="ArrayMesh" uid="uid://bfg5f582ugu6f" path="res://assets/obj/floor_dirt.obj" id="2_tmiyk"]

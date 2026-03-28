@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://c3ahptutbq6v2"]
+[gd_scene load_steps=22 format=3 uid="uid://c3ahptutbq6v2"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_flned"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="2_6c6nv"]
@@ -20,395 +20,426 @@
 [ext_resource type="ArrayMesh" uid="uid://bfo4xy1kgjy07" path="res://assets/obj/bone_A.obj" id="18_uvvxi"]
 [ext_resource type="ArrayMesh" uid="uid://es01h528rlfu" path="res://assets/obj/bone_B.obj" id="19_6w5p3"]
 [ext_resource type="ArrayMesh" uid="uid://b4xv6o4bwxakq" path="res://assets/obj/bone_C.obj" id="20_qmick"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_rkt2a"]
-size = Vector3(0.1, 5, 20)
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_rkt2a"]
-data = PackedVector3Array(-0.049999997, 2.5, 10, 0.049999997, 2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, -10, 0.049999997, -2.5, -10, -0.049999997, 2.5, -10, -0.049999997, -2.5, -10, 0.049999997, -2.5, -10, 0.049999997, 2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, 10, 0.049999997, 2.5, -10, 0.049999997, -2.5, -10, 0.049999997, -2.5, 10, -0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, -10, -0.049999997, 2.5, 10, -0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, 2.5, 10, -0.049999997, 2.5, 10, 0.049999997, 2.5, -10, -0.049999997, 2.5, 10, -0.049999997, 2.5, -10, 0.049999997, 2.5, -10, -0.049999997, -2.5, 10, 0.049999997, -2.5, 10, -0.049999997, -2.5, -10, 0.049999997, -2.5, 10, 0.049999997, -2.5, -10, -0.049999997, -2.5, -10)
+[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="21_6c6nv"]
 
 [node name="CemeteryBottomLeft1" instance=ExtResource("1_flned")]
 
 [node name="Point" type="Node3D" parent="EggSpawnPoints" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8539677, 0.44941187, -8.055209)
 
-[node name="Wall" type="MeshInstance3D" parent="World" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.977708, 2.5516224, 0)
-mesh = SubResource("BoxMesh_rkt2a")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall" index="0"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall/StaticBody3D" index="0"]
-shape = SubResource("ConcavePolygonShape3D_rkt2a")
-
-[node name="Wall2" type="MeshInstance3D" parent="World" index="1"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.046325684, 2.5516224, -10.068494)
-mesh = SubResource("BoxMesh_rkt2a")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2" index="0"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall2/StaticBody3D" index="0"]
-shape = SubResource("ConcavePolygonShape3D_rkt2a")
-
-[node name="Floor" parent="World" index="2" instance=ExtResource("2_6c6nv")]
+[node name="Floor" parent="World" index="0" instance=ExtResource("2_6c6nv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
-[node name="PathA2" type="MeshInstance3D" parent="World" index="3"]
+[node name="PathA2" type="MeshInstance3D" parent="World" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA4" type="MeshInstance3D" parent="World" index="4"]
+[node name="PathA4" type="MeshInstance3D" parent="World" index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA5" type="MeshInstance3D" parent="World" index="5"]
+[node name="PathA5" type="MeshInstance3D" parent="World" index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA16" type="MeshInstance3D" parent="World" index="6"]
+[node name="PathA16" type="MeshInstance3D" parent="World" index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA17" type="MeshInstance3D" parent="World" index="7"]
+[node name="PathA17" type="MeshInstance3D" parent="World" index="5"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA23" type="MeshInstance3D" parent="World" index="8"]
+[node name="PathA23" type="MeshInstance3D" parent="World" index="6"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5371671, -3)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA24" type="MeshInstance3D" parent="World" index="9"]
+[node name="PathA24" type="MeshInstance3D" parent="World" index="7"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5371671, -5)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA25" type="MeshInstance3D" parent="World" index="10"]
+[node name="PathA25" type="MeshInstance3D" parent="World" index="8"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5371671, -7)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA26" type="MeshInstance3D" parent="World" index="11"]
+[node name="PathA26" type="MeshInstance3D" parent="World" index="9"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5371671, -9)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA18" type="MeshInstance3D" parent="World" index="12"]
+[node name="PathA18" type="MeshInstance3D" parent="World" index="10"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA32" type="MeshInstance3D" parent="World" index="13"]
+[node name="PathA32" type="MeshInstance3D" parent="World" index="11"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.537, 1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA33" type="MeshInstance3D" parent="World" index="14"]
+[node name="PathA33" type="MeshInstance3D" parent="World" index="12"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.537, 1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA34" type="MeshInstance3D" parent="World" index="15"]
+[node name="PathA34" type="MeshInstance3D" parent="World" index="13"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.537, 3)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA35" type="MeshInstance3D" parent="World" index="16"]
+[node name="PathA35" type="MeshInstance3D" parent="World" index="14"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.537, 3)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA36" type="MeshInstance3D" parent="World" index="17"]
+[node name="PathA36" type="MeshInstance3D" parent="World" index="15"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.537, 5)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA37" type="MeshInstance3D" parent="World" index="18"]
+[node name="PathA37" type="MeshInstance3D" parent="World" index="16"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.537, 5)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA38" type="MeshInstance3D" parent="World" index="19"]
+[node name="PathA38" type="MeshInstance3D" parent="World" index="17"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.537, 7)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA39" type="MeshInstance3D" parent="World" index="20"]
+[node name="PathA39" type="MeshInstance3D" parent="World" index="18"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.537, 7)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA40" type="MeshInstance3D" parent="World" index="21"]
+[node name="PathA40" type="MeshInstance3D" parent="World" index="19"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.537, 9)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA41" type="MeshInstance3D" parent="World" index="22"]
+[node name="PathA41" type="MeshInstance3D" parent="World" index="20"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.537, 9)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA28" type="MeshInstance3D" parent="World" index="23"]
+[node name="PathA28" type="MeshInstance3D" parent="World" index="21"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5371671, -3)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA29" type="MeshInstance3D" parent="World" index="24"]
+[node name="PathA29" type="MeshInstance3D" parent="World" index="22"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5371671, -5)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA30" type="MeshInstance3D" parent="World" index="25"]
+[node name="PathA30" type="MeshInstance3D" parent="World" index="23"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5371671, -7)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA31" type="MeshInstance3D" parent="World" index="26"]
+[node name="PathA31" type="MeshInstance3D" parent="World" index="24"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5371671, -9)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA19" type="MeshInstance3D" parent="World" index="27"]
+[node name="PathA19" type="MeshInstance3D" parent="World" index="25"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.011743, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA20" type="MeshInstance3D" parent="World" index="28"]
+[node name="PathA20" type="MeshInstance3D" parent="World" index="26"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA21" type="MeshInstance3D" parent="World" index="29"]
+[node name="PathA21" type="MeshInstance3D" parent="World" index="27"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PathA22" type="MeshInstance3D" parent="World" index="30"]
+[node name="PathA22" type="MeshInstance3D" parent="World" index="28"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.537, -1)
 mesh = ExtResource("3_6rd3o")
 skeleton = NodePath("../../..")
 
-[node name="PostLantern" type="MeshInstance3D" parent="World" index="31"]
+[node name="PostLantern" type="MeshInstance3D" parent="World" index="29"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.0601974, 0.5, 5.922091)
 mesh = ExtResource("4_2jiia")
 skeleton = NodePath("../../..")
 
-[node name="PostLantern2" type="MeshInstance3D" parent="World" index="32"]
+[node name="PostLantern2" type="MeshInstance3D" parent="World" index="30"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.274926, 0.5, 1.9227029)
 mesh = ExtResource("4_2jiia")
 skeleton = NodePath("../../..")
 
-[node name="PostLantern3" type="MeshInstance3D" parent="World" index="33"]
+[node name="PostLantern3" type="MeshInstance3D" parent="World" index="31"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.275, 0.5, -6.047)
 mesh = ExtResource("4_2jiia")
 skeleton = NodePath("../../..")
 
-[node name="PostLantern4" type="MeshInstance3D" parent="World" index="34"]
+[node name="PostLantern4" type="MeshInstance3D" parent="World" index="32"]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 2.2755089, 0.5, -6.047282)
 mesh = ExtResource("4_2jiia")
 skeleton = NodePath("../../..")
 
-[node name="PostLantern5" type="MeshInstance3D" parent="World" index="35"]
+[node name="PostLantern5" type="MeshInstance3D" parent="World" index="33"]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 2.2755089, 0.5, 1.9085894)
 mesh = ExtResource("4_2jiia")
 skeleton = NodePath("../../..")
 
-[node name="PostLantern6" type="MeshInstance3D" parent="World" index="36"]
+[node name="PostLantern6" type="MeshInstance3D" parent="World" index="34"]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 2.2755089, 0.5, 5.9285336)
 mesh = ExtResource("4_2jiia")
 skeleton = NodePath("../../..")
 
-[node name="PostLanternLantern" type="MeshInstance3D" parent="World" index="37"]
+[node name="PostLanternLantern" type="MeshInstance3D" parent="World" index="35"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2327522, 0.5, 0.9688263)
 mesh = ExtResource("5_carff")
 skeleton = NodePath("../../..")
 
-[node name="PostLanternLantern2" type="MeshInstance3D" parent="World" index="38"]
+[node name="PostLanternLantern2" type="MeshInstance3D" parent="World" index="36"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0837502, 0.5, 0.92022824)
 mesh = ExtResource("5_carff")
 skeleton = NodePath("../../..")
 
-[node name="PostLanternLantern5" type="MeshInstance3D" parent="World" index="39"]
+[node name="PostLanternLantern5" type="MeshInstance3D" parent="World" index="37"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1522996, 0.5, -7.0227966)
 mesh = ExtResource("5_carff")
 skeleton = NodePath("../../..")
 
-[node name="PostLanternLantern6" type="MeshInstance3D" parent="World" index="40"]
+[node name="PostLanternLantern6" type="MeshInstance3D" parent="World" index="38"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1962729, 0.5, -7.0227966)
 mesh = ExtResource("5_carff")
 skeleton = NodePath("../../..")
 
-[node name="PostLanternLantern3" type="MeshInstance3D" parent="World" index="41"]
+[node name="PostLanternLantern3" type="MeshInstance3D" parent="World" index="39"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1498675, 0.5, 4.96033)
 mesh = ExtResource("5_carff")
 skeleton = NodePath("../../..")
 
-[node name="PostLanternLantern4" type="MeshInstance3D" parent="World" index="42"]
+[node name="PostLanternLantern4" type="MeshInstance3D" parent="World" index="40"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9530468, 0.5, 4.929705)
 mesh = ExtResource("5_carff")
 skeleton = NodePath("../../..")
 
-[node name="Bench" type="MeshInstance3D" parent="World" index="43"]
+[node name="Bench" type="MeshInstance3D" parent="World" index="41"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.9548335, 0.5, 0.43588862)
 mesh = ExtResource("6_182yl")
 skeleton = NodePath("../../..")
 
-[node name="Bench3" type="MeshInstance3D" parent="World" index="44"]
+[node name="Bench3" type="MeshInstance3D" parent="World" index="42"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.327296, 0.5, 0.43588862)
 mesh = ExtResource("6_182yl")
 skeleton = NodePath("../../..")
 
-[node name="Bench2" type="MeshInstance3D" parent="World" index="45"]
+[node name="Bench2" type="MeshInstance3D" parent="World" index="43"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.9548335, 0.5, -2.5086646)
 mesh = ExtResource("6_182yl")
 skeleton = NodePath("../../..")
 
-[node name="Bench4" type="MeshInstance3D" parent="World" index="46"]
+[node name="Bench4" type="MeshInstance3D" parent="World" index="44"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3896165, 0.5, -2.5086646)
 mesh = ExtResource("6_182yl")
 skeleton = NodePath("../../..")
 
-[node name="Ribcage" type="MeshInstance3D" parent="World" index="47"]
+[node name="Ribcage" type="MeshInstance3D" parent="World" index="45"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.416008, 0.6916141, 5.8385177)
 mesh = ExtResource("7_mk6dr")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadLargeDecorated" type="MeshInstance3D" parent="World" index="48"]
+[node name="TreeDeadLargeDecorated" type="MeshInstance3D" parent="World" index="46"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.4928308, 0.5, 3.431378)
 mesh = ExtResource("8_e3ipm")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadLargeDecorated2" type="MeshInstance3D" parent="World" index="49"]
+[node name="TreeDeadLargeDecorated2" type="MeshInstance3D" parent="World" index="47"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6075478, 0.5, 4.341044)
 mesh = ExtResource("8_e3ipm")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadLargeDecorated3" type="MeshInstance3D" parent="World" index="50"]
+[node name="TreeDeadLargeDecorated3" type="MeshInstance3D" parent="World" index="48"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4130309, 0.5, -3.0803823)
 mesh = ExtResource("8_e3ipm")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadMedium" type="MeshInstance3D" parent="World" index="51"]
+[node name="TreeDeadMedium" type="MeshInstance3D" parent="World" index="49"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.586814, 0.5, -4.658176)
 mesh = ExtResource("9_olxbo")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadMedium2" type="MeshInstance3D" parent="World" index="52"]
+[node name="TreeDeadMedium2" type="MeshInstance3D" parent="World" index="50"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.4619355, 0.5, -4.3859534)
 mesh = ExtResource("9_olxbo")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadSmall" type="MeshInstance3D" parent="World" index="53"]
+[node name="TreeDeadSmall" type="MeshInstance3D" parent="World" index="51"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7577114, 0.5, -8.241268)
 mesh = ExtResource("10_bcxcc")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadLarge4" type="MeshInstance3D" parent="World" index="54"]
+[node name="TreeDeadLarge4" type="MeshInstance3D" parent="World" index="52"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4248395, 0.5, -9.269547)
 mesh = ExtResource("11_lljfb")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadSmall4" type="MeshInstance3D" parent="World" index="55"]
+[node name="TreeDeadSmall4" type="MeshInstance3D" parent="World" index="53"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.3331666, 0.5, 2.727002)
 mesh = ExtResource("10_bcxcc")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadSmall6" type="MeshInstance3D" parent="World" index="56"]
+[node name="TreeDeadSmall6" type="MeshInstance3D" parent="World" index="54"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7599633, 0.5, -9.151891)
 mesh = ExtResource("10_bcxcc")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadSmall7" type="MeshInstance3D" parent="World" index="57"]
+[node name="TreeDeadSmall7" type="MeshInstance3D" parent="World" index="55"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.8638363, 0.5, -4.94152)
 mesh = ExtResource("10_bcxcc")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadSmall9" type="MeshInstance3D" parent="World" index="58"]
+[node name="TreeDeadSmall9" type="MeshInstance3D" parent="World" index="56"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.201382, 0.5, 2.6515603)
 mesh = ExtResource("10_bcxcc")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadLargeDecorated5" type="MeshInstance3D" parent="World" index="59"]
+[node name="TreeDeadLargeDecorated5" type="MeshInstance3D" parent="World" index="57"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.7426653, 0.5, 7.269814)
 mesh = ExtResource("8_e3ipm")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadSmall11" type="MeshInstance3D" parent="World" index="60"]
+[node name="TreeDeadSmall11" type="MeshInstance3D" parent="World" index="58"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.169744, 0.5, 4.465646)
 mesh = ExtResource("10_bcxcc")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadLarge7" type="MeshInstance3D" parent="World" index="61"]
+[node name="TreeDeadLarge7" type="MeshInstance3D" parent="World" index="59"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.650141, 0.5, -3.3359134)
 mesh = ExtResource("11_lljfb")
 skeleton = NodePath("../../..")
 
-[node name="TreeDeadLarge8" type="MeshInstance3D" parent="World" index="62"]
+[node name="TreeDeadLarge8" type="MeshInstance3D" parent="World" index="60"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7535894, 0.5, -6.967172)
 mesh = ExtResource("11_lljfb")
 skeleton = NodePath("../../..")
 
-[node name="Candle" type="MeshInstance3D" parent="World" index="63"]
+[node name="Candle" type="MeshInstance3D" parent="World" index="61"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1490035, 0.5144925, -2.1929035)
 mesh = ExtResource("12_rtaed")
 skeleton = NodePath("../..")
 
-[node name="Candle2" type="MeshInstance3D" parent="World" index="64"]
+[node name="Candle2" type="MeshInstance3D" parent="World" index="62"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1882834, 0.5144925, -2.2047281)
 mesh = ExtResource("12_rtaed")
 skeleton = NodePath("../..")
 
-[node name="Candle3" type="MeshInstance3D" parent="World" index="65"]
+[node name="Candle3" type="MeshInstance3D" parent="World" index="63"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.0853114, 0.5144925, 0.16029549)
 mesh = ExtResource("12_rtaed")
 skeleton = NodePath("../..")
 
-[node name="Candle4" type="MeshInstance3D" parent="World" index="66"]
+[node name="Candle4" type="MeshInstance3D" parent="World" index="64"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2766395, 0.514493, 0.16542876)
 mesh = ExtResource("12_rtaed")
 skeleton = NodePath("../..")
 
-[node name="Plaque" type="MeshInstance3D" parent="World" index="67"]
+[node name="Plaque" type="MeshInstance3D" parent="World" index="65"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.233406, 0.5506935, -7.6813602)
 mesh = ExtResource("13_s7k0l")
 skeleton = NodePath("../..")
 
-[node name="Skull" type="MeshInstance3D" parent="World" index="68"]
+[node name="Skull" type="MeshInstance3D" parent="World" index="66"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.173195, 0.772836, -7.722196)
 mesh = ExtResource("14_ruyka")
 skeleton = NodePath("../..")
 
-[node name="PumpkinOrangeJackolantern" type="MeshInstance3D" parent="World" index="69"]
+[node name="PumpkinOrangeJackolantern" type="MeshInstance3D" parent="World" index="67"]
 transform = Transform3D(0.024889007, 0.2045644, -0.97853667, -0.005201398, 0.9788531, 0.20449826, 0.9996767, 0, 0.025426703, 7.5214205, 0.450693, 9.13545)
 mesh = ExtResource("15_sgu1u")
 skeleton = NodePath("../..")
 
-[node name="CoffinDecorated" type="MeshInstance3D" parent="World" index="70"]
+[node name="CoffinDecorated" type="MeshInstance3D" parent="World" index="68"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.851271, 0.4381497, 7.8355446)
 mesh = ExtResource("16_e0da8")
 skeleton = NodePath("../..")
 
-[node name="CoffinLid" type="MeshInstance3D" parent="World" index="71"]
+[node name="CoffinLid" type="MeshInstance3D" parent="World" index="69"]
 transform = Transform3D(0.7637397, -0.6455243, 0, 0.6455243, 0.7637397, 0, 0, 0, 1, -4.2845297, 0.4337265, 7.8671045)
 mesh = ExtResource("17_debya")
 skeleton = NodePath("../..")
 
-[node name="BoneA" type="MeshInstance3D" parent="World" index="72"]
+[node name="BoneA" type="MeshInstance3D" parent="World" index="70"]
 transform = Transform3D(0.7975945, 0, 0.60319406, 0, 1, 0, -0.60319406, 0, 0.7975945, 4.8829722, 0.6329054, -5.495759)
 mesh = ExtResource("18_uvvxi")
 skeleton = NodePath("../..")
 
-[node name="BoneB" type="MeshInstance3D" parent="World" index="73"]
+[node name="BoneB" type="MeshInstance3D" parent="World" index="71"]
 transform = Transform3D(0.13545617, 0, -0.99078333, 0, 1, 0, 0.99078333, 0, 0.13545617, 3.835123, 0.5800099, -4.539527)
 mesh = ExtResource("19_6w5p3")
 skeleton = NodePath("../..")
 
-[node name="BoneC" type="MeshInstance3D" parent="World" index="74"]
+[node name="BoneC" type="MeshInstance3D" parent="World" index="72"]
 transform = Transform3D(0.7807031, 0, -0.62490207, 0, 1, 0, 0.62490207, 0, 0.7807031, 3.1553235, 0.52759, -3.7978408)
 mesh = ExtResource("20_qmick")
 skeleton = NodePath("../..")
+
+[node name="Wall" type="Node3D" parent="World" index="73"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, -10)
+
+[node name="Fence" type="MeshInstance3D" parent="World/Wall" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Fence2" type="MeshInstance3D" parent="World/Wall" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 0)
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Fence5" type="MeshInstance3D" parent="World/Wall" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Fence3" type="MeshInstance3D" parent="World/Wall" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Fence4" type="MeshInstance3D" parent="World/Wall" index="4"]
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Wall2" type="Node3D" parent="World" index="74"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 10.26, 0.5, -8)
+
+[node name="Fence" type="MeshInstance3D" parent="World/Wall2" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Fence2" type="MeshInstance3D" parent="World/Wall2" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 0)
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Fence5" type="MeshInstance3D" parent="World/Wall2" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Fence3" type="MeshInstance3D" parent="World/Wall2" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
+
+[node name="Fence4" type="MeshInstance3D" parent="World/Wall2" index="4"]
+mesh = ExtResource("21_6c6nv")
+skeleton = NodePath("../../..")
