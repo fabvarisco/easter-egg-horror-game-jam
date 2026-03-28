@@ -1,0 +1,141 @@
+[gd_scene load_steps=2 format=3 uid="uid://b444y86ra1rlf"]
+
+[ext_resource type="ArrayMesh" uid="uid://bfg5f582ugu6f" path="res://assets/obj/floor_dirt.obj" id="1_xbitf"]
+
+[node name="Floor" type="Node3D"]
+
+[node name="floor_line" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
+
+[node name="FloorDirt3" type="MeshInstance3D" parent="floor_line"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt" type="MeshInstance3D" parent="floor_line"]
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("")
+
+[node name="FloorDirt2" type="MeshInstance3D" parent="floor_line"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt4" type="MeshInstance3D" parent="floor_line"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt5" type="MeshInstance3D" parent="floor_line"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="floor_line2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 8)
+
+[node name="FloorDirt3" type="MeshInstance3D" parent="floor_line2"]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 0, 0, -8)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt" type="MeshInstance3D" parent="floor_line2"]
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("")
+
+[node name="FloorDirt2" type="MeshInstance3D" parent="floor_line2"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -4)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt4" type="MeshInstance3D" parent="floor_line2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt5" type="MeshInstance3D" parent="floor_line2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="floor_line3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 8)
+
+[node name="FloorDirt3" type="MeshInstance3D" parent="floor_line3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt" type="MeshInstance3D" parent="floor_line3"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("")
+
+[node name="FloorDirt2" type="MeshInstance3D" parent="floor_line3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt4" type="MeshInstance3D" parent="floor_line3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt5" type="MeshInstance3D" parent="floor_line3"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -16)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="floor_line4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 8)
+
+[node name="FloorDirt3" type="MeshInstance3D" parent="floor_line4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt" type="MeshInstance3D" parent="floor_line4"]
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("")
+
+[node name="FloorDirt2" type="MeshInstance3D" parent="floor_line4"]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 0, 0, -4)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt4" type="MeshInstance3D" parent="floor_line4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt5" type="MeshInstance3D" parent="floor_line4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="floor_line5" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 8)
+
+[node name="FloorDirt3" type="MeshInstance3D" parent="floor_line5"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -8)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt" type="MeshInstance3D" parent="floor_line5"]
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("")
+
+[node name="FloorDirt2" type="MeshInstance3D" parent="floor_line5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt4" type="MeshInstance3D" parent="floor_line5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")
+
+[node name="FloorDirt5" type="MeshInstance3D" parent="floor_line5"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -16)
+mesh = ExtResource("1_xbitf")
+skeleton = NodePath("../../../..")

@@ -1,7 +1,6 @@
 [gd_scene load_steps=33 format=3 uid="uid://beb8al3yv600p"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_2ab70"]
-[ext_resource type="ArrayMesh" uid="uid://bfg5f582ugu6f" path="res://assets/obj/floor_dirt.obj" id="2_x41te"]
 [ext_resource type="ArrayMesh" uid="uid://1v4nb3gshk5i" path="res://assets/obj/crypt.obj" id="3_gta2p"]
 [ext_resource type="ArrayMesh" uid="uid://darbc3jpnm4jt" path="res://assets/obj/path_A.obj" id="4_02w7v"]
 [ext_resource type="ArrayMesh" uid="uid://lv477re7i2h2" path="res://assets/obj/path_B.obj" id="5_pnod5"]
@@ -19,6 +18,7 @@
 [ext_resource type="ArrayMesh" uid="uid://cqj8h61lpngme" path="res://assets/obj/bench.obj" id="17_cfy6f"]
 [ext_resource type="ArrayMesh" uid="uid://8cr6n6ee2njo" path="res://assets/obj/bench_decorated.obj" id="18_vxsu0"]
 [ext_resource type="ArrayMesh" uid="uid://b4xv6o4bwxakq" path="res://assets/obj/bone_C.obj" id="19_16evr"]
+[ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="19_31ekg"]
 [ext_resource type="ArrayMesh" uid="uid://cvbgjiqaaske8" path="res://assets/obj/coffin_decorated.obj" id="20_fltnh"]
 [ext_resource type="ArrayMesh" uid="uid://h61w0ivoxym4" path="res://assets/obj/coffin_lid.obj" id="21_qk057"]
 [ext_resource type="ArrayMesh" uid="uid://c8uwpf57gvuer" path="res://assets/obj/gravemarker_A.obj" id="22_u0e70"]
@@ -153,148 +153,13 @@ transform = Transform3D(0.8767855, 0, -0.48088166, 0, 1, 0, 0.48088166, 0, 0.876
 mesh = ExtResource("33_c0x8g")
 skeleton = NodePath("../../..")
 
-[node name="Floor" type="Node3D" parent="World" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-
-[node name="floor_line" type="Node3D" parent="World/Floor" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
-
-[node name="FloorDirt3" type="MeshInstance3D" parent="World/Floor/floor_line" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt" type="MeshInstance3D" parent="World/Floor/floor_line" index="1"]
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("")
-
-[node name="FloorDirt2" type="MeshInstance3D" parent="World/Floor/floor_line" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt4" type="MeshInstance3D" parent="World/Floor/floor_line" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt5" type="MeshInstance3D" parent="World/Floor/floor_line" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="Crypt" type="MeshInstance3D" parent="World/Floor/floor_line" index="5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -13.777444)
+[node name="Crypt" type="MeshInstance3D" parent="World/Others" index="20"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.9261928, -0.10363686, -12.747412)
 mesh = ExtResource("3_gta2p")
+skeleton = NodePath("../../Floor/floor_line")
 
-[node name="floor_line2" type="Node3D" parent="World/Floor" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 8)
-
-[node name="FloorDirt3" type="MeshInstance3D" parent="World/Floor/floor_line2" index="0"]
-transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 0, 0, -8)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt" type="MeshInstance3D" parent="World/Floor/floor_line2" index="1"]
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("")
-
-[node name="FloorDirt2" type="MeshInstance3D" parent="World/Floor/floor_line2" index="2"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -4)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt4" type="MeshInstance3D" parent="World/Floor/floor_line2" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt5" type="MeshInstance3D" parent="World/Floor/floor_line2" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="floor_line3" type="Node3D" parent="World/Floor" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 8)
-
-[node name="FloorDirt3" type="MeshInstance3D" parent="World/Floor/floor_line3" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt" type="MeshInstance3D" parent="World/Floor/floor_line3" index="1"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("")
-
-[node name="FloorDirt2" type="MeshInstance3D" parent="World/Floor/floor_line3" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt4" type="MeshInstance3D" parent="World/Floor/floor_line3" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt5" type="MeshInstance3D" parent="World/Floor/floor_line3" index="4"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -16)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="floor_line4" type="Node3D" parent="World/Floor" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 8)
-
-[node name="FloorDirt3" type="MeshInstance3D" parent="World/Floor/floor_line4" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt" type="MeshInstance3D" parent="World/Floor/floor_line4" index="1"]
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("")
-
-[node name="FloorDirt2" type="MeshInstance3D" parent="World/Floor/floor_line4" index="2"]
-transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 0, 0, -4)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt4" type="MeshInstance3D" parent="World/Floor/floor_line4" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt5" type="MeshInstance3D" parent="World/Floor/floor_line4" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="floor_line5" type="Node3D" parent="World/Floor" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 8)
-
-[node name="FloorDirt3" type="MeshInstance3D" parent="World/Floor/floor_line5" index="0"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -8)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt" type="MeshInstance3D" parent="World/Floor/floor_line5" index="1"]
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("")
-
-[node name="FloorDirt2" type="MeshInstance3D" parent="World/Floor/floor_line5" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt4" type="MeshInstance3D" parent="World/Floor/floor_line5" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
-
-[node name="FloorDirt5" type="MeshInstance3D" parent="World/Floor/floor_line5" index="4"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -16)
-mesh = ExtResource("2_x41te")
-skeleton = NodePath("../../../..")
+[node name="Floor" parent="World" index="1" instance=ExtResource("19_31ekg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="Path" type="Node3D" parent="World" index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
