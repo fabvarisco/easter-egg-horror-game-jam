@@ -1,11 +1,7 @@
-[gd_scene load_steps=159 format=3 uid="uid://beb8al3yv600p"]
+[gd_scene load_steps=158 format=3 uid="uid://beb8al3yv600p"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_2ab70"]
-<<<<<<< HEAD
-[ext_resource type="ArrayMesh" uid="uid://1v4nb3gshk5i" path="res://assets/obj/crypt.obj" id="3_gta2p"]
-=======
 [ext_resource type="ArrayMesh" uid="uid://bfg5f582ugu6f" path="res://assets/obj/floor_dirt.obj" id="2_x41te"]
->>>>>>> 59941fc8b27e1c084fe11255e2eaf6b21e08d68c
 [ext_resource type="ArrayMesh" uid="uid://darbc3jpnm4jt" path="res://assets/obj/path_A.obj" id="4_02w7v"]
 [ext_resource type="ArrayMesh" uid="uid://lv477re7i2h2" path="res://assets/obj/path_B.obj" id="5_pnod5"]
 [ext_resource type="ArrayMesh" uid="uid://c3k40a4da35dx" path="res://assets/obj/path_C.obj" id="6_giy2n"]
@@ -18,11 +14,9 @@
 [ext_resource type="ArrayMesh" uid="uid://baedgmbs3tww8" path="res://assets/obj/tree_dead_large_decorated.obj" id="13_037hw"]
 [ext_resource type="ArrayMesh" uid="uid://bww05ug5j6xt2" path="res://assets/obj/tree_dead_medium.obj" id="14_2wt8h"]
 [ext_resource type="ArrayMesh" uid="uid://dox1tcypwiofr" path="res://assets/obj/tree_dead_small.obj" id="15_rabid"]
-[ext_resource type="ArrayMesh" uid="uid://roa7n4u2gq43" path="res://assets/obj/arch.obj" id="16_xs4lb"]
 [ext_resource type="ArrayMesh" uid="uid://cqj8h61lpngme" path="res://assets/obj/bench.obj" id="17_cfy6f"]
 [ext_resource type="ArrayMesh" uid="uid://8cr6n6ee2njo" path="res://assets/obj/bench_decorated.obj" id="18_vxsu0"]
 [ext_resource type="ArrayMesh" uid="uid://b4xv6o4bwxakq" path="res://assets/obj/bone_C.obj" id="19_16evr"]
-[ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="19_31ekg"]
 [ext_resource type="ArrayMesh" uid="uid://cvbgjiqaaske8" path="res://assets/obj/coffin_decorated.obj" id="20_fltnh"]
 [ext_resource type="ArrayMesh" uid="uid://h61w0ivoxym4" path="res://assets/obj/coffin_lid.obj" id="21_qk057"]
 [ext_resource type="ArrayMesh" uid="uid://c8uwpf57gvuer" path="res://assets/obj/gravemarker_A.obj" id="22_u0e70"]
@@ -420,10 +414,6 @@ points = PackedVector3Array(-0.485442, 3.8514285, -0.013156369, -0.485442, 3.851
 
 [node name="CemeteryCenter1" instance=ExtResource("1_2ab70")]
 
-[node name="Plane" parent="." index="0"]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, -0.034402847, 0)
-visible = false
-
 [node name="point" type="Node3D" parent="EggSpawnPoints" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8315654, 0, -1.6310606)
 
@@ -433,7 +423,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1401067, 0, -1.6310606)
 [node name="point3" type="Node3D" parent="EggSpawnPoints" index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1401067, 0, 2.2717228)
 
-[node name="World" parent="." index="4"]
+[node name="World" parent="." index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="Others" type="Node3D" parent="World" index="0"]
@@ -633,15 +623,6 @@ transform = Transform3D(0.8767855, 0, -0.48088166, 0, 1, 0, 0.48088166, 0, 0.876
 mesh = ExtResource("33_c0x8g")
 skeleton = NodePath("../../..")
 
-<<<<<<< HEAD
-[node name="Crypt" type="MeshInstance3D" parent="World/Others" index="20"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.9261928, -0.10363686, -12.747412)
-mesh = ExtResource("3_gta2p")
-skeleton = NodePath("../../Floor/floor_line")
-
-[node name="Floor" parent="World" index="1" instance=ExtResource("19_31ekg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-=======
 [node name="StaticBody3D" type="StaticBody3D" parent="World/Others/Plaque" index="0"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Others/Plaque/StaticBody3D" index="0"]
@@ -1000,7 +981,6 @@ shape = SubResource("ConvexPolygonShape3D_l1fgp")
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -16)
 mesh = ExtResource("2_x41te")
 skeleton = NodePath("../../../..")
->>>>>>> 59941fc8b27e1c084fe11255e2eaf6b21e08d68c
 
 [node name="StaticBody3D" type="StaticBody3D" parent="World/Floor/floor_line5/FloorDirt5" index="0"]
 
@@ -1398,22 +1378,7 @@ shape = SubResource("ConvexPolygonShape3D_fm75v")
 [node name="Fences" type="Node3D" parent="World" index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.466, 6)
 
-[node name="Arch" type="MeshInstance3D" parent="World/Fences" index="0"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.7299871, -0.00040284544, -6.331679)
-mesh = ExtResource("16_xs4lb")
-skeleton = NodePath("../../..")
-
-[node name="Arch2" type="MeshInstance3D" parent="World/Fences" index="1"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -17.705936, -0.00040284544, -6.331678)
-mesh = ExtResource("16_xs4lb")
-skeleton = NodePath("../../..")
-
-[node name="Arch3" type="MeshInstance3D" parent="World/Fences" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.9498754, -0.00040403754, 0.0012655258)
-mesh = ExtResource("16_xs4lb")
-skeleton = NodePath("../../..")
-
-[node name="Fence" type="MeshInstance3D" parent="World/Fences" index="3"]
+[node name="Fence" type="MeshInstance3D" parent="World/Fences" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
 mesh = ExtResource("7_bgn8h")
 skeleton = NodePath("../../..")
@@ -1423,7 +1388,7 @@ skeleton = NodePath("../../..")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Fences/Fence/StaticBody3D" index="0"]
 shape = SubResource("ConvexPolygonShape3D_8v74d")
 
-[node name="FenceBroken" type="MeshInstance3D" parent="World/Fences" index="4"]
+[node name="FenceBroken" type="MeshInstance3D" parent="World/Fences" index="1"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -17.75, 0, -2.3)
 mesh = ExtResource("8_g5px5")
 skeleton = NodePath("../../..")
@@ -1433,7 +1398,7 @@ skeleton = NodePath("../../..")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Fences/FenceBroken/StaticBody3D" index="0"]
 shape = SubResource("ConvexPolygonShape3D_aq17w")
 
-[node name="Fence3" type="MeshInstance3D" parent="World/Fences" index="5"]
+[node name="Fence3" type="MeshInstance3D" parent="World/Fences" index="2"]
 mesh = ExtResource("7_bgn8h")
 skeleton = NodePath("../../..")
 
@@ -1442,7 +1407,7 @@ skeleton = NodePath("../../..")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Fences/Fence3/StaticBody3D" index="0"]
 shape = SubResource("ConvexPolygonShape3D_ryjea")
 
-[node name="Fence5" type="MeshInstance3D" parent="World/Fences" index="6"]
+[node name="Fence5" type="MeshInstance3D" parent="World/Fences" index="3"]
 transform = Transform3D(-0.005044006, 0, 0.9999873, 0, 1, 0, -0.9999873, 0, -0.005044006, 1.7293501, 0, -2.2758296)
 mesh = ExtResource("7_bgn8h")
 skeleton = NodePath("../../..")
@@ -1452,7 +1417,7 @@ skeleton = NodePath("../../..")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Fences/Fence5/StaticBody3D" index="0"]
 shape = SubResource("ConvexPolygonShape3D_ljxru")
 
-[node name="Fence2" type="MeshInstance3D" parent="World/Fences" index="7"]
+[node name="Fence2" type="MeshInstance3D" parent="World/Fences" index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 0)
 mesh = ExtResource("7_bgn8h")
 skeleton = NodePath("../../..")
@@ -1462,7 +1427,7 @@ skeleton = NodePath("../../..")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Fences/Fence2/StaticBody3D" index="0"]
 shape = SubResource("ConvexPolygonShape3D_ayada")
 
-[node name="Fence4" type="MeshInstance3D" parent="World/Fences" index="8"]
+[node name="Fence4" type="MeshInstance3D" parent="World/Fences" index="5"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)
 mesh = ExtResource("7_bgn8h")
 skeleton = NodePath("../../..")
@@ -1610,5 +1575,5 @@ shape = SubResource("ConvexPolygonShape3D_oun5v")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Trees/TreeDeadMedium2/StaticBody3D2" index="0"]
 shape = SubResource("ConvexPolygonShape3D_1ceh0")
 
-[node name="Camera3D" parent="." index="5"]
+[node name="Camera3D" parent="." index="4"]
 transform = Transform3D(1, 0, 0, 0, 0.56562924, 0.8246597, 0, -0.8246597, 0.56562924, 0, 10.320823, 8.255884)

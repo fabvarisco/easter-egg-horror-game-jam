@@ -1,6 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://b444y86ra1rlf"]
+[gd_scene load_steps=5 format=3 uid="uid://b444y86ra1rlf"]
 
 [ext_resource type="ArrayMesh" uid="uid://bfg5f582ugu6f" path="res://assets/obj/floor_dirt.obj" id="1_xbitf"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xbitf"]
+points = PackedVector3Array(-2, -0.5, -2, -2, -0.5, 2, -2, -0.10000983, -2, 2, -0.5, -2, -2, -0.10000983, 2, 2, -0.5, 2, -1.9001566, -3.8206577e-05, -1.9001566, 2, -0.10000983, -2, -1.9001566, -3.8206577e-05, 1.899765, 2, -0.10000983, 2, -1.3778386, 0.029999971, -1.6252936, -1.2572435, 0.029999971, -1.6707126, 1.899765, -3.8206577e-05, -1.9001566, -1.0019577, 0.029948056, 1.5853562, -1.1135473, 0.029948056, 1.5215349, 1.899765, -3.8206577e-05, 1.899765, -0.92560685, 0.029999971, 1.339859, 1.2223961, 0.029999971, -1.403289, 1.3371181, 0.029999971, -1.1433046, 1.3825371, 0.029948056, -1.0231011, 1.0794833, 0.029948056, 1.5759592, -0.8140172, 0.029999971, 1.5262334, 1.1996868, 0.029948056, 1.5297573, -0.6272514, 0.029999971, 1.4150352)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_xbitf"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hnssf"]
+points = PackedVector3Array(-1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0, 1)
 
 [node name="Floor" type="Node3D"]
 
@@ -11,6 +19,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
 mesh = ExtResource("1_xbitf")
 skeleton = NodePath("../../../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="floor_line/FloorDirt3"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="floor_line/FloorDirt3/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_xbitf")
 
 [node name="FloorDirt" type="MeshInstance3D" parent="floor_line"]
 mesh = ExtResource("1_xbitf")
@@ -139,3 +152,12 @@ skeleton = NodePath("../../../..")
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -16)
 mesh = ExtResource("1_xbitf")
 skeleton = NodePath("../../../..")
+
+[node name="Plane" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, -0.1340332, 0)
+mesh = SubResource("PlaneMesh_xbitf")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Plane"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Plane/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_hnssf")
