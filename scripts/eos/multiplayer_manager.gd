@@ -1,5 +1,5 @@
 extends Node
-## Multiplayer Manager - Unified interface for LAN and EOS multiplayer
+## Multiplayer Manager - EOS multiplayer interface
 
 signal player_connected(peer_id: int)
 signal player_disconnected(peer_id: int)
@@ -7,20 +7,16 @@ signal connection_succeeded
 signal connection_failed
 signal server_disconnected
 signal room_created(code: String)
-signal server_found(server_info: Dictionary)
 signal lobby_join_failed(reason: String)
 signal player_ready_changed(peer_id: int, is_ready: bool)
 signal all_players_ready
 signal game_starting
 
 
-enum NetworkMode { NONE, LAN, EOS }
+enum NetworkMode { NONE, EOS }
 
 
 const MAX_PLAYERS = 4
-const DEFAULT_PORT = 7777
-const BROADCAST_PORT = 7778
-const BROADCAST_INTERVAL = 1.0
 const GAME_ID = "easteregghorror"
 
 
@@ -35,16 +31,6 @@ var current_mode: NetworkMode = NetworkMode.NONE
 
 # Ready system
 var _ready_states: Dictionary = {}  # peer_id -> bool
-
-
-# LAN variables
-var _peer: ENetMultiplayerPeer
-var _broadcast_socket: PacketPeerUDP
-var _listen_socket: PacketPeerUDP
-var _broadcast_timer: float = 0.0
-var _is_broadcasting: bool = false
-var _is_listening: bool = false
-var _found_servers: Dictionary = {}
 
 
 # EOS variables
@@ -85,7 +71,6 @@ func _notification(what: int) -> void:
 
 
 func _handle_quit() -> void:
-
 	# Disable all processing immediately to prevent callbacks during shutdown
 	set_process(false)
 	set_physics_process(false)
@@ -93,11 +78,6 @@ func _handle_quit() -> void:
 	# Clear multiplayer peer FIRST to stop any network callbacks
 	if multiplayer.has_multiplayer_peer():
 		multiplayer.multiplayer_peer = null
-
-	# Close peers synchronously without awaiting
-	if _peer:
-		_peer.close()
-		_peer = null
 
 	if _eos_peer:
 		_eos_peer.close()
@@ -109,9 +89,6 @@ func _handle_quit() -> void:
 	connected_peers.clear()
 	puid_to_peer_id.clear()
 	peer_id_to_puid.clear()
-
-	_stop_broadcasting()
-	_stop_listening()
 
 	get_tree().quit()
 
@@ -175,64 +152,6 @@ func _initialize_eos() -> bool:
 	_eos_initialized = true
 	my_peer_id = abs(hash(_local_product_user_id)) % 1000000
 	return true
-
-# ==========================================
-# LAN MULTIPLAYER
-# ==========================================
-
-
-func host_game_lan(player_name: String = "Host") -> void:
-	current_mode = NetworkMode.LAN
-	host_name = player_name
-	_peer = ENetMultiplayerPeer.new()
-	var error := _peer.create_server(DEFAULT_PORT, MAX_PLAYERS)
-
-	if error != OK:
-		push_error("[LAN] Failed to create server: " + str(error))
-		connection_failed.emit()
-		return
-
-	multiplayer.multiplayer_peer = _peer
-	is_host = true
-	my_peer_id = 1
-	room_code = host_name
-
-	_start_broadcasting()
-	if not connected_peers.has(my_peer_id):
-		connected_peers.append(my_peer_id)
-	room_created.emit(host_name)
-	connection_succeeded.emit()
-
-
-func join_game_lan(ip: String) -> void:
-	current_mode = NetworkMode.LAN
-	_stop_listening()
-
-	_peer = ENetMultiplayerPeer.new()
-	var error := _peer.create_client(ip, DEFAULT_PORT)
-
-	if error != OK:
-		push_error("[LAN] Failed to connect: " + str(error))
-		connection_failed.emit()
-		return
-
-	multiplayer.multiplayer_peer = _peer
-	is_host = false
-	room_code = ip
-
-
-func start_searching_lan() -> void:
-	_found_servers.clear()
-	_start_listening()
-
-
-func stop_searching_lan() -> void:
-	_stop_listening()
-
-
-func get_found_servers() -> Dictionary:
-	return _found_servers
-
 
 # ==========================================
 # EOS MULTIPLAYER
@@ -347,31 +266,6 @@ func join_game_eos(code: String) -> void:
 	current_mode = NetworkMode.NONE
 
 
-func _process(_delta: float) -> void:
-	if current_mode != NetworkMode.LAN:
-		return
-
-	if _is_broadcasting:
-		_broadcast_timer += _delta
-		if _broadcast_timer >= BROADCAST_INTERVAL:
-			_broadcast_timer = 0.0
-			_send_broadcast()
-
-	if _is_listening and _listen_socket:
-		while _listen_socket.get_available_packet_count() > 0:
-			var packet := _listen_socket.get_packet()
-			var sender_ip := _listen_socket.get_packet_ip()
-			_handle_broadcast(packet, sender_ip)
-
-	var now := Time.get_ticks_msec()
-	var to_remove: Array[String] = []
-	for ip in _found_servers:
-		if now - _found_servers[ip].time > 3000:
-			to_remove.append(ip)
-	for ip in to_remove:
-		_found_servers.erase(ip)
-
-
 # ==========================================
 # EOS: Notificações de Lobby
 # ==========================================
@@ -399,14 +293,11 @@ func leave_game() -> void:
 	if is_inside_tree() and get_tree() != null:
 		await get_tree().create_timer(0.3).timeout
 
-	match current_mode:
-		NetworkMode.LAN:
-			_leave_lan()
-		NetworkMode.EOS:
-			if is_inside_tree() and get_tree() != null:
-				await _leave_eos()
-			else:
-				_leave_eos_sync()
+	if current_mode == NetworkMode.EOS:
+		if is_inside_tree() and get_tree() != null:
+			await _leave_eos()
+		else:
+			_leave_eos_sync()
 
 	# Agora sim limpar
 	current_mode = NetworkMode.NONE
@@ -426,15 +317,6 @@ func _leave_eos_sync() -> void:
 		_eos_peer = null
 	multiplayer.multiplayer_peer = null
 	_current_lobby = null
-
-
-func _leave_lan() -> void:
-	_stop_broadcasting()
-	_stop_listening()
-	if _peer:
-		_peer.close()
-		_peer = null
-	multiplayer.multiplayer_peer = null
 
 
 func _leave_eos() -> void:
@@ -465,15 +347,7 @@ func _leave_eos() -> void:
 
 func _cleanup_on_exit() -> void:
 	# Synchronous cleanup when game is closing
-	_stop_broadcasting()
-	_stop_listening()
-
-	# Clear multiplayer peer first to stop network callbacks
 	multiplayer.multiplayer_peer = null
-
-	if _peer:
-		_peer.close()
-		_peer = null
 
 	if _eos_peer:
 		_eos_peer.close()
@@ -487,7 +361,7 @@ func _cleanup_on_exit() -> void:
 
 
 # ==========================================
-# LAN Helpers
+# Connection Callbacks
 # ==========================================
 
 
@@ -550,85 +424,16 @@ func _on_server_disconnected() -> void:
 	server_disconnected.emit()
 
 
-func _start_broadcasting() -> void:
-	_broadcast_socket = PacketPeerUDP.new()
-	_broadcast_socket.set_broadcast_enabled(true)
-	_broadcast_socket.set_dest_address("255.255.255.255", BROADCAST_PORT)
-	_is_broadcasting = true
-	_broadcast_timer = 0.0
-
-
-func _stop_broadcasting() -> void:
-	_is_broadcasting = false
-	if _broadcast_socket:
-		_broadcast_socket.close()
-		_broadcast_socket = null
-
-
-func _send_broadcast() -> void:
-	if not _broadcast_socket:
-		return
-	var data := {
-		"game": GAME_ID,
-		"name": host_name,
-		"players": players.size(),
-		"max": MAX_PLAYERS
-	}
-	_broadcast_socket.put_packet(JSON.stringify(data).to_utf8_buffer())
-
-
-func _start_listening() -> void:
-	_listen_socket = PacketPeerUDP.new()
-	var error := _listen_socket.bind(BROADCAST_PORT)
-	if error != OK:
-		push_error("[LAN] Falha ao bind socket: " + str(error))
-		return
-	_is_listening = true
-
-
-func _stop_listening() -> void:
-	_is_listening = false
-	if _listen_socket:
-		_listen_socket.close()
-		_listen_socket = null
-
-
-func _handle_broadcast(packet: PackedByteArray, sender_ip: String) -> void:
-	var data: Variant = JSON.parse_string(packet.get_string_from_utf8())
-	if data == null or not data is Dictionary:
-		return
-	if data.get("game") != GAME_ID:
-		return
-
-	var server_info := {
-		"name": data.get("name", "Unknown"),
-		"players": data.get("players", 1),
-		"max": data.get("max", MAX_PLAYERS),
-		"ip": sender_ip,
-		"time": Time.get_ticks_msec()
-	}
-
-	var is_new := not _found_servers.has(sender_ip)
-	_found_servers[sender_ip] = server_info
-	if is_new:
-		server_found.emit(server_info)
-
-
 # ==========================================
 # Player Management
 # ==========================================
 
 
 func send_game_data(data: Dictionary, target: int = 0) -> void:
-	match current_mode:
-		NetworkMode.LAN:
-			_send_lan_data(data, target)
-		NetworkMode.EOS:
-			# EOS uses same RPC system via EOSGMultiplayerPeer
-			_send_lan_data(data, target)
+	_send_network_data(data, target)
 
 
-func _send_lan_data(data: Dictionary, target: int = 0) -> void:
+func _send_network_data(data: Dictionary, target: int = 0) -> void:
 	if not multiplayer.has_multiplayer_peer():
 		return
 	if target == 0:
