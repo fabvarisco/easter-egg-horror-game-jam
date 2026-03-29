@@ -119,26 +119,26 @@ func _on_player_disconnected(peer_id: int) -> void:
 
 func setup_egg_counter(total: int) -> void:
 	if _egg_counter:
-		_egg_counter.text = "Ovos: 0 / %d" % total
+		_egg_counter.text = "Eggs: 0 / %d" % total
 		_egg_counter.visible = true
 
 
 func update_egg_counter(delivered: int, total: int) -> void:
 	if _egg_counter:
-		_egg_counter.text = "Ovos: %d / %d" % [delivered, total]
+		_egg_counter.text = "Eggs: %d / %d" % [delivered, total]
 		if delivered >= total:
 			_egg_counter.add_theme_color_override("font_color", Color.GREEN)
 
 
 func show_car_ready() -> void:
 	if _car_message:
-		_car_message.text = "Todos os ovos coletados! Vá para o carro!"
+		_car_message.text = "All eggs collected! Go to the car!"
 		_car_message.visible = true
 
 
 func show_mission_complete() -> void:
 	if _car_message:
-		_car_message.text = "MISSÃO COMPLETA!"
+		_car_message.text = "MISSION COMPLETE!"
 		_car_message.add_theme_color_override("font_color", Color.GOLD)
 		_car_message.visible = true
 

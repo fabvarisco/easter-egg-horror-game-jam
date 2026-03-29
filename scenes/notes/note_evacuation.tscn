@@ -22,14 +22,14 @@ enable_floating = true
 float_amplitude = 0.35
 float_speed = 0.3
 float_lerp_speed = 3.0
-note_text = "Colete TODOS os ovos bons.
-Leve-os ao carro.
-Não deixe nenhum para trás.
+note_text = "Collect ALL the good eggs.
+Take them to the car.
+Don't leave any behind.
 
-A evacuação depende disso.
+The evacuation depends on it.
 
-CORRA."
-note_title = "Instruções de Evacuação"
+RUN."
+note_title = "Evacuation Instructions"
 showing_item_scale = 6.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

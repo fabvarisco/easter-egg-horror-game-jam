@@ -22,12 +22,12 @@ enable_floating = true
 float_amplitude = 0.4
 float_speed = 0.3
 float_lerp_speed = 3.0
-note_text = "Metade dos ovos estão contaminados.
-Eles parecem normais...
-Mas algo dentro deles se move.
+note_text = "Half of the eggs are contaminated.
+They look normal...
+But something inside them moves.
 
-NÃO QUEBRE OS OVOS ERRADOS."
-note_title = "ATENÇÃO - Laboratório"
+DO NOT BREAK THE WRONG EGGS."
+note_title = "WARNING - Laboratory"
 showing_item_scale = 6.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

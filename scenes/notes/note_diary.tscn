@@ -22,15 +22,15 @@ enable_floating = true
 float_amplitude = 0.4
 float_speed = 0.3
 float_lerp_speed = 3.0
-note_text = "Dia 13...
-Algo está errado.
-Os coelhos sabem que estamos aqui.
+note_text = "Day 13...
+Something is wrong.
+The bunnies know we're here.
 
-Eles não piscam.
-Eles apenas... observam.
+They don't blink.
+They just... watch.
 
-FUJA!"
-note_title = "Diário Abandonado"
+RUN!"
+note_title = "Abandoned Diary"
 showing_item_scale = 6.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

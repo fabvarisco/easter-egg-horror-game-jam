@@ -288,29 +288,20 @@ func _fisher_yates_shuffle(arr: Array, rng: RandomNumberGenerator) -> void:
 
 
 func spawn_items() -> void:
-	"""Spawns interactable items (notes/papers) across chunks"""
-	print("[GameController] spawn_items() - spawnable_items: %d" % spawnable_items.size())
-
 	if spawnable_items.is_empty():
-		print("[GameController] ERRO: spawnable_items está vazio! Configure no inspector.")
 		return
 
 	var all_spawn_points: Array[Node3D] = []
-	var chunk_for_spawn_point: Dictionary = {}  
+	var chunk_for_spawn_point: Dictionary = {}
 
 	for chunk in chunks.get_children():
 		var item_spawns = chunk.get_node_or_null("IntectableItemSpawnPoints")
-		if item_spawns:
-			print("[GameController] Chunk '%s' tem IntectableItemSpawnPoints com %d filhos" % [chunk.name, item_spawns.get_child_count()])
-			if item_spawns.get_child_count() > 0:
-				for spawn_point in item_spawns.get_children():
-					all_spawn_points.append(spawn_point)
-					chunk_for_spawn_point[spawn_point] = chunk
-
-	print("[GameController] spawn_points encontrados: %d" % all_spawn_points.size())
+		if item_spawns and item_spawns.get_child_count() > 0:
+			for spawn_point in item_spawns.get_children():
+				all_spawn_points.append(spawn_point)
+				chunk_for_spawn_point[spawn_point] = chunk
 
 	if all_spawn_points.is_empty():
-		print("[GameController] ERRO: Nenhum IntectableItemSpawnPoints encontrado nos chunks!")
 		return
 
 	var total_items: int = spawnable_items.size()
@@ -356,8 +347,6 @@ func spawn_items() -> void:
 		item.global_position = selected_spawn_point.global_position
 
 		spawned_count += 1
-
-	print("[GameController] Items spawned: %d/%d spawn points (unique items: %d)" % [spawned_count, all_spawn_points.size(), total_items])
 
 
 func _on_player_died(dead_player: Node3D) -> void:

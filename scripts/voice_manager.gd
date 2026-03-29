@@ -226,7 +226,6 @@ func _apply_mic_settings() -> void:
 
 	var room_name: String = _current_lobby.rtc_room_name
 	if room_name.is_empty():
-		print("[VoiceManager] _apply_mic_settings: rtc_room_name is empty, RTC not ready")
 		return
 
 	var mute_opts = EOS.RTCAudio.UpdateSendingOptions.new()
@@ -244,25 +243,18 @@ func _apply_mic_settings() -> void:
 
 
 func _apply_mic_volume() -> void:
-	"""Apply mic volume to EOS RTC"""
-	print("[VoiceManager] _apply_mic_volume called, volume=", _mic_volume)
 	if not _current_lobby:
-		print("[VoiceManager] _apply_mic_volume: No lobby")
 		return
 
 	var room_name: String = _current_lobby.rtc_room_name
 	if room_name.is_empty():
-		print("[VoiceManager] _apply_mic_volume: rtc_room_name is empty")
 		return
-	print("[VoiceManager] _apply_mic_volume: room=", room_name)
 
 	var volume_opts = EOS.RTCAudio.UpdateSendingVolumeOptions.new()
 	volume_opts.room_name = room_name
 	volume_opts.volume = _mic_volume
 
-	print("[VoiceManager] Calling update_sending_volume with volume=", _mic_volume)
 	EOS.RTCAudio.RTCAudioInterface.update_sending_volume(volume_opts)
-	print("[VoiceManager] Mic volume set to: ", _mic_volume)
 
 
 func is_mic_muted() -> bool:
@@ -270,36 +262,27 @@ func is_mic_muted() -> bool:
 
 
 func set_mic_muted(muted: bool) -> void:
-	print("[VoiceManager] set_mic_muted called: ", muted)
 	_mic_muted = muted
 
 	if not _current_lobby:
-		print("[VoiceManager] set_mic_muted: No lobby active, saving for later")
 		return
 
 	var room_name: String = _current_lobby.rtc_room_name
 	if room_name.is_empty():
-		print("[VoiceManager] set_mic_muted: rtc_room_name is empty, RTC not ready")
 		return
-	print("[VoiceManager] set_mic_muted: room=", room_name)
 
 	var mute_opts = EOS.RTCAudio.UpdateSendingOptions.new()
 	mute_opts.room_name = room_name
 	mute_opts.audio_status = EOS.RTCAudio.AudioStatus.Disabled if muted else EOS.RTCAudio.AudioStatus.Enabled
 
-	print("[VoiceManager] Calling update_sending with audio_status=", mute_opts.audio_status)
 	EOS.RTCAudio.RTCAudioInterface.update_sending(mute_opts)
 	var ret = await IEOS.rtc_audio_interface_update_sending_callback
 
 	if not EOS.is_success(ret):
 		push_error("[VoiceManager] Failed to set mic muted: %s" % EOS.result_str(ret))
-		return
-
-	print("[VoiceManager] Mic mute status updated successfully to: ", muted)
 
 
 func set_mic_volume(volume: float) -> void:
-	print("[VoiceManager] set_mic_volume called: ", volume)
 	_mic_volume = volume
 	_apply_mic_volume()
 

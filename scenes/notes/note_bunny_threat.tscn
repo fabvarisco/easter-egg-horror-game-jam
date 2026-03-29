@@ -22,13 +22,13 @@ enable_floating = true
 float_amplitude = 0.3
 float_speed = 0.25
 float_lerp_speed = 3.0
-note_text = "Ele sabe quando você está olhando.
-Não corra. Não se esconda.
-Apenas... continue procurando.
+note_text = "It knows when you're looking.
+Don't run. Don't hide.
+Just... keep searching.
 
-Se você parar...
-ele virá."
-note_title = "ÚLTIMA ENTRADA"
+If you stop...
+it will come."
+note_title = "LAST ENTRY"
 showing_item_scale = 6.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

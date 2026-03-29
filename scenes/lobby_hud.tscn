@@ -41,7 +41,7 @@ offset_right = 150.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
-text = "Pressione F no pedestal para confirmar"
+text = "Press F on pedestal to confirm"
 horizontal_alignment = 1
 vertical_alignment = 1
 

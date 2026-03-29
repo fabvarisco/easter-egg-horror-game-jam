@@ -145,7 +145,7 @@ func _initialize_eos() -> bool:
 
 	var init_result = EOS.Platform.PlatformInterface.initialize(init_opts)
 	if init_result != EOS.Result.Success and init_result != EOS.Result.AlreadyConfigured:
-		push_error("[EOS] Falha ao inicializar: " + EOS.result_str(init_result))
+		push_error("[EOS] Failed to initialize: " + EOS.result_str(init_result))
 		return false
 
 	# 2. Create EOS Platform
@@ -159,7 +159,7 @@ func _initialize_eos() -> bool:
 
 	var create_result = EOS.Platform.PlatformInterface.create(create_opts)
 	if not create_result:
-		push_error("[EOS] Falha ao criar plataforma")
+		push_error("[EOS] Failed to create platform")
 		return false
 
 	# 3. Setup logging
@@ -168,7 +168,7 @@ func _initialize_eos() -> bool:
 	# 4. Login anonymously
 	var login_success = await HAuth.login_anonymous_async("Player")
 	if not login_success:
-		push_error("[EOS] Falha no login anônimo")
+		push_error("[EOS] Anonymous login failed")
 		return false
 
 	_local_product_user_id = HAuth.product_user_id
@@ -188,7 +188,7 @@ func host_game_lan(player_name: String = "Host") -> void:
 	var error := _peer.create_server(DEFAULT_PORT, MAX_PLAYERS)
 
 	if error != OK:
-		push_error("[LAN] Falha ao criar servidor: " + str(error))
+		push_error("[LAN] Failed to create server: " + str(error))
 		connection_failed.emit()
 		return
 
@@ -212,7 +212,7 @@ func join_game_lan(ip: String) -> void:
 	var error := _peer.create_client(ip, DEFAULT_PORT)
 
 	if error != OK:
-		push_error("[LAN] Falha ao conectar: " + str(error))
+		push_error("[LAN] Failed to connect: " + str(error))
 		connection_failed.emit()
 		return
 

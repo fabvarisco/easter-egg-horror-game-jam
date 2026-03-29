@@ -114,25 +114,15 @@ func _on_master_volume_changed(value: float) -> void:
 
 
 func _on_mic_volume_changed(value: float) -> void:
-	# Store mic volume for use with EOS voice chat
-	# EOS uses 0-100 scale directly
-	print("[PauseMenu] _on_mic_volume_changed: ", value)
 	var voice_manager := get_node_or_null("/root/VoiceManager")
-	print("[PauseMenu] VoiceManager found: ", voice_manager != null)
 	if voice_manager and voice_manager.has_method("set_mic_volume"):
 		voice_manager.set_mic_volume(value)
-	else:
-		print("[PauseMenu] ERROR: VoiceManager not found or missing method")
 
 
 func _on_mic_mute_toggled(is_muted: bool) -> void:
-	print("[PauseMenu] _on_mic_mute_toggled: ", is_muted)
 	var voice_manager := get_node_or_null("/root/VoiceManager")
-	print("[PauseMenu] VoiceManager found: ", voice_manager != null)
 	if voice_manager and voice_manager.has_method("set_mic_muted"):
 		voice_manager.set_mic_muted(is_muted)
-	else:
-		print("[PauseMenu] ERROR: VoiceManager not found or missing method")
 
 
 func _on_audio_output_selected(index: int) -> void:
