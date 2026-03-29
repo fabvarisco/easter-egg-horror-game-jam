@@ -757,7 +757,7 @@ skeleton = NodePath("../..")
 shape = SubResource("ConvexPolygonShape3D_wqul7")
 
 [node name="Wall" type="Node3D" parent="World" index="57"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 9.503155)
 
 [node name="Fence" type="MeshInstance3D" parent="World/Wall" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)

@@ -453,7 +453,7 @@ skeleton = NodePath("../..")
 shape = SubResource("ConvexPolygonShape3D_rmwcp")
 
 [node name="Wall3" type="Node3D" parent="World" index="50"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -10.250698, 0.5, -8)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 10.032486, 0.5, -8)
 
 [node name="Fence" type="MeshInstance3D" parent="World/Wall3" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)

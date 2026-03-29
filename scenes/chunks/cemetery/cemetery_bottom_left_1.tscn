@@ -1,4 +1,4 @@
-[gd_scene load_steps=99 format=3 uid="uid://cyvnsprpfbg86"]
+[gd_scene load_steps=104 format=3 uid="uid://cyvnsprpfbg86"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_iulgy"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="2_8p0x0"]
@@ -251,6 +251,21 @@ points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413,
 points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413, -0.25, -1.7501957, 2.2, 0, 2, 0, 0.25, -2, 1.9999413, 0.25, 2, 0, -0.25, -2, 1.9999413, -0.25, -2, 0, 0.25, -2, 0, -0.25)
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_v34ca"]
+points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413, -0.25, -1.7501957, 2.2, 0, 2, 0, 0.25, -2, 1.9999413, 0.25, 2, 0, -0.25, -2, 1.9999413, -0.25, -2, 0, 0.25, -2, 0, -0.25)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ohdnx"]
+points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413, -0.25, -1.7501957, 2.2, 0, 2, 0, 0.25, -2, 1.9999413, 0.25, 2, 0, -0.25, -2, 1.9999413, -0.25, -2, 0, 0.25, -2, 0, -0.25)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_tbojy"]
+points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413, -0.25, -1.7501957, 2.2, 0, 2, 0, 0.25, -2, 1.9999413, 0.25, 2, 0, -0.25, -2, 1.9999413, -0.25, -2, 0, 0.25, -2, 0, -0.25)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_u7nb8"]
+points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413, -0.25, -1.7501957, 2.2, 0, 2, 0, 0.25, -2, 1.9999413, 0.25, 2, 0, -0.25, -2, 1.9999413, -0.25, -2, 0, 0.25, -2, 0, -0.25)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_8vgvh"]
+points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413, -0.25, -1.7501957, 2.2, 0, 2, 0, 0.25, -2, 1.9999413, 0.25, 2, 0, -0.25, -2, 1.9999413, -0.25, -2, 0, 0.25, -2, 0, -0.25)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_sbast"]
 points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413, -0.25, -1.7501957, 2.2, 0, 2, 0, 0.25, -2, 1.9999413, 0.25, 2, 0, -0.25, -2, 1.9999413, -0.25, -2, 0, 0.25, -2, 0, -0.25)
 
 [node name="CemeteryBottomLeft1" instance=ExtResource("1_iulgy")]
@@ -985,7 +1000,7 @@ skeleton = NodePath("../..")
 shape = SubResource("ConvexPolygonShape3D_ypj5p")
 
 [node name="Wall" type="Node3D" parent="World" index="73"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 10.128313)
 
 [node name="Fence" type="MeshInstance3D" parent="World/Wall" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)
@@ -1037,28 +1052,53 @@ skeleton = NodePath("../../..")
 shape = SubResource("ConvexPolygonShape3D_v34ca")
 
 [node name="Wall2" type="Node3D" parent="World" index="74"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 10.26, 0.5, -8)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -9.836208, 0.5, -8)
 
 [node name="Fence" type="MeshInstance3D" parent="World/Wall2" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)
 mesh = ExtResource("21_6a4n8")
 skeleton = NodePath("../../..")
 
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2/Fence" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall2/Fence/StaticBody3D" index="0"]
+shape = SubResource("ConvexPolygonShape3D_ohdnx")
+
 [node name="Fence2" type="MeshInstance3D" parent="World/Wall2" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 0)
 mesh = ExtResource("21_6a4n8")
 skeleton = NodePath("../../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2/Fence2" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall2/Fence2/StaticBody3D" index="0"]
+shape = SubResource("ConvexPolygonShape3D_tbojy")
 
 [node name="Fence5" type="MeshInstance3D" parent="World/Wall2" index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
 mesh = ExtResource("21_6a4n8")
 skeleton = NodePath("../../..")
 
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2/Fence5" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall2/Fence5/StaticBody3D" index="0"]
+shape = SubResource("ConvexPolygonShape3D_u7nb8")
+
 [node name="Fence3" type="MeshInstance3D" parent="World/Wall2" index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
 mesh = ExtResource("21_6a4n8")
 skeleton = NodePath("../../..")
 
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2/Fence3" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall2/Fence3/StaticBody3D" index="0"]
+shape = SubResource("ConvexPolygonShape3D_8vgvh")
+
 [node name="Fence4" type="MeshInstance3D" parent="World/Wall2" index="4"]
 mesh = ExtResource("21_6a4n8")
 skeleton = NodePath("../../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World/Wall2/Fence4" index="0"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall2/Fence4/StaticBody3D" index="0"]
+shape = SubResource("ConvexPolygonShape3D_sbast")
