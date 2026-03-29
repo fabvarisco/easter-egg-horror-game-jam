@@ -1,18 +1,32 @@
 extends Node3D
-class_name Egg 
+class_name Egg
 
 @export var is_monster: bool = false
 
 const SHAKE_INTENSITY: float = 0.5
 const SHAKE_DURATION: float = 1.0
+const FLASHLIGHT_CHECK_INTERVAL: float = 0.1
 
 var _was_picked_up: bool = false
+var _flashlight_check_timer: float = 0.0
+var _is_illuminated: bool = false
+
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 
 signal monster_released
 
 func _ready() -> void:
 	set_outline_active(false)
+
+
+func _process(delta: float) -> void:
+	_flashlight_check_timer += delta
+	if _flashlight_check_timer >= FLASHLIGHT_CHECK_INTERVAL:
+		_flashlight_check_timer = 0.0
+		var illuminated := _is_illuminated_by_flashlight()
+		if illuminated != _is_illuminated:
+			_is_illuminated = illuminated
+			set_outline_active(illuminated)
 
 func on_picked_up() -> void:
 	is_multiplayer_authority()
@@ -85,6 +99,35 @@ func _connect_bunny_to_scene(bunny: Node) -> void:
 			bunny.all_players_dead.connect(scene_controller._on_all_players_dead)
 
 
+func _is_illuminated_by_flashlight() -> bool:
+	var players := get_tree().get_nodes_in_group("players")
+
+	for player in players:
+		if not is_instance_valid(player):
+			continue
+
+		var flashlight: SpotLight3D = player.get_node_or_null("SpotLight3D")
+		if not flashlight or not flashlight.visible:
+			continue
+
+		var light_pos: Vector3 = flashlight.global_position
+		var light_dir: Vector3 = -flashlight.global_transform.basis.z
+		var light_range: float = flashlight.spot_range
+		var light_angle: float = deg_to_rad(flashlight.spot_angle)
+
+		var to_obj: Vector3 = global_position - light_pos
+		var distance: float = to_obj.length()
+
+		if distance > light_range:
+			continue
+
+		var angle_to_obj: float = light_dir.angle_to(to_obj.normalized())
+		if angle_to_obj <= light_angle:
+			return true
+
+	return false
+
+
 func set_outline_active(active: bool) -> void:
 	if not mesh_instance:
 		return
@@ -94,11 +137,11 @@ func set_outline_active(active: bool) -> void:
 			var outline_shader := load("res://shaders/enhanced_outline.gdshader")
 			var material := ShaderMaterial.new()
 			material.shader = outline_shader
-			material.set_shader_parameter("outline_color", Color(0, 1, 0.6, 1))
-			material.set_shader_parameter("outline_width", 0.07)
-			material.set_shader_parameter("pulse_speed", 2.5)
-			material.set_shader_parameter("pulse_amount", 0.4)
-			material.set_shader_parameter("glow_intensity", 5.0)
+			material.set_shader_parameter("outline_color", Color(0, 1, 0.2, 1))
+			material.set_shader_parameter("outline_width", 0.15)
+			material.set_shader_parameter("pulse_speed", 2.0)
+			material.set_shader_parameter("pulse_amount", 0.3)
+			material.set_shader_parameter("glow_intensity", 8.0)
 			material.set_shader_parameter("enable_pulse", true)
 			material.render_priority = 1
 			mesh_instance.material_overlay = material

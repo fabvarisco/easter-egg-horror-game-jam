@@ -26,6 +26,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	super._process(delta)
+
 	if _was_picked_up:
 		return
 

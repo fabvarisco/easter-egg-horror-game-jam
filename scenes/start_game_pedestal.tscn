@@ -9,7 +9,7 @@
 size = Vector3(2.0935059, 2.0916748, 5.202118)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_2pvg0"]
-radius = 4.835449
+radius = 6.1694336
 
 [node name="StartGame" type="Area3D"]
 script = ExtResource("1_pedestal")
@@ -25,7 +25,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08166505, 0.5458374, 0.194
 shape = SubResource("BoxShape3D_rxqpp")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.120788574, 0.75, 0.24932861)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
 shape = SubResource("CylinderShape3D_2pvg0")
 
 [node name="ReadyIndicators" type="Node3D" parent="."]

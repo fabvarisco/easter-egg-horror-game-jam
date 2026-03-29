@@ -312,8 +312,8 @@ func spawn_items() -> void:
 		return
 
 	var total_items: int = spawnable_items.size()
-	var min_spawns: int = ceili(all_spawn_points.size() / 3.0) 
-	var max_spawns: int = ceili(all_spawn_points.size() / 2.0)
+	var min_spawns: int = ceili(all_spawn_points.size() / 2.0)
+	var max_spawns: int = all_spawn_points.size()
 
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
@@ -325,7 +325,7 @@ func spawn_items() -> void:
 		shuffled_spawn_points.append(sp)
 	_fisher_yates_shuffle(shuffled_spawn_points, rng)
 
-	const MAX_ITEMS_PER_CHUNK: int = 1
+	const MAX_ITEMS_PER_CHUNK: int = 3
 	var chunk_item_count: Dictionary = {} 
 	var spawned_count: int = 0
 

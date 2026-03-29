@@ -13,7 +13,9 @@ var _is_showing_item: bool = false
 @export var enable_floating: bool = true
 @export var float_amplitude: float = .5
 @export var float_speed: float = 0.3
-@export var float_lerp_speed: float = 3.0  
+@export var float_lerp_speed: float = 3.0
+
+const FLASHLIGHT_CHECK_INTERVAL: float = 0.1
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 
@@ -21,6 +23,8 @@ var showing_item_scene = preload("res://scenes/showing_item.tscn")
 var _time: float = 0.0
 var _initial_y: float = 0.0
 var _target_y: float = 0.0
+var _flashlight_check_timer: float = 0.0
+var _is_illuminated: bool = false
 
 func _ready() -> void:
 	add_to_group("interactable_items")
@@ -28,8 +32,14 @@ func _ready() -> void:
 	_initial_y = position.y
 
 
-func _process(_delta: float) -> void:
-	pass
+func _process(delta: float) -> void:
+	_flashlight_check_timer += delta
+	if _flashlight_check_timer >= FLASHLIGHT_CHECK_INTERVAL:
+		_flashlight_check_timer = 0.0
+		var illuminated := _is_illuminated_by_flashlight()
+		if illuminated != _is_illuminated:
+			_is_illuminated = illuminated
+			set_outline_active(illuminated)
 
 
 func _physics_process(delta: float) -> void:
@@ -114,27 +124,53 @@ func _on_showing_item_closed() -> void:
 	_is_showing_item = false
 
 
+func _is_illuminated_by_flashlight() -> bool:
+	var players := get_tree().get_nodes_in_group("players")
+
+	for player in players:
+		if not is_instance_valid(player):
+			continue
+
+		var flashlight: SpotLight3D = player.get_node_or_null("SpotLight3D")
+		if not flashlight or not flashlight.visible:
+			continue
+
+		var light_pos: Vector3 = flashlight.global_position
+		var light_dir: Vector3 = -flashlight.global_transform.basis.z
+		var light_range: float = flashlight.spot_range
+		var light_angle: float = deg_to_rad(flashlight.spot_angle)
+
+		var to_obj: Vector3 = global_position - light_pos
+		var distance: float = to_obj.length()
+
+		if distance > light_range:
+			continue
+
+		var angle_to_obj: float = light_dir.angle_to(to_obj.normalized())
+		if angle_to_obj <= light_angle:
+			return true
+
+	return false
+
+
 func set_outline_active(active: bool) -> void:
 	if not mesh_instance:
 		return
 
 	if active:
-		# Ativar o material overlay (outline)
 		if mesh_instance.material_overlay == null:
-			# Recriar o material do outline
 			var outline_shader := load("res://shaders/enhanced_outline.gdshader")
 			var material := ShaderMaterial.new()
 			material.shader = outline_shader
-			material.set_shader_parameter("outline_color", Color(1, 0.7, 0, 1))
-			material.set_shader_parameter("outline_width", 0.08)
-			material.set_shader_parameter("pulse_speed", 3.0)
-			material.set_shader_parameter("pulse_amount", 0.35)
-			material.set_shader_parameter("glow_intensity", 4.5)
+			material.set_shader_parameter("outline_color", Color(0, 1, 0.2, 1))
+			material.set_shader_parameter("outline_width", 0.15)
+			material.set_shader_parameter("pulse_speed", 2.0)
+			material.set_shader_parameter("pulse_amount", 0.3)
+			material.set_shader_parameter("glow_intensity", 8.0)
 			material.set_shader_parameter("enable_pulse", true)
 			material.render_priority = 1
 			mesh_instance.material_overlay = material
 	else:
-		# Desativar o material overlay (outline)
 		mesh_instance.material_overlay = null
 
 

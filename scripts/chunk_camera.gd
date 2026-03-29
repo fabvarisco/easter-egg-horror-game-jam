@@ -10,8 +10,6 @@ func _ready() -> void:
 	_setup_detection_area()
 	# Check for players already inside after physics processes
 	call_deferred("_check_initial_players")
-	# Desativar outlines inicialmente
-	_set_chunk_outlines_active(false)
 
 func _setup_detection_area() -> void:
 	if not _detection_area:
@@ -45,10 +43,6 @@ func _on_body_entered(body: Node3D) -> void:
 
 	_players_in_chunk += 1
 
-	# Ativar outlines quando primeiro player entra
-	if _players_in_chunk == 1:
-		_set_chunk_outlines_active(true)
-
 	# Só ativar câmera para jogador local
 	if not _is_local_player(body):
 		return
@@ -63,40 +57,8 @@ func _on_body_exited(body: Node3D) -> void:
 		return
 
 	_players_in_chunk -= 1
-
-	# Desativar outlines quando último player sai
-	if _players_in_chunk <= 0:
+	if _players_in_chunk < 0:
 		_players_in_chunk = 0
-		_set_chunk_outlines_active(false)
-
-
-func _set_chunk_outlines_active(active: bool) -> void:
-	var chunk_parent = get_parent()
-
-	# Encontrar todos os itens filhos do chunk
-	if not chunk_parent:
-		return
-
-	# Buscar itens interativos dentro do chunk
-	for child in chunk_parent.get_children():
-		if child.is_in_group("interactable_items") and child.has_method("set_outline_active"):
-			child.set_outline_active(active)
-		elif child.is_in_group("eggs") and child.has_method("set_outline_active"):
-			child.set_outline_active(active)
-
-		# Buscar recursivamente em filhos
-		_set_outlines_recursive(child, active)
-
-
-func _set_outlines_recursive(node: Node, active: bool) -> void:
-	for child in node.get_children():
-		if child.is_in_group("interactable_items") and child.has_method("set_outline_active"):
-			child.set_outline_active(active)
-		elif child.is_in_group("eggs") and child.has_method("set_outline_active"):
-			child.set_outline_active(active)
-
-		# Continuar buscando recursivamente
-		_set_outlines_recursive(child, active)
 
 
 func _is_local_player(player: Node3D) -> bool:
