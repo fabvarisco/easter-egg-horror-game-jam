@@ -735,7 +735,7 @@ func _safe_return_to_lobby() -> void:
 		return
 
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	get_tree().change_scene_to_file("res://scenes/lobby_3d.tscn")
+	get_tree().change_scene_to_file("res://scenes/lobby/lobby_3d.tscn")
 
 
 func _return_to_lobby() -> void:
@@ -764,7 +764,7 @@ func _return_to_lobby() -> void:
 			return
 
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	get_tree().change_scene_to_file("res://scenes/lobby_3d.tscn")
+	get_tree().change_scene_to_file("res://scenes/lobby/lobby_3d.tscn")
 
 
 func _start_fade_and_return_to_lobby() -> void:
@@ -773,7 +773,7 @@ func _start_fade_and_return_to_lobby() -> void:
 
 	_fade_instance = _fade_scene.instantiate()
 	add_child(_fade_instance)
-	_fade_instance.fade_out_car_and_change_scene("res://scenes/lobby_3d.tscn")
+	_fade_instance.fade_out_car_and_change_scene("res://scenes/lobby/lobby_3d.tscn")
 
 
 # ==========================================

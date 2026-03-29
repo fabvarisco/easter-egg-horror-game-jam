@@ -344,4 +344,4 @@ func sync_return_to_lobby() -> void:
 @rpc("authority", "call_local", "reliable")
 func _sync_return_to_lobby_rpc() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	get_tree().change_scene_to_file("res://scenes/lobby_3d.tscn")
+	get_tree().change_scene_to_file("res://scenes/lobby/lobby_3d.tscn")
