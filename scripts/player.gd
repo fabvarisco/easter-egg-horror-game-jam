@@ -348,7 +348,6 @@ func _update_animation() -> void:
 	var anim_name: String
 	var is_holding := is_carrying_egg()
 
-	# Usar valor sincronizado para players remotos, is_on_floor() para local
 	var on_floor: bool = is_on_floor() if _has_authority() else _is_on_floor_synced
 
 	if not on_floor:

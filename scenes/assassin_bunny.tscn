@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://btwgstsw5s24v" path="res://scripts/assassin_bunny.gd" id="1_ijrq1"]
 [ext_resource type="AudioStream" uid="uid://d4d3ptnody75r" path="res://assets/sounds/Roar.mp3" id="2_w2id4"]
-[ext_resource type="PackedScene" uid="uid://ri8p3uj8tcjf" path="res://assets/assassin_bunny.glb" id="3_o4f1r"]
+[ext_resource type="PackedScene" uid="uid://d10muek72ymoy" path="res://assets/models/Egg_Terror_Rabbit_Anim.glb" id="3_o4f1r"]
 [ext_resource type="Shader" uid="uid://cw7iymq7ce5m1" path="res://shaders/eye_glow.gdshader" id="4_eye_glow"]
 [ext_resource type="Texture2D" uid="uid://b16kswidynyfr" path="res://assets/bunny_eyes.png" id="5_eyes"]
 
@@ -23,7 +23,7 @@ script = ExtResource("1_ijrq1")
 bunny_wake_up_sound = ExtResource("2_w2id4")
 
 [node name="model" parent="." instance=ExtResource("3_o4f1r")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -0.5631881)
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0, 0.21107244, 0)
 
 [node name="RayCast3D" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
@@ -33,11 +33,11 @@ collision_mask = 3
 [node name="Timer" type="Timer" parent="."]
 
 [node name="LeftEyeMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(1.3916489, -0.8070557, 2.5321875, 0.35570443, 2.8891776, 0.72534585, -2.633778, -0.036238812, 1.4359314, 0.7386099, 2.9319458, 0.14895868)
+transform = Transform3D(0.542031, -0.32776546, 2.8368866, 0.13854273, 1.173367, 0.8126271, -1.025826, -0.014717484, 1.6087177, 0.31910837, 1.2929606, 0.104313076)
 mesh = SubResource("QuadMesh_eye")
 surface_material_override/0 = SubResource("ShaderMaterial_eye")
 
 [node name="RightEyeMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1.0787088, -0.5559876, 2.743586, 0.3557045, 2.8891776, 0.72534573, -2.7766638, 0.5861142, -0.97293794, 0.7386099, 2.9319458, -0.37084353)
+transform = Transform3D(-0.797954, -0.2101538, 1.4404078, 0.1727967, 1.4485406, 0.42212012, -1.2071925, 0.34625477, -0.8916873, 0.30053532, 1.3026152, -0.0922088)
 mesh = SubResource("QuadMesh_eye")
 surface_material_override/0 = SubResource("ShaderMaterial_eye")

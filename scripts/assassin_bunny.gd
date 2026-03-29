@@ -3,6 +3,7 @@ extends bunny_entity
 @onready var raycast: RayCast3D = $RayCast3D
 @onready var left_eye_mesh: MeshInstance3D = $LeftEyeMesh
 @onready var right_eye_mesh: MeshInstance3D = $RightEyeMesh
+@onready var anim_player: AnimationPlayer = $model/AnimationPlayer
 
 const BLINK_INTERVAL: float = 2.0 
 const BLINK_DURATION: float = 0.15 
@@ -20,6 +21,8 @@ func activate() -> void:
 
 	_state = State.WATCHING
 	visible = true
+	anim_player.play("Spawn")
+	await anim_player.animation_finished 
 	if model:
 		model.visible = true
 	set_physics_process(true)
@@ -47,7 +50,6 @@ func _physics_process(_delta: float) -> void:
 
 
 func _is_multiplayer_active() -> bool:
-	# Check if we're actually in a multiplayer game, not just having EOS plugin loaded
 	var single_player := get_tree().get_first_node_in_group("player")
 	if single_player:
 		return false  # Singleplayer mode
@@ -95,6 +97,8 @@ func _process_killing(_delta: float) -> void:
 	pass
 
 func _start_approach() -> void:
+	anim_player.play("Detected")
+	await anim_player.animation_finished 
 	_approach_count += 1
 
 	if _approach_count >= 3:
@@ -171,6 +175,8 @@ func _spawn_at_distance(distance: float) -> void:
 	_idle_timer = 0.0
 
 func _relocate() -> void:
+	anim_player.play_backwards("Spawn")
+	await anim_player.animation_finished 
 	visible = false
 	if model:
 		model.visible = false
