@@ -1,8 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://dsgccq14es87w"]
+[gd_scene load_steps=8 format=3 uid="uid://dsgccq14es87w"]
 
 [ext_resource type="Script" uid="uid://btwgstsw5s24v" path="res://scripts/assassin_bunny.gd" id="1_ijrq1"]
-[ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/models/godot_plush_model.glb" id="1_y8wg3"]
 [ext_resource type="AudioStream" uid="uid://c5ye6li1n8lr4" path="res://assets/sounds/assasin_bunny/assassin_bunny_laugh.wav" id="2_w2id4"]
+[ext_resource type="PackedScene" uid="uid://ri8p3uj8tcjf" path="res://assets/assassin_bunny.glb" id="3_o4f1r"]
 [ext_resource type="Shader" uid="uid://cw7iymq7ce5m1" path="res://shaders/eye_glow.gdshader" id="4_eye_glow"]
 [ext_resource type="Texture2D" uid="uid://b16kswidynyfr" path="res://assets/bunny_eyes.png" id="5_eyes"]
 
@@ -10,7 +10,7 @@
 size = Vector2(0.15, 0.15)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_eye"]
-render_priority = 1
+render_priority = 0
 shader = ExtResource("4_eye_glow")
 shader_parameter/eye_texture = ExtResource("5_eyes")
 shader_parameter/eye_color = Color(1, 0, 0, 1)
@@ -18,15 +18,12 @@ shader_parameter/intensity = 3.0
 shader_parameter/pulse_speed = 1.5
 shader_parameter/pulse_amount = 0.2
 
-[sub_resource type="SphereMesh" id="SphereMesh_o4f1r"]
-
 [node name="AssassinBunny" type="Node3D" groups=["assassin_bunny"]]
 script = ExtResource("1_ijrq1")
 bunny_wake_up_sound = ExtResource("2_w2id4")
 
-[node name="model" parent="." instance=ExtResource("1_y8wg3")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
-visible = false
+[node name="model" parent="." instance=ExtResource("3_o4f1r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -0.5631881)
 
 [node name="RayCast3D" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
@@ -36,11 +33,11 @@ collision_mask = 3
 [node name="Timer" type="Timer" parent="."]
 
 [node name="LeftEyeMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -0.4, 1, -0.59799725)
+transform = Transform3D(2.319415, -1.3450929, 4.2203126, 0.5928407, 4.8152966, 1.20891, -4.3896303, -0.06039807, 2.393219, 0.7386099, 2.9319458, 0.14895868)
 mesh = SubResource("QuadMesh_eye")
 surface_material_override/0 = SubResource("ShaderMaterial_eye")
 
 [node name="RightEyeMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1, -8.742278e-08, 0, 8.742278e-08, -1, 0, 0, 0, 1, 0.9258139, 1.2820642, -1.4305649)
-mesh = SubResource("SphereMesh_o4f1r")
+transform = Transform3D(-1.7978479, -0.92664605, 4.5726438, 0.5928408, 4.815296, 1.2089096, -4.627773, 0.9768571, -1.6215633, 0.7386099, 2.9319458, -0.37084353)
+mesh = SubResource("QuadMesh_eye")
 surface_material_override/0 = SubResource("ShaderMaterial_eye")
