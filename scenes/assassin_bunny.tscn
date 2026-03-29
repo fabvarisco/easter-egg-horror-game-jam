@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://dsgccq14es87w"]
 
 [ext_resource type="Script" uid="uid://btwgstsw5s24v" path="res://scripts/assassin_bunny.gd" id="1_ijrq1"]
-[ext_resource type="AudioStream" uid="uid://c5ye6li1n8lr4" path="res://assets/sounds/assasin_bunny/assassin_bunny_laugh.wav" id="2_w2id4"]
+[ext_resource type="AudioStream" uid="uid://d4d3ptnody75r" path="res://assets/sounds/Roar.mp3" id="2_w2id4"]
 [ext_resource type="PackedScene" uid="uid://ri8p3uj8tcjf" path="res://assets/assassin_bunny.glb" id="3_o4f1r"]
 [ext_resource type="Shader" uid="uid://cw7iymq7ce5m1" path="res://shaders/eye_glow.gdshader" id="4_eye_glow"]
 [ext_resource type="Texture2D" uid="uid://b16kswidynyfr" path="res://assets/bunny_eyes.png" id="5_eyes"]

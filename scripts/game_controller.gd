@@ -11,6 +11,8 @@ var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
 var _pause_menu: CanvasLayer = null
 var _game_hud_scene: PackedScene = preload("res://scenes/game_hud.tscn")
 var _game_hud: CanvasLayer = null
+var _fade_scene: PackedScene = preload("res://scenes/fade_scene.tscn")
+var _fade_instance: CanvasLayer = null
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
 @onready var spawn_manager: Node = get_node("/root/SpawnManager")
@@ -374,12 +376,18 @@ func _show_game_over() -> void:
 
 	_game_over_instance = _game_over_scene.instantiate()
 	add_child(_game_over_instance)
-
-	_game_over_instance.finished.connect(_on_game_over_finished)
 	_game_over_instance.show_game_over()
 
+	# Inicia o fade durante a tela de game over
+	if _fade_instance:
+		_fade_instance.queue_free()
 
-func _on_game_over_finished() -> void:
+	_fade_instance = _fade_scene.instantiate()
+	add_child(_fade_instance)
+	_fade_instance.fade_out_game_over(_on_fade_game_over_completed)
+
+
+func _on_fade_game_over_completed() -> void:
 	if _game_over_instance:
 		_game_over_instance.queue_free()
 		_game_over_instance = null
@@ -410,6 +418,10 @@ func _start_spectator_mode() -> void:
 
 	_spectate_camera_index = 0
 	_activate_spectate_camera()
+
+	# Fade in para ver as câmeras
+	if _fade_instance and is_instance_valid(_fade_instance):
+		_fade_instance.fade_in()
 
 
 func _switch_spectate_camera(direction: int) -> void:
@@ -531,6 +543,15 @@ func _return_to_lobby() -> void:
 	get_tree().change_scene_to_file("res://scenes/lobby_3d.tscn")
 
 
+func _start_fade_and_return_to_lobby() -> void:
+	if _fade_instance:
+		_fade_instance.queue_free()
+
+	_fade_instance = _fade_scene.instantiate()
+	add_child(_fade_instance)
+	_fade_instance.fade_out_car_and_change_scene("res://scenes/lobby_3d.tscn")
+
+
 # ==========================================
 # EGG DELIVERY SYSTEM
 # ==========================================
@@ -602,8 +623,8 @@ func _on_all_eggs_delivered() -> void:
 
 func _on_mission_complete() -> void:
 	_game_hud.show_mission_complete()
-	await get_tree().create_timer(3.0).timeout
-	_return_to_lobby()
+	await get_tree().create_timer(2.0).timeout
+	_start_fade_and_return_to_lobby()
 
 
 func _update_hud_eggs() -> void:

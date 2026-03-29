@@ -17,7 +17,9 @@ const GAME_SCENE_PATH := "res://scenes/main.tscn"
 @onready var lobby_camera: Camera3D = $Camera3D
 
 var _pause_menu_scene: PackedScene = preload("res://scenes/pause_menu.tscn")
+var _fade_scene: PackedScene = preload("res://scenes/fade_scene.tscn")
 var _pause_menu: CanvasLayer = null
+var _fade_instance: CanvasLayer = null
 var _state: LobbyState = LobbyState.MENU
 var _is_singleplayer: bool = true
 var _countdown_timer: float = 0.0
@@ -274,8 +276,14 @@ func _transition_to_game() -> void:
 		if not _is_singleplayer:
 			multiplayer_manager.broadcast_game_start()
 
-		_load_game_scene()
+		_start_fade_and_load_game()
 	# Clients will receive broadcast_game_start via multiplayer_manager
+
+
+func _start_fade_and_load_game() -> void:
+	_fade_instance = _fade_scene.instantiate()
+	add_child(_fade_instance)
+	_fade_instance.fade_out_car_and_change_scene(GAME_SCENE_PATH)
 
 
 func _load_game_scene() -> void:
@@ -293,7 +301,7 @@ func _on_game_starting() -> void:
 	# Called on clients when host broadcasts game start
 	if not multiplayer_manager.is_host:
 		_set_state(LobbyState.TRANSITIONING)
-		_load_game_scene()
+		_start_fade_and_load_game()
 
 
 func _cleanup() -> void:
