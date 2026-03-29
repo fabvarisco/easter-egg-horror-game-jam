@@ -100,6 +100,7 @@ func _input(event: InputEvent) -> void:
 		_flashlight_on = not _flashlight_on
 		flashlight.visible = _flashlight_on
 		vision_light.visible = not _flashlight_on
+		_sync_flashlight_state()
 
 	if event.is_action_pressed("interact"):
 		if _nearby_pedestal:
@@ -274,7 +275,7 @@ func _rotate_to_mouse(_delta: float) -> void:
 func _send_position_sync() -> void:
 	if not _is_multiplayer_connected():
 		return
-	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting, is_on_floor())
+	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting, is_on_floor(), _flashlight_on)
 
 
 func _has_authority() -> bool:
@@ -294,12 +295,16 @@ func _is_multiplayer_connected() -> bool:
 	return multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 @rpc("authority", "call_remote", "unreliable")
-func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool, on_floor: bool = true) -> void:
+func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool, on_floor: bool = true, flashlight_on: bool = false) -> void:
 	global_position = pos
 	rotation.y = rot_y
 	_current_speed = speed
 	_is_sprinting = sprinting
 	_is_on_floor_synced = on_floor
+	# Sync flashlight state
+	_flashlight_on = flashlight_on
+	flashlight.visible = flashlight_on
+	vision_light.visible = not flashlight_on
 
 
 func _sync_pickup_egg(egg_name: String) -> void:
@@ -320,6 +325,19 @@ func _sync_drop_egg(egg_name: String, drop_pos: Vector3) -> void:
 	if host_manager:
 		var player_id := int(name)
 		host_manager.drop_egg(egg_name, player_id, drop_pos)
+
+
+func _sync_flashlight_state() -> void:
+	if not _is_multiplayer_connected():
+		return
+	_receive_flashlight_state.rpc(_flashlight_on)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _receive_flashlight_state(flashlight_on: bool) -> void:
+	_flashlight_on = flashlight_on
+	flashlight.visible = flashlight_on
+	vision_light.visible = not flashlight_on
 
 
 func _apply_texture_to_model() -> void:
