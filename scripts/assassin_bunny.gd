@@ -5,8 +5,14 @@ extends bunny_entity
 @onready var right_eye_mesh: MeshInstance3D = $RightEyeMesh
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
 
-const BLINK_INTERVAL: float = 2.0 
-const BLINK_DURATION: float = 0.15 
+const BLINK_INTERVAL: float = 2.0
+const BLINK_DURATION: float = 0.15
+
+const SOUND_CHECK_INTERVAL: float = 0.2  # Verificar som a cada 0.2s
+const FLASHLIGHT_CHECK_INTERVAL: float = 0.1  # Verificar lanterna a cada 0.1s
+
+var _sound_check_timer: float = 0.0
+var _flashlight_check_timer: float = 0.0 
 
 func _ready() -> void:
 	visible = false
@@ -72,21 +78,48 @@ func _process_watching(_delta: float) -> void:
 	if not _target_player:
 		return
 
+	# Verificar player muito próximo (ataque imediato)
 	var close_player := _get_player_in_attack_range()
 	if close_player:
 		_target_player = close_player
 		_attack_close_player()
 		return
 
+	# Timeout de idle - relocar
 	_idle_timer += _delta
 	if _idle_timer >= IDLE_TIMEOUT:
 		_relocate()
 		return
 
+	# === DETECÇÃO POR SOM ===
+	_sound_check_timer += _delta
+	if _sound_check_timer >= SOUND_CHECK_INTERVAL:
+		_sound_check_timer = 0.0
+		var noisy_player := _detect_player_by_sound()
+		if noisy_player:
+			print("[BUNNY] Detectado por SOM")
+			_target_player = noisy_player
+			_turn_to_player(noisy_player)
+			_start_approach()
+			return
+
+	# === DETECÇÃO POR LANTERNA ===
+	_flashlight_check_timer += _delta
+	if _flashlight_check_timer >= FLASHLIGHT_CHECK_INTERVAL:
+		_flashlight_check_timer = 0.0
+		var illuminating_player := _detect_flashlight_on_bunny()
+		if illuminating_player:
+			print("[BUNNY] Detectado por LANTERNA")
+			_target_player = illuminating_player
+			_turn_to_player(illuminating_player)
+			_start_approach()
+			return
+
+	# === DETECÇÃO VISUAL (RAYCAST - EXISTENTE) ===
 	if raycast.is_colliding():
 		var collider := raycast.get_collider()
 		if collider is CharacterBody3D:
-			# Detectou um player!
+			print("[BUNNY] Detectado por VISÃO (raycast)")
 			_target_player = collider
 			_start_approach()
 
@@ -228,6 +261,55 @@ func _set_eyes_visible(eyes_visible: bool) -> void:
 		left_eye_mesh.visible = eyes_visible
 	if right_eye_mesh:
 		right_eye_mesh.visible = eyes_visible
+
+func _detect_player_by_sound() -> Node3D:
+	"""Detecta se algum player está fazendo barulho perto do coelho"""
+	var alive_players := _get_alive_players()
+
+	for player in alive_players:
+		if not player.has_method("get_sound_radius"):
+			continue
+
+		var sound_radius: float = player.get_sound_radius()
+		var distance: float = global_position.distance_to(player.global_position)
+
+		if distance <= sound_radius:
+			return player
+
+	return null
+
+func _detect_flashlight_on_bunny() -> Node3D:
+	"""Detecta se algum player está iluminando o coelho com lanterna"""
+	var alive_players := _get_alive_players()
+
+	for player in alive_players:
+		var flashlight: SpotLight3D = player.get_node_or_null("SpotLight3D")
+		if not flashlight or not flashlight.visible:
+			continue
+
+		var light_pos: Vector3 = flashlight.global_position
+		var light_dir: Vector3 = -flashlight.global_transform.basis.z
+		var light_range: float = flashlight.spot_range
+		var light_angle: float = deg_to_rad(flashlight.spot_angle)
+
+		var to_bunny: Vector3 = global_position - light_pos
+		var distance: float = to_bunny.length()
+
+		if distance > light_range:
+			continue
+
+		var angle_to_bunny: float = light_dir.angle_to(to_bunny.normalized())
+		if angle_to_bunny <= light_angle:
+			return player
+
+	return null
+
+func _turn_to_player(player: Node3D) -> void:
+	"""Vira o coelho na direção do player antes de atacar"""
+	var dir_to_player := (player.global_position - global_position).normalized()
+	dir_to_player.y = 0
+	_fixed_rotation = atan2(dir_to_player.x, dir_to_player.z)
+	rotation.y = _fixed_rotation
 
 func get_state() -> State:
 	return _state

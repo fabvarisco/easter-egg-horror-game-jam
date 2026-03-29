@@ -22,9 +22,9 @@ const MIN_STAMINA_TO_SPRINT: float = 10.0
 
 # Sound radius constants
 const SOUND_RADIUS_IDLE: float = 2.0
-const SOUND_RADIUS_WALK_SLOW: float = 4.0
+const SOUND_RADIUS_WALK_SLOW: float = 2.0
 const SOUND_RADIUS_WALK: float = 5.0
-const SOUND_RADIUS_SPRINT: float = 10.0
+const SOUND_RADIUS_SPRINT: float = 13.0
 const SOUND_RADIUS_VOICE: float = 4.0
 const SOUND_RADIUS_LERP_SPEED: float = 5.0
 const SOUND_RADIUS_DECAY: float = 3.0
