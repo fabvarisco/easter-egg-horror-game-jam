@@ -37,11 +37,13 @@ collision_mask = 3
 
 [node name="LeftEyeMesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.97124624, -0.27957693, 1.7019548, 0.1385427, 1.1733669, 0.812627, -0.6346631, -0.17170778, 2.7819505, 0.07674825, 1.271058, 0.29144132)
+visible = false
 mesh = SubResource("QuadMesh_eye")
 surface_material_override/0 = SubResource("ShaderMaterial_eye")
 
 [node name="RightEyeMesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(-1.281714, -0.016812885, 0.8307076, -0.04813625, 1.5022191, -0.06562355, -0.6919501, -0.07336062, -1.534172, -0.11682302, 1.2777933, 0.270298)
+visible = false
 mesh = SubResource("QuadMesh_eye")
 surface_material_override/0 = SubResource("ShaderMaterial_eye")
 

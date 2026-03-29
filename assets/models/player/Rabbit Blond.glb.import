@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b7wisnxx6r2pc"
-path="res://.godot/imported/PlayerGenericModel.glb-9f73f6470846fdf71e23e20773d03858.scn"
+uid="uid://iiy8w3k0b813"
+path="res://.godot/imported/Rabbit Blond.glb-53657083906c0202297a78ae9108675c.scn"
 
 [deps]
 
-source_file="res://assets/models/PlayerGenericModel.glb"
-dest_files=["res://.godot/imported/PlayerGenericModel.glb-9f73f6470846fdf71e23e20773d03858.scn"]
+source_file="res://assets/models/player/Rabbit Blond.glb"
+dest_files=["res://.godot/imported/Rabbit Blond.glb-53657083906c0202297a78ae9108675c.scn"]
 
 [params]
 

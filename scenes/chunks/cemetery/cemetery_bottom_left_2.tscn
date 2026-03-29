@@ -187,7 +187,7 @@ points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413,
 [node name="CemeteryBottomLeft1" instance=ExtResource("1_flned")]
 
 [node name="Point" type="Node3D" parent="EggSpawnPoints" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8539677, 0.44941187, -8.055209)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.564245, 0.7271223, -0.8585949)
 
 [node name="Floor" parent="World" index="0" instance=ExtResource("2_6c6nv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)

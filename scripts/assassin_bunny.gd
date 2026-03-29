@@ -10,18 +10,27 @@ const BLINK_DURATION: float = 0.15
 
 const SOUND_CHECK_INTERVAL: float = 0.2  # Verificar som a cada 0.2s
 const FLASHLIGHT_CHECK_INTERVAL: float = 0.1  # Verificar lanterna a cada 0.1s
-const TURN_SPEED: float = 0.3  
+const TURN_SPEED: float = 0.3
+const SEARCH_DURATION: float = 10.0  # Tempo que fica no estado SEARCHING
 
 var _sound_check_timer: float = 0.0
 var _flashlight_check_timer: float = 0.0
+var _search_timer: float = 0.0
 var _is_turning: bool = false
 var _turn_start_rotation: float = 0.0
 var _turn_target_rotation: float = 0.0
-var _turn_lerp_progress: float = 0.0 
+var _turn_lerp_progress: float = 0.0
+
+# Nomes das animações (preparado para o novo modelo)
+const ANIM_SPAWN: String = "Spawn"
+const ANIM_SEARCH: String = "Search"
+const ANIM_LEAVE: String = "Leave"
+const ANIM_DETECT: String = "Detect" 
 
 func _ready() -> void:
 	visible = false
 	set_physics_process(false)
+	raycast.enabled = false  # Raycast começa desativado
 
 	if model:
 		model.visible = false
@@ -30,17 +39,70 @@ func activate() -> void:
 	if _state != State.DORMANT:
 		return
 
-	_state = State.WATCHING
+	_find_target_player()
+	if _target_player:
+		_spawn_at_distance(SPAWN_DISTANCE)
+		_start_spawn_sequence()
+
+func _start_spawn_sequence() -> void:
+	"""Inicia sequência: SPAWN -> SEARCHING"""
+	_state = State.SPAWNING
 	visible = true
-	anim_player.play("Spawn")
-	await anim_player.animation_finished 
+	raycast.enabled = false  # Raycast desativado durante spawn
+
+	_play_animation(ANIM_SPAWN)
+	await anim_player.animation_finished
+
 	if model:
 		model.visible = true
 	set_physics_process(true)
 
+	# Transição para SEARCHING
+	_start_search()
+
+func _start_search() -> void:
+	"""Inicia estado SEARCHING - ativa raycast e detecção"""
+	_state = State.SEARCHING
+	_search_timer = 0.0
+	raycast.enabled = true  # Ativa raycast para detecção
+
+	_play_animation(ANIM_SEARCH)
+	# Não espera a animação terminar - continua em loop ou idle de search
+
+func _start_leave() -> void:
+	"""Inicia estado LEAVING - desativa raycast e sai"""
+	_state = State.LEAVING
+	raycast.enabled = false  # Desativa raycast
+
+	_play_animation(ANIM_LEAVE)
+	await anim_player.animation_finished
+
+	# Após Leave, relocar para nova posição
+	visible = false
+	if model:
+		model.visible = false
+
 	_find_target_player()
-	if _target_player:
-		_spawn_at_distance(SPAWN_DISTANCE)
+	_spawn_at_distance(SPAWN_DISTANCE)
+
+	# Recomeça sequência de spawn
+	_start_spawn_sequence()
+
+func _play_animation(anim_name: String) -> void:
+	"""Toca animação se existir, senão faz fallback"""
+	if anim_player.has_animation(anim_name):
+		anim_player.play(anim_name)
+	else:
+		# Fallback para animações antigas enquanto o novo modelo não está pronto
+		match anim_name:
+			ANIM_SPAWN:
+				if anim_player.has_animation("Spawn"):
+					anim_player.play("Spawn")
+			ANIM_DETECT:
+				if anim_player.has_animation("Detected"):
+					anim_player.play("Detected")
+			_:
+				pass  # Sem fallback - apenas ignora
 
 func _physics_process(_delta: float) -> void:
 	# Clientes só atualizam visual, não processam IA
@@ -49,8 +111,12 @@ func _physics_process(_delta: float) -> void:
 		return
 
 	match _state:
-		State.WATCHING:
-			_process_watching(_delta)
+		State.SPAWNING:
+			pass  # Aguardando animação de spawn
+		State.SEARCHING:
+			_process_searching(_delta)
+		State.LEAVING:
+			pass  # Aguardando animação de leave
 		State.APPROACHING:
 			_process_approaching(_delta)
 		State.KILLING:
@@ -77,16 +143,18 @@ func set_synced_state(state: int, approach_count: int) -> void:
 	_state = state as State
 	_approach_count = approach_count
 
-func _process_watching(_delta: float) -> void:
+func _process_searching(_delta: float) -> void:
+	"""Processa estado SEARCHING - raycast ativo, detectando players"""
 	_find_target_player()
 
 	if not _target_player:
 		return
 
-	# Timeout de idle - relocar
-	_idle_timer += _delta
-	if _idle_timer >= IDLE_TIMEOUT:
-		_relocate()
+	# Timer de search - após tempo limite, inicia Leave
+	_search_timer += _delta
+	if _search_timer >= SEARCH_DURATION:
+		print("[BUNNY] Tempo de search esgotado - iniciando Leave")
+		_start_leave()
 		return
 
 	# === ROTAÇÃO LENTA (lanterna ou som) ===
@@ -95,12 +163,12 @@ func _process_watching(_delta: float) -> void:
 		return
 
 	# === DETECÇÃO 1: RAYCAST (coelho já olhando para o player) ===
-	if raycast.is_colliding():
+	if raycast.enabled and raycast.is_colliding():
 		var collider := raycast.get_collider()
 		if collider is CharacterBody3D:
 			print("[BUNNY] Detectado por VISÃO (raycast)")
 			_target_player = collider
-			_start_approach()
+			_start_detect()
 			return
 
 	# === DETECÇÃO 2: LANTERNA (inicia rotação lenta) ===
@@ -122,6 +190,103 @@ func _process_watching(_delta: float) -> void:
 			print("[BUNNY] Som detectado - iniciando rotação lenta")
 			_start_turning(noisy_player)
 
+func _start_detect() -> void:
+	"""Inicia sequência de detecção:
+	1. Paralisa player
+	2. Leave (some)
+	3. Spawn na posição do player
+	4. Detect (causa strike)
+	5. Desparalisa player
+	"""
+	if not _target_player:
+		return
+
+	raycast.enabled = false
+	_state = State.APPROACHING
+
+	# 1. Paralisa o player
+	_set_player_paralyzed(true)
+
+	# 2. Toca Leave e some
+	_play_animation(ANIM_LEAVE)
+	await anim_player.animation_finished
+
+	visible = false
+	if model:
+		model.visible = false
+
+	# 3. Move para posição do player (na frente dele)
+	_spawn_in_front_of_player()
+
+	# Pequeno delay antes de aparecer
+	await get_tree().create_timer(0.3).timeout
+
+	# 4. Aparece com Spawn
+	visible = true
+	if model:
+		model.visible = true
+
+	_play_animation(ANIM_SPAWN)
+	await anim_player.animation_finished
+
+	# 5. Detect (causa o strike/dano)
+	_play_animation(ANIM_DETECT)
+	await anim_player.animation_finished
+
+	# Incrementa strike
+	_approach_count += 1
+	print("[BUNNY] Strike %d/3" % _approach_count)
+
+	# Efeitos de detecção (shake, som)
+	_play_detection_effects()
+
+	# 6. Desparalisa o player
+	_set_player_paralyzed(false)
+
+	# Verifica se matou
+	if _approach_count >= 3:
+		_kill_player()
+		return
+
+	# Continua - volta para ciclo de search
+	await get_tree().create_timer(RESPAWN_DELAY).timeout
+
+	visible = false
+	if model:
+		model.visible = false
+
+	_find_target_player()
+	_spawn_at_distance(SPAWN_DISTANCE)
+	_start_spawn_sequence()
+
+func _spawn_in_front_of_player() -> void:
+	"""Posiciona o coelho na frente do player, olhando para ele"""
+	if not _target_player:
+		return
+
+	# Pega a direção que o player está olhando
+	var player_forward := -_target_player.global_transform.basis.z.normalized()
+	player_forward.y = 0
+
+	# Posiciona o coelho na frente do player
+	var spawn_distance := 2.5  # Distância na frente do player
+	global_position = _target_player.global_position + player_forward * spawn_distance
+	global_position.y = 0
+
+	# Vira o coelho para olhar para o player
+	var dir_to_player := (_target_player.global_position - global_position).normalized()
+	dir_to_player.y = 0
+	_fixed_rotation = atan2(dir_to_player.x, dir_to_player.z)
+	rotation.y = _fixed_rotation
+
+func _set_player_paralyzed(paralyzed: bool) -> void:
+	"""Ativa/desativa movimento do player"""
+	if not _target_player:
+		return
+
+	if _target_player.has_method("set_movement_enabled"):
+		_target_player.set_movement_enabled(not paralyzed)
+
 func _process_approaching(_delta: float) -> void:
 	pass
 
@@ -129,30 +294,8 @@ func _process_killing(_delta: float) -> void:
 	pass
 
 func _start_approach() -> void:
-	anim_player.play("Detected")
-	await anim_player.animation_finished 
-	_approach_count += 1
-
-	if _approach_count >= 3:
-		_kill_player()
-		return
-
-	_state = State.APPROACHING
-
-	visible = false
-	if model:
-		model.visible = false
-
-	_play_detection_effects()
-
-	await get_tree().create_timer(RESPAWN_DELAY).timeout
-
-	_spawn_at_distance(SPAWN_DISTANCE)
-	visible = true
-	if model:
-		model.visible = true
-
-	_state = State.WATCHING
+	"""Legado - agora usa _start_detect() para o fluxo completo"""
+	_start_detect()
 
 func _play_detection_effects() -> void:
 	if not _target_player:
@@ -207,16 +350,8 @@ func _spawn_at_distance(distance: float) -> void:
 	_idle_timer = 0.0
 
 func _relocate() -> void:
-	anim_player.play_backwards("Spawn")
-	await anim_player.animation_finished 
-	visible = false
-	if model:
-		model.visible = false
-	_find_target_player()
-	_spawn_at_distance(SPAWN_DISTANCE)
-	visible = true
-	if model:
-		model.visible = true
+	"""Relocação via animação Leave"""
+	_start_leave()
 
 func _get_player_in_attack_range() -> Node3D:
 	var alive_players := _get_alive_players()
@@ -332,13 +467,13 @@ func _process_turning(delta: float) -> void:
 	rotation.y = _fixed_rotation
 
 	# Verificar se o raycast está atingindo algum player durante a rotação
-	if raycast.is_colliding():
+	if raycast.enabled and raycast.is_colliding():
 		var collider := raycast.get_collider()
 		if collider is CharacterBody3D:
-			print("[BUNNY] Raycast atingiu player durante rotação - ATACANDO!")
+			print("[BUNNY] Raycast atingiu player durante rotação - DETECTADO!")
 			_target_player = collider
 			_cancel_turning()
-			_start_approach()
+			_start_detect()
 			return
 
 	# Terminou de girar sem pegar ninguém

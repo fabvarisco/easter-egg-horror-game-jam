@@ -2,20 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dwi812dcbi2hd"
-path.s3tc="res://.godot/imported/Egg_Terror_Rabbit_Anim_TexBunnyDarker.png-c934dc4d19368923e614976d174fa96c.s3tc.ctex"
+uid="uid://dx4sxym4er3xb"
+path.s3tc="res://.godot/imported/RabbitGeneric_Sushi_Atlas.png-6cac0cad6397892bbd743c2295ce03fd.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "4d0a1b2e2f238ac559e59cf89601d302"
+"md5": "deb4136320a09128a91dae0c35c66c97"
 }
 
 [deps]
 
-source_file="res://assets/models/Egg_Terror_Rabbit_Anim_TexBunnyDarker.png"
-dest_files=["res://.godot/imported/Egg_Terror_Rabbit_Anim_TexBunnyDarker.png-c934dc4d19368923e614976d174fa96c.s3tc.ctex"]
+source_file="res://assets/models/player/RabbitGeneric_Sushi_Atlas.png"
+dest_files=["res://.godot/imported/RabbitGeneric_Sushi_Atlas.png-6cac0cad6397892bbd743c2295ce03fd.s3tc.ctex"]
 
 [params]
 

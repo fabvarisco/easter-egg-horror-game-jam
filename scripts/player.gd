@@ -39,6 +39,15 @@ const ANIM_IDLE_HOLDING := ANIM_PREFIX + "Idle_Holding"
 const ANIM_WALK_HOLDING := ANIM_PREFIX + "Walk_Holding"
 const ANIM_RUN_HOLDING := ANIM_PREFIX + "Run_Holding"
 
+# Modelos de player disponíveis (modelo + textura)
+const PLAYER_MODELS: Array[Dictionary] = [
+	{"model": "res://assets/models/player/RabbitGeneric.glb", "texture": "res://assets/models/player/RabbitGeneric_Sushi_Atlas.png"},
+	{"model": "res://assets/models/player/Rabbit Blond.glb", "texture": "res://assets/models/player/Rabbit Blond_Sushi_Atlas.png"},
+	{"model": "res://assets/models/player/Rabbit Cyan Hair.glb", "texture": "res://assets/models/player/Rabbit Cyan Hair_Sushi_Atlas.png"},
+	{"model": "res://assets/models/player/Rabbit Grey.glb", "texture": "res://assets/models/player/Rabbit Grey_Sushi_Atlas.png"},
+	{"model": "res://assets/models/player/Rabbit With pigtails.glb", "texture": "res://assets/models/player/Rabbit With pigtails_Sushi_Atlas.png"},
+]
+
 @onready var flashlight: SpotLight3D = $SpotLight3D
 @onready var vision_light: SpotLight3D = $VisionLight
 @onready var model: Node3D = $model
@@ -46,7 +55,7 @@ const ANIM_RUN_HOLDING := ANIM_PREFIX + "Run_Holding"
 @onready var sound_area_3d: Area3D = $SoundArea3D
 
 
-var _texture: Texture2D = preload("res://assets/models/PlayerGenericModel_Sushi_Atlas.png")
+var _texture: Texture2D = null  # Será definida ao escolher modelo aleatório
 
 var _sync_timer: float = 0.0
 
@@ -78,7 +87,8 @@ func _ready() -> void:
 	vision_light.visible = true
 	_flashlight_on = false
 
-	_apply_texture_to_model()
+	# Escolher modelo aleatório
+	_setup_random_model()
 
 	if not visible:
 		set_physics_process(false)
@@ -87,6 +97,45 @@ func _ready() -> void:
 	# Conectar detecção de voz para aumentar raio de som quando fala
 	if _has_authority():
 		_connect_voice_detection()
+
+func _setup_random_model() -> void:
+	"""Escolhe e aplica um modelo de player aleatório"""
+	if PLAYER_MODELS.is_empty():
+		return
+
+	# Escolher modelo aleatório
+	var random_index := randi() % PLAYER_MODELS.size()
+	var chosen := PLAYER_MODELS[random_index]
+
+	# Carregar textura
+	_texture = load(chosen["texture"])
+
+	# Carregar e substituir modelo
+	var new_model_scene: PackedScene = load(chosen["model"])
+	if not new_model_scene:
+		push_error("Failed to load player model: " + chosen["model"])
+		return
+
+	# Salvar transform do modelo atual
+	var old_transform := model.transform
+
+	# Remover modelo antigo
+	model.queue_free()
+
+	# Instanciar novo modelo
+	var new_model := new_model_scene.instantiate()
+	new_model.name = "model"
+	new_model.transform = old_transform
+	add_child(new_model)
+
+	# Atualizar referências
+	model = new_model
+	anim_player = model.get_node_or_null("AnimationPlayer")
+
+	# Aplicar textura
+	_apply_texture_to_model()
+
+	print("[PLAYER] Modelo escolhido: ", chosen["model"].get_file())
 
 func _input(event: InputEvent) -> void:
 	if not _has_authority():

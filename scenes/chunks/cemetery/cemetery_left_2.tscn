@@ -120,6 +120,12 @@ points = PackedVector3Array(1.7498043, 2.2, 0, 2, 1.9999413, 0.25, 2, 1.9999413,
 
 [node name="CemeteryLeft1" instance=ExtResource("1_w4iev")]
 
+[node name="Point3" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.019252777, -0.3769498, -1.5697138)
+
+[node name="Point2" type="Node3D" parent="IntectableItemSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.327344, -0.1884749, -1.1067832)
+
 [node name="Floor" parent="World" index="0" instance=ExtResource("2_tmfoj")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 

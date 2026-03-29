@@ -1,7 +1,7 @@
 extends Node3D
 class_name bunny_entity 
 
-enum State { DORMANT, WATCHING, APPROACHING, KILLING }
+enum State { DORMANT, SPAWNING, SEARCHING, LEAVING, APPROACHING, KILLING }
 
 @export var bunny_wake_up_sound:AudioStream 
 @onready var model: Node3D = $model
@@ -83,12 +83,8 @@ func _hunt_next_player() -> void:
 		return
 
 	# Reset and hunt next player
-	_state = State.WATCHING
 	_target_player = alive_players[0]
-	_spawn_at_distance(SPAWN_DISTANCE)
-	visible = true
-	if model:
-		model.visible = true
+	_start_spawn_sequence()
 
 func _get_alive_players() -> Array[Node]:
 	var alive: Array[Node] = []
@@ -107,4 +103,7 @@ func _get_alive_players() -> Array[Node]:
 	return alive
 
 func _spawn_at_distance(_distance: float) -> void:
+	pass  # Override in child class
+
+func _start_spawn_sequence() -> void:
 	pass  # Override in child class

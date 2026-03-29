@@ -732,3 +732,6 @@ shape = SubResource("ConvexPolygonShape3D_gqouq")
 
 [node name="TreeDeadLargeDecorated2" parent="World" index="61" instance=ExtResource("26_j207r")]
 transform = Transform3D(1, 0, 0, 0, 0.97553456, -0.2198462, 0, 0.2198462, 0.97553456, 2.9595673, 0.5, 0.38781267)
+
+[node name="FogVolume" parent="." index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.10147762, 0.4887638, 0.3679428)

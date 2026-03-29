@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://d10muek72ymoy"
-path="res://.godot/imported/Egg_Terror_Rabbit_Anim.glb-3dd6af66e832da03dbb34ab1bf88f2b1.scn"
+path="res://.godot/imported/Egg_Terror_Rabbit_Anim.glb-95d5755f2e299d2037a1effe3a7a4add.scn"
 
 [deps]
 
-source_file="res://assets/models/Egg_Terror_Rabbit_Anim.glb"
-dest_files=["res://.godot/imported/Egg_Terror_Rabbit_Anim.glb-3dd6af66e832da03dbb34ab1bf88f2b1.scn"]
+source_file="res://assets/models/player/Egg_Terror_Rabbit_Anim.glb"
+dest_files=["res://.godot/imported/Egg_Terror_Rabbit_Anim.glb-95d5755f2e299d2037a1effe3a7a4add.scn"]
 
 [params]
 

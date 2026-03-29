@@ -174,25 +174,26 @@ points = PackedVector3Array(-1.184817, 1.1502789, 0.10901415, -0.7832055, 1.2040
 
 [node name="CemeteryCenter1" instance=ExtResource("1_rcgni")]
 
+[node name="IntectableItemSpawnPoints" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.868619, 0.8661697, 0)
+
 [node name="Point3" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4743376, -1.3557858, -6.853758)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4743376, -0.9326005, -6.853758)
 
 [node name="Point2" type="Node3D" parent="IntectableItemSpawnPoints" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.708524, -0.6778929, 2.751008)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.708524, -0.1884749, 2.751008)
 
 [node name="point" type="Node3D" parent="EggSpawnPoints" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8315654, 0, -1.6310606)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8315654, 0.7283397, -1.6310606)
 
 [node name="point2" type="Node3D" parent="EggSpawnPoints" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1401067, 0, -1.6310606)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1401067, 0.7283397, -1.6310606)
 
 [node name="point3" type="Node3D" parent="EggSpawnPoints" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1401067, 0, 2.2717228)
-
-[node name="World" parent="." index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1401067, 0.7283397, 2.2717228)
 
 [node name="Floor" parent="World" index="0" instance=ExtResource("2_rcgni")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="Fences" type="Node3D" parent="World" index="1"]
 transform = Transform3D(1, 0, 0, 0, 0.56562924, 0.8246597, 0, -0.8246597, 0.56562924, 0, 10.820823, 8.255884)
