@@ -1,12 +1,12 @@
 extends Node3D
 
 @export var grid_size: Vector2i = Vector2i(4, 4)
-@export var generation_seed: int = 0 
+@export var generation_seed: int = 0
 
 @export var spawnable_items: Array[PackedScene] = []
 
 var _egg_scene: PackedScene = preload("res://scenes/eggs/egg.tscn")
-var _assassin_bunny_egg_scene: PackedScene = preload("res://scenes/monsters/assassin_bunny_egg.tscn")
+var _assassin_bunny_egg_scene: PackedScene = preload("res://scenes/eggs/assassin_bunny_egg.tscn")
 var _pause_menu_scene: PackedScene = preload("res://scenes/ui/pause_menu.tscn")
 var _pause_menu: CanvasLayer = null
 var _game_hud_scene: PackedScene = preload("res://scenes/ui/game_hud.tscn")
@@ -125,6 +125,7 @@ func _start_game() -> void:
 	var audio_manager := get_node_or_null("/root/AudioManager")
 	if audio_manager:
 		audio_manager.play_game_music()
+		audio_manager.start_ambient_sounds()
 
 	if _is_singleplayer:
 		_spawn_singleplayer()
@@ -728,6 +729,7 @@ func _safe_return_to_lobby() -> void:
 	var audio_manager := get_node_or_null("/root/AudioManager")
 	if audio_manager:
 		audio_manager.stop_music()
+		audio_manager.stop_ambient_sounds()
 
 	if not is_inside_tree():
 		return
@@ -740,6 +742,7 @@ func _return_to_lobby() -> void:
 	var audio_manager := get_node_or_null("/root/AudioManager")
 	if audio_manager:
 		audio_manager.stop_music()
+		audio_manager.stop_ambient_sounds()
 
 	_cleanup_spectator()
 

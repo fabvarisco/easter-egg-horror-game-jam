@@ -9,6 +9,12 @@ var _roar_sound: AudioStream = preload("res://assets/sounds/Roar.mp3")
 var _car_sound: AudioStream = preload("res://assets/sounds/CarSound.mp3")
 var _game_over_sound: AudioStream = preload("res://assets/sounds/GameOverSound.mp3")
 
+# Ambient sounds (dinâmico - adicione novos sons aqui)
+var _ambient_sounds: Array[AudioStream] = [
+	preload("res://assets/sounds/Crow.mp3"),
+	preload("res://assets/sounds/Bells.mp3"),
+]
+
 # Music players for crossfade
 var _music_player_a: AudioStreamPlayer
 var _music_player_b: AudioStreamPlayer
@@ -17,6 +23,14 @@ var _inactive_player: AudioStreamPlayer
 
 # SFX player
 var _sfx_player: AudioStreamPlayer
+
+# Ambient sound system
+var _ambient_player: AudioStreamPlayer
+var _ambient_timer: float = 0.0
+var _ambient_next_interval: float = 0.0
+var _ambient_active: bool = false
+const AMBIENT_MIN_INTERVAL: float = 10.0
+const AMBIENT_MAX_INTERVAL: float = 30.0
 
 # Crossfade settings
 const CROSSFADE_DURATION: float = 1.5
@@ -43,6 +57,16 @@ func _ready() -> void:
 	_sfx_player = AudioStreamPlayer.new()
 	_sfx_player.bus = "SFX"
 	add_child(_sfx_player)
+
+	# Create ambient sound player
+	_ambient_player = AudioStreamPlayer.new()
+	_ambient_player.bus = "SFX"
+	add_child(_ambient_player)
+
+
+func _process(delta: float) -> void:
+	if _ambient_active:
+		_update_ambient_sounds(delta)
 
 
 # ==========================================
@@ -147,3 +171,61 @@ func set_sfx_volume(volume: float) -> void:
 
 func get_sfx_volume() -> float:
 	return _sfx_volume
+
+
+# ==========================================
+# AMBIENT SOUNDS METHODS
+# ==========================================
+
+func start_ambient_sounds() -> void:
+	"""Inicia o sistema de sons ambientes"""
+	if _ambient_sounds.is_empty():
+		return
+
+	_ambient_active = true
+	_ambient_timer = 0.0
+	_ambient_next_interval = randf_range(AMBIENT_MIN_INTERVAL, AMBIENT_MAX_INTERVAL)
+
+
+func stop_ambient_sounds() -> void:
+	"""Para o sistema de sons ambientes"""
+	_ambient_active = false
+	_ambient_timer = 0.0
+	if _ambient_player.playing:
+		_ambient_player.stop()
+
+
+func _update_ambient_sounds(delta: float) -> void:
+	"""Atualiza o timer e toca sons ambientes aleatoriamente"""
+	_ambient_timer += delta
+
+	if _ambient_timer >= _ambient_next_interval:
+		_play_random_ambient_sound()
+		_ambient_timer = 0.0
+		_ambient_next_interval = randf_range(AMBIENT_MIN_INTERVAL, AMBIENT_MAX_INTERVAL)
+
+
+func _play_random_ambient_sound() -> void:
+	"""Toca um som ambiente aleatório"""
+	if _ambient_sounds.is_empty():
+		return
+
+	# Não tocar se já estiver tocando
+	if _ambient_player.playing:
+		return
+
+	var random_index := randi() % _ambient_sounds.size()
+	var sound: AudioStream = _ambient_sounds[random_index]
+
+	if sound:
+		# Variação de pitch ±5% para evitar repetição
+		_ambient_player.pitch_scale = randf_range(0.95, 1.05)
+		_ambient_player.volume_db = linear_to_db(_sfx_volume)
+		_ambient_player.stream = sound
+		_ambient_player.play()
+
+
+func add_ambient_sound(sound: AudioStream) -> void:
+	"""Adiciona um novo som ao array de sons ambientes"""
+	if sound and not _ambient_sounds.has(sound):
+		_ambient_sounds.append(sound)
