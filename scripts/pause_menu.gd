@@ -43,10 +43,13 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func show_menu() -> void:
+func show_menu(in_game: bool = true) -> void:
 	_previous_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	visible = true
+
+	# Hide disconnect button when not in-game (e.g., from main menu)
+	disconnect_button.visible = in_game
 
 	# Only populate devices once, not every time menu opens
 	if audio_output_dropdown.item_count == 0:

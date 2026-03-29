@@ -312,7 +312,7 @@ func _cleanup() -> void:
 
 func _on_settings_requested() -> void:
 	if _pause_menu:
-		_pause_menu.show_menu()
+		_pause_menu.show_menu(false)  # false = not in-game, hide disconnect button
 
 
 func _on_pause_menu_disconnect() -> void:
