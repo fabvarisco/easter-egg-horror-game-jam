@@ -8,6 +8,16 @@ var _scream_sound: AudioStream = preload("res://assets/sounds/Scream.mp3")
 var _roar_sound: AudioStream = preload("res://assets/sounds/Roar.mp3")
 var _car_sound: AudioStream = preload("res://assets/sounds/CarSound.mp3")
 var _game_over_sound: AudioStream = preload("res://assets/sounds/GameOverSound.mp3")
+# Footstep sounds (alternados aleatoriamente)
+var _footstep_sounds: Array[AudioStream] = [
+	preload("res://assets/sounds/FootSteps_1.mp3"),
+	preload("res://assets/sounds/FootSteps_2.mp3"),
+]
+
+# Footstep constants
+const FOOTSTEP_PITCH_MIN: float = 0.9
+const FOOTSTEP_PITCH_MAX: float = 1.1
+const FOOTSTEP_VOLUME_DB: float = -10.0
 
 # Ambient sounds (dinâmico - adicione novos sons aqui)
 var _ambient_sounds: Array[AudioStream] = [
@@ -135,6 +145,25 @@ func play_car() -> void:
 
 func play_game_over() -> void:
 	_play_sfx(_game_over_sound)
+
+
+func play_footstep() -> void:
+	"""Toca som de footstep aleatório com variação de pitch"""
+	if _footstep_sounds.is_empty():
+		return
+
+	var random_index := randi() % _footstep_sounds.size()
+	var sound: AudioStream = _footstep_sounds[random_index]
+
+	var player := AudioStreamPlayer.new()
+	player.stream = sound
+	player.bus = "SFX"
+	player.volume_db = FOOTSTEP_VOLUME_DB
+	player.pitch_scale = randf_range(FOOTSTEP_PITCH_MIN, FOOTSTEP_PITCH_MAX)
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+
 
 func _play_sfx(stream: AudioStream) -> void:
 	# Create a new player for overlapping sounds

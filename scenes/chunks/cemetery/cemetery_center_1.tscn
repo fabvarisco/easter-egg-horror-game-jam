@@ -166,7 +166,7 @@ points = PackedVector3Array(-0.485442, 3.8514285, -0.013156369, -0.485442, 3.851
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.868619, 1.0630968, 0)
 
 [node name="point" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.699103, 0, -4.019141)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.699103, 0.26760912, -4.019141)
 
 [node name="EggSpawnPoints" parent="." index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6321039, 0)

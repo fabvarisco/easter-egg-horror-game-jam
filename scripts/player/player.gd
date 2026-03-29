@@ -29,6 +29,10 @@ const SOUND_RADIUS_VOICE: float = 4.0
 const SOUND_RADIUS_LERP_SPEED: float = 5.0
 const SOUND_RADIUS_DECAY: float = 3.0
 
+# Footstep constants
+const FOOTSTEP_INTERVAL_WALK: float = 0.5
+const FOOTSTEP_INTERVAL_SPRINT: float = 0.3
+
 # Animation names
 const ANIM_PREFIX := "CharacterArmature|CharacterArmature|CharacterArmature|"
 const ANIM_IDLE := ANIM_PREFIX + "Idle"
@@ -54,6 +58,7 @@ const PLAYER_MODELS: Array[Dictionary] = [
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
 @onready var sound_area_3d: Area3D = $SoundArea3D
 
+var _footstep_timer: float = 0.0
 
 var _texture: Texture2D = null  # Será definida ao escolher modelo aleatório
 
@@ -269,6 +274,9 @@ func _physics_process(_delta: float) -> void:
 
 	# Update sound radius based on movement and voice
 	_controll_sound_value(_delta)
+
+	# Update footsteps
+	_update_footsteps(_delta)
 
 
 func _get_camera_relative_direction(input_dir: Vector2) -> Vector3:
@@ -694,3 +702,26 @@ func _controll_sound_value(_delta: float) -> void:
 func _debug_print_sound_radius() -> void:
 	"""Debug: mostra raio atual no console"""
 	pass
+
+
+# ==========================================
+# FOOTSTEP SYSTEM
+# ==========================================
+
+func _update_footsteps(delta: float) -> void:
+	"""Atualiza e toca footsteps baseado no movimento"""
+	# Só tocar se estiver no chão e se movendo
+	if not is_on_floor() or _current_speed < 0.1:
+		_footstep_timer = 0.0
+		return
+
+	# Determinar intervalo baseado na velocidade
+	var interval: float = FOOTSTEP_INTERVAL_SPRINT if _is_sprinting else FOOTSTEP_INTERVAL_WALK
+
+	_footstep_timer += delta
+
+	if _footstep_timer >= interval:
+		_footstep_timer = 0.0
+		var audio_manager := get_node_or_null("/root/AudioManager")
+		if audio_manager:
+			audio_manager.play_footstep()
