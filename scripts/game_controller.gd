@@ -215,11 +215,145 @@ func _connect_bunny_signals() -> void:
 
 
 func spawn_eggs() -> int:
+	# In multiplayer, only server generates egg data and syncs to clients
+	if not _is_singleplayer:
+		if multiplayer.is_server():
+			return _generate_and_sync_eggs()
+		else:
+			# Clients wait for server to sync eggs
+			return 0
+
+	# Singleplayer: generate locally
+	return _generate_eggs_local()
+
+
+func _generate_and_sync_eggs() -> int:
+	"""Server generates eggs and syncs positions to all clients"""
+	var egg_data: Array = []  # [{pos: Vector3, is_monster: bool, chunk_index: int}]
+	var good_egg_count: int = 0
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = generation_seed + 1000
+
+	var chunk_list := chunks.get_children()
+	var selected_spawn_points: Array = []  # [{point: Node3D, chunk_idx: int}]
+
+	for chunk_idx in range(chunk_list.size()):
+		var chunk = chunk_list[chunk_idx]
+		var egg_spawns = chunk.get_node_or_null("EggSpawnPoints")
+		if egg_spawns and egg_spawns.get_child_count() > 0:
+			var chunk_spawn_points: Array[Node3D] = []
+			for spawn_point in egg_spawns.get_children():
+				chunk_spawn_points.append(spawn_point)
+
+			var random_index: int = rng.randi_range(0, chunk_spawn_points.size() - 1)
+			var selected_point: Node3D = chunk_spawn_points[random_index]
+			selected_spawn_points.append({
+				"point": selected_point,
+				"chunk_idx": chunk_idx
+			})
+
+	var egg_count: int = selected_spawn_points.size()
+	if egg_count == 0:
+		return 0
+
+	# Shuffle spawn points
+	for i in range(egg_count - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var temp = selected_spawn_points[i]
+		selected_spawn_points[i] = selected_spawn_points[j]
+		selected_spawn_points[j] = temp
+
+	# Determine monster eggs
+	var monster_count: int = ceili(egg_count / 2.0)
+	var monster_indices: Array[int] = []
+	while monster_indices.size() < monster_count:
+		var random_index: int = rng.randi_range(0, egg_count - 1)
+		if not random_index in monster_indices:
+			monster_indices.append(random_index)
+
+	# Build egg data and spawn locally
+	for i in range(egg_count):
+		var spawn_data = selected_spawn_points[i]
+		var spawn_point: Node3D = spawn_data["point"]
+		var chunk_idx: int = spawn_data["chunk_idx"]
+
+		if not is_instance_valid(spawn_point) or not spawn_point.is_inside_tree():
+			continue
+
+		var is_monster: bool = i in monster_indices
+		if not is_monster:
+			good_egg_count += 1
+
+		var pos: Vector3 = spawn_point.global_position
+		egg_data.append({
+			"pos": pos,
+			"is_monster": is_monster,
+			"chunk_idx": chunk_idx,
+			"idx": i
+		})
+
+		# Spawn locally on server
+		_spawn_single_egg(pos, is_monster, chunk_idx, i)
+
+	# Sync to clients
+	_sync_egg_spawns.rpc(_serialize_egg_data(egg_data), good_egg_count)
+
+	return good_egg_count
+
+
+func _serialize_egg_data(egg_data: Array) -> Array:
+	"""Convert egg data to serializable format"""
+	var result: Array = []
+	for data in egg_data:
+		result.append([
+			data["pos"].x,
+			data["pos"].y,
+			data["pos"].z,
+			data["is_monster"],
+			data["chunk_idx"],
+			data["idx"]
+		])
+	return result
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_egg_spawns(serialized_data: Array, good_count: int) -> void:
+	"""Clients receive egg spawn data from server"""
+	for data in serialized_data:
+		var pos := Vector3(data[0], data[1], data[2])
+		var is_monster: bool = data[3]
+		var chunk_idx: int = data[4]
+		var idx: int = data[5]
+		_spawn_single_egg(pos, is_monster, chunk_idx, idx)
+
+	_total_good_eggs = good_count
+	_game_hud.setup_egg_counter(_total_good_eggs)
+
+
+func _spawn_single_egg(pos: Vector3, is_monster: bool, _chunk_idx: int, idx: int) -> void:
+	"""Spawn a single egg at the given position"""
+	var egg: Node3D
+
+	if is_monster:
+		egg = _assassin_bunny_egg_scene.instantiate()
+	else:
+		egg = _egg_scene.instantiate()
+
+	egg.name = "Egg_" + str(idx)
+	egg.add_to_group("eggs")
+	# Add to chunks container directly to avoid chunk index mismatch issues
+	chunks.add_child(egg)
+	egg.global_position = pos
+
+
+func _generate_eggs_local() -> int:
+	"""Generate eggs locally (for singleplayer)"""
 	var selected_spawn_points: Array[Node3D] = []
 
 	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	rng.seed = rng.randi()
+	rng.seed = generation_seed + 1000
+
 	for chunk in chunks.get_children():
 		var egg_spawns = chunk.get_node_or_null("EggSpawnPoints")
 		if egg_spawns and egg_spawns.get_child_count() > 0:
@@ -235,9 +369,6 @@ func spawn_eggs() -> int:
 
 	if egg_count == 0:
 		return 0
-
-	rng.randomize()
-	rng.seed = rng.randi()
 
 	for i in range(egg_count - 1, 0, -1):
 		var j: int = rng.randi_range(0, i)
@@ -291,6 +422,107 @@ func spawn_items() -> void:
 	if spawnable_items.is_empty():
 		return
 
+	# In multiplayer, only server spawns items and syncs to clients
+	if not _is_singleplayer:
+		if multiplayer.is_server():
+			_generate_and_sync_items()
+		# Clients wait for server to sync items
+		return
+
+	_generate_items_local()
+
+
+func _generate_and_sync_items() -> void:
+	"""Server generates items and syncs positions to all clients"""
+	var all_spawn_points: Array[Node3D] = []
+	var chunk_for_spawn_point: Dictionary = {}
+	var chunk_list := chunks.get_children()
+
+	for chunk_idx in range(chunk_list.size()):
+		var chunk = chunk_list[chunk_idx]
+		var item_spawns = chunk.get_node_or_null("IntectableItemSpawnPoints")
+		if item_spawns and item_spawns.get_child_count() > 0:
+			for spawn_point in item_spawns.get_children():
+				all_spawn_points.append(spawn_point)
+				chunk_for_spawn_point[spawn_point] = chunk_idx
+
+	if all_spawn_points.is_empty():
+		return
+
+	var total_items: int = spawnable_items.size()
+	var min_spawns: int = ceili(all_spawn_points.size() / 2.0)
+	var max_spawns: int = all_spawn_points.size()
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = generation_seed + 2000
+
+	var items_to_spawn: int = rng.randi_range(min_spawns, max_spawns)
+
+	var shuffled_spawn_points: Array = []
+	for sp in all_spawn_points:
+		shuffled_spawn_points.append(sp)
+	_fisher_yates_shuffle(shuffled_spawn_points, rng)
+
+	const MAX_ITEMS_PER_CHUNK: int = 3
+	var chunk_item_count: Dictionary = {}
+	var item_data: Array = []  # [[pos_x, pos_y, pos_z, item_index, chunk_idx, spawn_idx]]
+
+	for i in range(items_to_spawn):
+		var item_index: int = i % total_items
+
+		var selected_spawn_point: Node3D = null
+		var selected_chunk_idx: int = -1
+		for spawn_point in shuffled_spawn_points:
+			var chunk_idx = chunk_for_spawn_point.get(spawn_point, -1)
+			var current_count: int = chunk_item_count.get(chunk_idx, 0)
+			if chunk_idx >= 0 and current_count < MAX_ITEMS_PER_CHUNK:
+				selected_spawn_point = spawn_point
+				selected_chunk_idx = chunk_idx
+				chunk_item_count[chunk_idx] = current_count + 1
+				shuffled_spawn_points.erase(spawn_point)
+				break
+
+		if not selected_spawn_point:
+			break
+
+		var pos: Vector3 = selected_spawn_point.global_position
+		item_data.append([pos.x, pos.y, pos.z, item_index, selected_chunk_idx, i])
+
+		# Spawn locally on server
+		_spawn_single_item(pos, item_index, selected_chunk_idx, i)
+
+	# Sync to clients
+	_sync_item_spawns.rpc(item_data)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_item_spawns(item_data: Array) -> void:
+	"""Clients receive item spawn data from server"""
+	for data in item_data:
+		var pos := Vector3(data[0], data[1], data[2])
+		var item_index: int = data[3]
+		var chunk_idx: int = data[4]
+		var spawn_idx: int = data[5]
+		_spawn_single_item(pos, item_index, chunk_idx, spawn_idx)
+
+
+func _spawn_single_item(pos: Vector3, item_index: int, _chunk_idx: int, spawn_idx: int) -> void:
+	"""Spawn a single item at the given position"""
+	if item_index < 0 or item_index >= spawnable_items.size():
+		return
+
+	var item_scene: PackedScene = spawnable_items[item_index]
+	var item: Node3D = item_scene.instantiate()
+
+	item.name = "SpawnedItem_" + str(spawn_idx)
+	item.add_to_group("spawned_items")
+	# Add to chunks container directly to avoid chunk index mismatch issues
+	chunks.add_child(item)
+	item.global_position = pos
+
+
+func _generate_items_local() -> void:
+	"""Generate items locally (for singleplayer)"""
 	var all_spawn_points: Array[Node3D] = []
 	var chunk_for_spawn_point: Dictionary = {}
 
@@ -309,7 +541,7 @@ func spawn_items() -> void:
 	var max_spawns: int = all_spawn_points.size()
 
 	var rng := RandomNumberGenerator.new()
-	rng.randomize()
+	rng.seed = generation_seed + 2000
 
 	var items_to_spawn: int = rng.randi_range(min_spawns, max_spawns)
 
@@ -319,7 +551,7 @@ func spawn_items() -> void:
 	_fisher_yates_shuffle(shuffled_spawn_points, rng)
 
 	const MAX_ITEMS_PER_CHUNK: int = 3
-	var chunk_item_count: Dictionary = {} 
+	var chunk_item_count: Dictionary = {}
 	var spawned_count: int = 0
 
 	for i in range(items_to_spawn):
