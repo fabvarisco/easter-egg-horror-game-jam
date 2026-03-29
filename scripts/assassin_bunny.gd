@@ -10,9 +10,14 @@ const BLINK_DURATION: float = 0.15
 
 const SOUND_CHECK_INTERVAL: float = 0.2  # Verificar som a cada 0.2s
 const FLASHLIGHT_CHECK_INTERVAL: float = 0.1  # Verificar lanterna a cada 0.1s
+const TURN_SPEED: float = 0.3  
 
 var _sound_check_timer: float = 0.0
-var _flashlight_check_timer: float = 0.0 
+var _flashlight_check_timer: float = 0.0
+var _is_turning: bool = false
+var _turn_start_rotation: float = 0.0
+var _turn_target_rotation: float = 0.0
+var _turn_lerp_progress: float = 0.0 
 
 func _ready() -> void:
 	visible = false
@@ -78,50 +83,44 @@ func _process_watching(_delta: float) -> void:
 	if not _target_player:
 		return
 
-	# Verificar player muito próximo (ataque imediato)
-	var close_player := _get_player_in_attack_range()
-	if close_player:
-		_target_player = close_player
-		_attack_close_player()
-		return
-
 	# Timeout de idle - relocar
 	_idle_timer += _delta
 	if _idle_timer >= IDLE_TIMEOUT:
 		_relocate()
 		return
 
-	# === DETECÇÃO POR SOM ===
-	_sound_check_timer += _delta
-	if _sound_check_timer >= SOUND_CHECK_INTERVAL:
-		_sound_check_timer = 0.0
-		var noisy_player := _detect_player_by_sound()
-		if noisy_player:
-			print("[BUNNY] Detectado por SOM")
-			_target_player = noisy_player
-			_turn_to_player(noisy_player)
-			_start_approach()
-			return
+	# === ROTAÇÃO LENTA (lanterna ou som) ===
+	if _is_turning:
+		_process_turning(_delta)
+		return
 
-	# === DETECÇÃO POR LANTERNA ===
-	_flashlight_check_timer += _delta
-	if _flashlight_check_timer >= FLASHLIGHT_CHECK_INTERVAL:
-		_flashlight_check_timer = 0.0
-		var illuminating_player := _detect_flashlight_on_bunny()
-		if illuminating_player:
-			print("[BUNNY] Detectado por LANTERNA")
-			_target_player = illuminating_player
-			_turn_to_player(illuminating_player)
-			_start_approach()
-			return
-
-	# === DETECÇÃO VISUAL (RAYCAST - EXISTENTE) ===
+	# === DETECÇÃO 1: RAYCAST (coelho já olhando para o player) ===
 	if raycast.is_colliding():
 		var collider := raycast.get_collider()
 		if collider is CharacterBody3D:
 			print("[BUNNY] Detectado por VISÃO (raycast)")
 			_target_player = collider
 			_start_approach()
+			return
+
+	# === DETECÇÃO 2: LANTERNA (inicia rotação lenta) ===
+	_flashlight_check_timer += _delta
+	if _flashlight_check_timer >= FLASHLIGHT_CHECK_INTERVAL:
+		_flashlight_check_timer = 0.0
+		var illuminating_player := _detect_flashlight_on_bunny()
+		if illuminating_player:
+			print("[BUNNY] Lanterna detectada - iniciando rotação lenta")
+			_start_turning(illuminating_player)
+			return
+
+	# === DETECÇÃO 3: SOM (inicia rotação lenta) ===
+	_sound_check_timer += _delta
+	if _sound_check_timer >= SOUND_CHECK_INTERVAL:
+		_sound_check_timer = 0.0
+		var noisy_player := _detect_player_by_sound()
+		if noisy_player:
+			print("[BUNNY] Som detectado - iniciando rotação lenta")
+			_start_turning(noisy_player)
 
 func _process_approaching(_delta: float) -> void:
 	pass
@@ -310,6 +309,47 @@ func _turn_to_player(player: Node3D) -> void:
 	dir_to_player.y = 0
 	_fixed_rotation = atan2(dir_to_player.x, dir_to_player.z)
 	rotation.y = _fixed_rotation
+
+func _start_turning(player: Node3D) -> void:
+	"""Inicia rotação lenta em direção à posição do player"""
+	_is_turning = true
+	_turn_lerp_progress = 0.0
+	_turn_start_rotation = _fixed_rotation  # Guarda rotação inicial
+
+	# Captura a posição do jogador no momento da detecção
+	var dir_to_player := (player.global_position - global_position).normalized()
+	dir_to_player.y = 0
+	_turn_target_rotation = atan2(dir_to_player.x, dir_to_player.z)
+
+func _process_turning(delta: float) -> void:
+	"""Processa a rotação lenta até a posição capturada do jogador"""
+	# Avança o progresso do lerp
+	_turn_lerp_progress += TURN_SPEED * delta
+	_turn_lerp_progress = clampf(_turn_lerp_progress, 0.0, 1.0)
+
+	# Rotação suavizada com lerp_angle (da rotação inicial até o alvo)
+	_fixed_rotation = lerp_angle(_turn_start_rotation, _turn_target_rotation, _turn_lerp_progress)
+	rotation.y = _fixed_rotation
+
+	# Verificar se o raycast está atingindo algum player durante a rotação
+	if raycast.is_colliding():
+		var collider := raycast.get_collider()
+		if collider is CharacterBody3D:
+			print("[BUNNY] Raycast atingiu player durante rotação - ATACANDO!")
+			_target_player = collider
+			_cancel_turning()
+			_start_approach()
+			return
+
+	# Terminou de girar sem pegar ninguém
+	if _turn_lerp_progress >= 1.0:
+		print("[BUNNY] Rotação completa - nenhum player encontrado")
+		_cancel_turning()
+
+func _cancel_turning() -> void:
+	"""Cancela a rotação"""
+	_is_turning = false
+	_turn_lerp_progress = 0.0
 
 func get_state() -> State:
 	return _state

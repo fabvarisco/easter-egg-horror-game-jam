@@ -167,11 +167,8 @@ func _get_player_sound_radius(player: Node3D) -> float:
 	if not is_instance_valid(player):
 		return MAX_VOICE_DISTANCE
 
-	# Tentar obter raio dinâmico do player
 	if player.has_method("get_sound_radius"):
 		var radius: float = player.get_sound_radius()
-
-		# Validar valor retornado (evitar valores inválidos)
 		if radius > 0.0 and radius < 1000.0:  # Sanity check
 			return radius
 
