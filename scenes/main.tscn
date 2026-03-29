@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://skdaejm2ow6n"]
+[gd_scene load_steps=9 format=3 uid="uid://skdaejm2ow6n"]
 
 [ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game_controller.gd" id="1_gamectrl"]
 [ext_resource type="PackedScene" uid="uid://dq8tfcgg6jpll" path="res://scenes/notes/note_bunny_threat.tscn" id="2_tbgi4"]
@@ -6,15 +6,28 @@
 [ext_resource type="PackedScene" uid="uid://cq8tfcgg6jpkk" path="res://scenes/notes/note_egg_warning.tscn" id="4_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://vtxtai7mctuu" path="res://scenes/notes/note_evacuation.tscn" id="5_tipki"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_tbgi4"]
+sky_top_color = Color(0.21230483, 0.21230483, 0.21230483, 1)
+
+[sub_resource type="Sky" id="Sky_tefeu"]
+sky_material = SubResource("ProceduralSkyMaterial_tbgi4")
+
 [sub_resource type="Environment" id="Environment_0wfyh"]
-background_mode = 1
-background_color = Color(0.08, 0.08, 0.1, 1)
-ambient_light_source = 2
-ambient_light_color = Color(0.15, 0.15, 0.2, 1)
+background_mode = 2
+background_color = Color(1, 1, 1, 1)
+sky = SubResource("Sky_tefeu")
+ambient_light_source = 3
+ambient_light_color = Color(0.8646751, 0.86467516, 0.8646751, 1)
 ambient_light_energy = 0.3
-fog_enabled = true
+tonemap_mode = 3
+sdfgi_enabled = true
+glow_enabled = true
 fog_aerial_perspective = 0.5
 volumetric_fog_enabled = true
+volumetric_fog_density = 0.1
+volumetric_fog_albedo = Color(0.3063649, 0.19296148, 0.1787605, 1)
+volumetric_fog_emission = Color(0.3403393, 0.34033933, 0.3403393, 1)
+adjustment_enabled = true
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_gamectrl")
@@ -22,6 +35,7 @@ spawnable_items = Array[PackedScene]([ExtResource("2_tbgi4"), ExtResource("3_tef
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8660253, -0.35355332, 0.35355374, 0, 0.70710725, 0.7071064, -0.50000024, -0.61237204, 0.61237276, 0, 10, 0)
+light_color = Color(0.3854925, 0.38549247, 0.38549247, 1)
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
