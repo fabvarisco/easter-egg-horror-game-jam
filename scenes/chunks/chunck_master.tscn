@@ -1,6 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://1v6tvwpp3els"]
+[gd_scene load_steps=5 format=3 uid="uid://1v6tvwpp3els"]
 
 [ext_resource type="Script" uid="uid://bomcwixmsxrq5" path="res://scripts/chunk_camera.gd" id="1_oc2dp"]
+[ext_resource type="Shader" uid="uid://mtbe5t7myauu" path="res://shaders/fog_shader.gdshader" id="2_0y801"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tp3u6"]
+shader = ExtResource("2_0y801")
+shader_parameter/fog_color = Color(0.15938163, 0.31026572, 0.3178106, 1)
+shader_parameter/density_scale = 0.5999999865888
+shader_parameter/noise_scale = 4.99999988824
+shader_parameter/speed = 0.499999988824
+shader_parameter/height_falloff = 0.2999999932944
+shader_parameter/emission = 0.1999999955296
+shader_parameter/wind = Vector2(0, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_oc2dp"]
 size = Vector3(19, 19, 19)
@@ -21,8 +32,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.868619, 0.43873286, 0)
 transform = Transform3D(1, 0, 0, 0, 0.56562924, 0.8246597, 0, -0.8246597, 0.56562924, 0, 8.422054, 10.001619)
 
 [node name="FogVolume" type="FogVolume" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.14916992, 0, 0.33044434)
-size = Vector3(19.958496, 2, 20.181396)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.14916992, 0.5373306, 0.33044434)
+size = Vector3(19.958496, 3.0746613, 20.181396)
+material = SubResource("ShaderMaterial_tp3u6")
 
 [node name="Area3D" type="Area3D" parent="."]
 

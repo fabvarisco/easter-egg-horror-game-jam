@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://vtxtai7mctuu" path="res://scenes/notes/note_evacuation.tscn" id="5_tipki"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_tbgi4"]
-sky_top_color = Color(0.21230483, 0.21230483, 0.21230483, 1)
+sky_top_color = Color(0.16565639, 0.16565642, 0.16565639, 1)
 
 [sub_resource type="Sky" id="Sky_tefeu"]
 sky_material = SubResource("ProceduralSkyMaterial_tbgi4")
@@ -25,9 +25,10 @@ glow_enabled = true
 fog_aerial_perspective = 0.5
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.1
-volumetric_fog_albedo = Color(0.3063649, 0.19296148, 0.1787605, 1)
-volumetric_fog_emission = Color(0.3403393, 0.34033933, 0.3403393, 1)
+volumetric_fog_albedo = Color(0.40308273, 0.26075915, 0.24595517, 1)
+volumetric_fog_emission = Color(0.2995475, 0.29954743, 0.29954734, 1)
 adjustment_enabled = true
+adjustment_brightness = 0.5
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_gamectrl")
@@ -35,6 +36,7 @@ spawnable_items = Array[PackedScene]([ExtResource("2_tbgi4"), ExtResource("3_tef
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8660253, -0.35355332, 0.35355374, 0, 0.70710725, 0.7071064, -0.50000024, -0.61237204, 0.61237276, 0, 10, 0)
+visible = false
 light_color = Color(0.3854925, 0.38549247, 0.38549247, 1)
 shadow_enabled = true
 
