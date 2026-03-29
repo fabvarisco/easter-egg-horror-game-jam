@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=3 uid="uid://ch7naurtkds65"]
+[gd_scene load_steps=48 format=3 uid="uid://ch7naurtkds65"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_w4iev"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="2_tmfoj"]
@@ -9,6 +9,7 @@
 [ext_resource type="ArrayMesh" uid="uid://ce8upbtr67a8j" path="res://assets/obj/pumpkin_yellow.obj" id="9_6u1of"]
 [ext_resource type="ArrayMesh" uid="uid://2dn23w1ejf3u" path="res://assets/obj/pumpkin_orange_small.obj" id="10_tin7p"]
 [ext_resource type="ArrayMesh" uid="uid://b16m0u83anknx" path="res://assets/obj/pumpkin_orange_jackolantern.obj" id="11_bch8h"]
+[ext_resource type="PackedScene" uid="uid://dsg3ieupixnkq" path="res://scenes/chunks/cemetery/utils/post_lantern.tscn" id="12_tmfoj"]
 [ext_resource type="ArrayMesh" uid="uid://c8fcrix8xq8r4" path="res://assets/obj/pumpkin_orange.obj" id="12_up56a"]
 [ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="13_kmbhn"]
 
@@ -633,3 +634,9 @@ skeleton = NodePath("../../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/Wall4/Fence4/StaticBody3D" index="0"]
 shape = SubResource("ConvexPolygonShape3D_rweuf")
+
+[node name="PostLanternLantern5" parent="World" index="64" instance=ExtResource("12_tmfoj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.820977, 0.5, -2.419)
+
+[node name="PostLanternLantern6" parent="World" index="65" instance=ExtResource("12_tmfoj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.541292, 0.5, -2.419)

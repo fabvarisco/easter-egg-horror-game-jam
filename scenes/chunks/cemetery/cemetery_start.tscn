@@ -1,8 +1,9 @@
-[gd_scene load_steps=35 format=3 uid="uid://jj3rrsclryqf"]
+[gd_scene load_steps=36 format=3 uid="uid://jj3rrsclryqf"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_3tqts"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="2_6bq2s"]
 [ext_resource type="PackedScene" uid="uid://dho061ttqjmlk" path="res://assets/models/car.glb" id="2_aiw8s"]
+[ext_resource type="PackedScene" uid="uid://b13fg00dd6nwb" path="res://scenes/chunks/cemetery/utils/tree_dead_with_light.tscn" id="3_24ybo"]
 [ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="3_mrkuv"]
 [ext_resource type="ArrayMesh" uid="uid://darbc3jpnm4jt" path="res://assets/obj/path_A.obj" id="4_mkyls"]
 [ext_resource type="ArrayMesh" uid="uid://cv46apmlkovis" path="res://assets/obj/tree_pine_orange_medium.obj" id="7_ogtq4"]
@@ -115,6 +116,9 @@ physics_material_override = SubResource("PhysicsMaterial_aiw8s")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Car/Root Scene/StaticBody3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08166505, 0.5458374, 0.19471738)
 shape = SubResource("BoxShape3D_24ybo")
+
+[node name="TreeDeadLargeDecorated" parent="Car/Root Scene/StaticBody3D" index="1" instance=ExtResource("3_24ybo")]
+transform = Transform3D(-0.7325786, 0, -0.6806825, 0, 1, 0, 0.6806825, 0, -0.7325786, -9.007786, 0.18747473, -3.2410545)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Car" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3908081, 0.59643555, -0.053649902)

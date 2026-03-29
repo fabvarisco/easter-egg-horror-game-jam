@@ -14,9 +14,9 @@ render_priority = 0
 shader = ExtResource("4_eye_glow")
 shader_parameter/eye_texture = ExtResource("5_eyes")
 shader_parameter/eye_color = Color(1, 0, 0, 1)
-shader_parameter/intensity = 3.0
-shader_parameter/pulse_speed = 1.5
-shader_parameter/pulse_amount = 0.2
+shader_parameter/intensity = 10.0
+shader_parameter/pulse_speed = 0.0
+shader_parameter/pulse_amount = 0.0
 
 [node name="AssassinBunny" type="Node3D" groups=["assassin_bunny"]]
 script = ExtResource("1_ijrq1")
@@ -33,11 +33,11 @@ collision_mask = 3
 [node name="Timer" type="Timer" parent="."]
 
 [node name="LeftEyeMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(2.319415, -1.3450929, 4.2203126, 0.5928407, 4.8152966, 1.20891, -4.3896303, -0.06039807, 2.393219, 0.7386099, 2.9319458, 0.14895868)
+transform = Transform3D(1.3916489, -0.8070557, 2.5321875, 0.35570443, 2.8891776, 0.72534585, -2.633778, -0.036238812, 1.4359314, 0.7386099, 2.9319458, 0.14895868)
 mesh = SubResource("QuadMesh_eye")
 surface_material_override/0 = SubResource("ShaderMaterial_eye")
 
 [node name="RightEyeMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1.7978479, -0.92664605, 4.5726438, 0.5928408, 4.815296, 1.2089096, -4.627773, 0.9768571, -1.6215633, 0.7386099, 2.9319458, -0.37084353)
+transform = Transform3D(-1.0787088, -0.5559876, 2.743586, 0.3557045, 2.8891776, 0.72534573, -2.7766638, 0.5861142, -0.97293794, 0.7386099, 2.9319458, -0.37084353)
 mesh = SubResource("QuadMesh_eye")
 surface_material_override/0 = SubResource("ShaderMaterial_eye")

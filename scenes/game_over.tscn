@@ -1,15 +1,13 @@
 [gd_scene load_steps=3 format=3 uid="uid://ddappt7o6s13k"]
 
 [ext_resource type="Script" uid="uid://dxrarl27rg2y7" path="res://scripts/game_over.gd" id="1_wqhvx"]
-[ext_resource type="PackedScene" uid="uid://dq0u2oel1h1l8" path="res://assets/models/godot_plush_model.glb" id="2_tbwuq"]
+[ext_resource type="PackedScene" uid="uid://ri8p3uj8tcjf" path="res://assets/assassin_bunny.glb" id="2_wqhvx"]
 
 [node name="game_over" type="Node3D"]
 script = ExtResource("1_wqhvx")
 
-[node name="bunny" type="Node3D" parent="."]
-
-[node name="godot_plush_model" parent="bunny" instance=ExtResource("2_tbwuq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.74807644)
+[node name="assassin_bunny" parent="." instance=ExtResource("2_wqhvx")]
+transform = Transform3D(0.06754516, 0, -0.9977162, 0, 1, 0, 0.9977162, 0, 0.06754516, 0.35787702, 1.2138911, 0.32864726)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0958085, 1.8509206)

@@ -6,6 +6,10 @@ var _lobby_music: AudioStream = preload("res://assets/sounds/BunnyTerror.mp3")
 var _game_music: AudioStream = preload("res://assets/sounds/mapTerror.mp3")
 var _scream_sound: AudioStream = preload("res://assets/sounds/Scream.mp3")
 var _roar_sound: AudioStream = preload("res://assets/sounds/Roar.mp3")
+var _car_sound: AudioStream = preload("res://assets/sounds/CarSound.mp3")
+var _game_over_sound: AudioStream = preload("res://assets/sounds/GameOverSound.mp3")
+
+
 
 # Music players for crossfade
 var _music_player_a: AudioStreamPlayer
@@ -104,6 +108,11 @@ func play_scream() -> void:
 func play_roar() -> void:
 	_play_sfx(_roar_sound)
 
+func play_car() -> void:
+	_play_sfx(_car_sound)
+
+func play_game_over() -> void:
+	_play_sfx(_game_over_sound)
 
 func _play_sfx(stream: AudioStream) -> void:
 	# Create a new player for overlapping sounds
