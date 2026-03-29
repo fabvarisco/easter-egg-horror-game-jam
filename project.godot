@@ -11,17 +11,21 @@ config_version=5
 [application]
 
 config/name="easter-egg-horror-game-jam"
-run/main_scene="res://scenes/lobby_3d.tscn"
+run/main_scene="res://scenes/lobby/lobby_3d.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[audio]
+
+buses/default_bus_layout="res://audio/default_bus_layout.tres"
+
 [autoload]
 
-MultiplayerManager="*res://scripts/multiplayer_manager.gd"
-SpawnManager="*res://scripts/spawn_manager.gd"
-HostManager="*res://scripts/host_manager.gd"
-CameraManager="*res://scripts/camera_manager.gd"
-VoiceManager="*res://scripts/voice_manager.gd"
+MultiplayerManager="*res://scripts/eos/multiplayer_manager.gd"
+SpawnManager="*res://scripts/utils/spawn_manager.gd"
+HostManager="*res://scripts/eos/host_manager.gd"
+CameraManager="*res://scripts/utils/camera_manager.gd"
+VoiceManager="*res://scripts/eos/voice_manager.gd"
 EOSGRuntime="*res://addons/epic-online-services-godot/runtime.gd"
 HPlatform="*res://addons/epic-online-services-godot/heos/hplatform.gd"
 HAuth="*res://addons/epic-online-services-godot/heos/hauth.gd"
@@ -32,7 +36,7 @@ HLeaderboards="*res://addons/epic-online-services-godot/heos/hleaderboards.gd"
 HLobbies="*res://addons/epic-online-services-godot/heos/hlobbies.gd"
 HP2P="*res://addons/epic-online-services-godot/heos/hp2p.gd"
 HSessions="*res://addons/epic-online-services-godot/heos/hsessions.gd"
-AudioManager="*res://scripts/audio_manager.gd"
+AudioManager="*res://scripts/sounds/audio_manager.gd"
 
 [editor_plugins]
 

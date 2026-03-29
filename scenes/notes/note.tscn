@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bf8tfcgg6jpkk"]
 
-[ext_resource type="PackedScene" uid="uid://54w8buvxwsu1" path="res://scenes/interactable_item.tscn" id="1_u8ikk"]
+[ext_resource type="PackedScene" uid="uid://54w8buvxwsu1" path="res://scenes/interactable_items/interactable_item.tscn" id="1_u8ikk"]
 [ext_resource type="Texture2D" uid="uid://d04tmxfy8mwr0" path="res://assets/papers_textures/Paper Texture4.jpg" id="2_djjql"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u8ikk"]
@@ -10,6 +10,12 @@ albedo_texture = ExtResource("2_djjql")
 size = Vector3(0, 0.5, 0.5)
 
 [node name="note" instance=ExtResource("1_u8ikk")]
+enable_rotation = null
+rotation_speed = null
+enable_floating = null
+float_amplitude = null
+float_speed = null
+float_lerp_speed = null
 
 [node name="MeshInstance3D" parent="." index="0"]
 transform = Transform3D(-0.30033514, -0.92038524, -0.25037962, -0.27858862, 0.33569598, -0.8998314, 0.9122428, -0.20049818, -0.3572301, 0, 0, 0)

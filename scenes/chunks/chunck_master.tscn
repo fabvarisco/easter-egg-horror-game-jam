@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://1v6tvwpp3els"]
 
-[ext_resource type="Script" uid="uid://bomcwixmsxrq5" path="res://scripts/chunk_camera.gd" id="1_oc2dp"]
+[ext_resource type="Script" uid="uid://bomcwixmsxrq5" path="res://scripts/utils/chunk_camera.gd" id="1_oc2dp"]
 [ext_resource type="Shader" uid="uid://mtbe5t7myauu" path="res://shaders/fog_shader.gdshader" id="2_0y801"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tp3u6"]

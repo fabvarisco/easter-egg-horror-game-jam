@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://skdaejm2ow6n"]
 
-[ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game_controller.gd" id="1_gamectrl"]
+[ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game/game_controller.gd" id="1_gamectrl"]
 [ext_resource type="PackedScene" uid="uid://dq8tfcgg6jpll" path="res://scenes/notes/note_bunny_threat.tscn" id="2_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://bvtxtai7mctvv" path="res://scenes/notes/note_diary.tscn" id="3_tefeu"]
 [ext_resource type="PackedScene" uid="uid://cq8tfcgg6jpkk" path="res://scenes/notes/note_egg_warning.tscn" id="4_o6xl0"]
