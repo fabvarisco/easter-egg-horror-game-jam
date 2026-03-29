@@ -33,14 +33,14 @@ spot_angle_attenuation = 0.6
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0.2, 0.8, 0.3)
 visible = false
-light_color = Color(1, 0.95, 0.8, 1)
-light_energy = 20.0
-light_volumetric_fog_energy = 5.54
+light_color = Color(0.98039216, 0.9098039, 0.78039217, 1)
+light_energy = 12.928
+light_volumetric_fog_energy = 12.241
 shadow_enabled = true
-spot_range = 15.0
-spot_attenuation = 0.5
-spot_angle = 20.0
-spot_angle_attenuation = 0.7
+spot_range = 9.3
+spot_attenuation = 0.6
+spot_angle = 21.0
+spot_angle_attenuation = 0.09378044
 
 [node name="SoundArea3D" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1353748, 0)
