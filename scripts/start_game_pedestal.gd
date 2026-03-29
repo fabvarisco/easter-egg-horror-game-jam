@@ -7,7 +7,6 @@ const INDICATOR_COLOR_READY := Color(0.2, 0.8, 0.2)  # Green
 const INDICATOR_COLOR_NOT_READY := Color(0.8, 0.2, 0.2)  # Red
 const INDICATOR_COLOR_EMPTY := Color(0.3, 0.3, 0.3)  # Gray
 
-@onready var mesh: MeshInstance3D = $BarrelC
 @onready var indicators_container: Node3D = $ReadyIndicators
 
 var _indicators: Array[MeshInstance3D] = []

@@ -1,20 +1,32 @@
-[gd_scene load_steps=4 format=3 uid="uid://bwped3stalgo"]
+[gd_scene load_steps=6 format=3 uid="uid://bwped3stalgo"]
 
 [ext_resource type="Script" uid="uid://dvw5vcec4ds8a" path="res://scripts/start_game_pedestal.gd" id="1_pedestal"]
-[ext_resource type="ArrayMesh" uid="uid://c6kw601mo6w5s" path="res://assets/lobby/obj/Barrel_C.obj" id="2_2pvg0"]
+[ext_resource type="PackedScene" uid="uid://dho061ttqjmlk" path="res://assets/models/car.glb" id="2_2pvg0"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_pedestal"]
-size = Vector3(2.5, 1.5, 2.5)
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_2pvg0"]
 
-[node name="StartGamePedestal" type="Area3D"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_rxqpp"]
+size = Vector3(2.0935059, 2.0916748, 5.202118)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_2pvg0"]
+radius = 4.835449
+
+[node name="StartGame" type="Area3D"]
 script = ExtResource("1_pedestal")
 
+[node name="Car" parent="." instance=ExtResource("2_2pvg0")]
+transform = Transform3D(-0.990553, 0, 1.1264124, 0, 1.5, 0, -1.1264124, 0, -0.990553, 0, 0, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Car"]
+physics_material_override = SubResource("PhysicsMaterial_2pvg0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Car/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08166505, 0.5458374, 0.19471738)
+shape = SubResource("BoxShape3D_rxqpp")
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
-shape = SubResource("BoxShape3D_pedestal")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.120788574, 0.75, 0.24932861)
+shape = SubResource("CylinderShape3D_2pvg0")
 
 [node name="ReadyIndicators" type="Node3D" parent="."]
-
-[node name="BarrelC" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.04153931, 0.6636033, 0.008772373)
-mesh = ExtResource("2_2pvg0")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
