@@ -1,0 +1,52 @@
+[gd_scene load_steps=4 format=3 uid="uid://dgvs6lass8xss"]
+
+[ext_resource type="PackedScene" uid="uid://bupvp0ys8jc8q" path="res://assets/models/anim_cueio_zoio.glb" id="1_1dvib"]
+[ext_resource type="Texture2D" uid="uid://pk70vfxh7vf2" path="res://assets/models/Flare.png" id="2_4up41"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1dvib"]
+albedo_color = Color(18.892157, 0, 0, 1)
+albedo_texture = ExtResource("2_4up41")
+emission = Color(1, 0, 0.23333311, 1)
+ao_light_affect = 1.0
+heightmap_scale = -16.0
+heightmap_deep_parallax = true
+heightmap_min_layers = 8
+heightmap_max_layers = 32
+heightmap_flip_tangent = true
+heightmap_flip_binormal = true
+
+[node name="anim_cueio_zoio" instance=ExtResource("1_1dvib")]
+
+[node name="Skeleton3D" parent="Armature_002" index="0"]
+bones/0/position = Vector3(0.184772, 5.344616, -9.938602e-08)
+bones/0/rotation = Quaternion(5.6082685e-09, -7.0959565e-08, -0.0850763, 0.9963744)
+bones/1/rotation = Quaternion(0.45455113, 0.7280112, 0.46582428, 0.21538524)
+bones/2/rotation = Quaternion(0.3618654, -0.35057247, 0.0022078138, 0.8637983)
+bones/3/rotation = Quaternion(0.694549, 0.0032550995, -0.1523431, 0.7031235)
+bones/4/rotation = Quaternion(0.1101939, -0.012932278, 0.5963079, 0.79505163)
+bones/5/rotation = Quaternion(0.016307082, -0.04228138, -0.50142413, 0.86401397)
+bones/6/rotation = Quaternion(-0.0029293448, -0.02990348, -0.61009836, 0.7917558)
+bones/7/rotation = Quaternion(-0.12715825, -0.020659175, -0.46151003, 0.8777315)
+bones/8/rotation = Quaternion(0.50875074, 0.6893757, 0.4298908, -0.2848296)
+bones/9/rotation = Quaternion(0.2797263, -0.021055598, -0.12820588, 0.95124817)
+bones/10/rotation = Quaternion(-0.41300425, 0.58607125, 0.0853922, 0.6918499)
+bones/11/rotation = Quaternion(0.0023642334, -0.0015596492, 0.19855066, 0.98008657)
+bones/12/rotation = Quaternion(-0.019884745, 0.012960054, -0.3112218, 0.95004094)
+bones/13/rotation = Quaternion(0.1557404, 0.06384509, 0.042417623, 0.98481953)
+bones/14/rotation = Quaternion(0.048776172, -0.19252466, 0.04249611, 0.9791574)
+bones/15/rotation = Quaternion(0.030111702, 0.013283362, -0.0053920685, 0.99944377)
+bones/17/rotation = Quaternion(-0.3251756, 0.04515361, -0.017687611, 0.9444095)
+bones/18/rotation = Quaternion(0.063390546, 0.43912736, -0.509561, 0.7372221)
+bones/20/rotation = Quaternion(0.82243395, 0.56622565, -0.048425205, -0.025415257)
+bones/21/rotation = Quaternion(0.5202372, -0.11066077, -0.20629339, 0.8213102)
+bones/22/rotation = Quaternion(0.19840732, -0.5094547, -0.3697502, 0.75124913)
+bones/23/rotation = Quaternion(-0.6587719, -0.1869824, -0.18898542, 0.7038052)
+bones/24/rotation = Quaternion(-0.47592562, -0.52453136, -0.2173219, 0.67166424)
+bones/25/rotation = Quaternion(-0.48667553, 0.4097793, -0.1700829, 0.7525289)
+
+[node name="EyePlanes" parent="Armature_002/Skeleton3D" index="1"]
+surface_material_override/0 = SubResource("StandardMaterial3D_1dvib")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Armature_002/Skeleton3D/EyePlanes" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9195907, 8.060854, -0.0078011155)
+light_color = Color(1, 0, 0, 1)

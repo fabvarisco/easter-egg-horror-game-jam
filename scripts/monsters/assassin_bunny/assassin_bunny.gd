@@ -1,17 +1,15 @@
 extends bunny_entity
 
 @onready var raycast: RayCast3D = $RayCast3D
-@onready var left_eye_mesh: MeshInstance3D = $LeftEyeMesh
-@onready var right_eye_mesh: MeshInstance3D = $RightEyeMesh
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
 
 const BLINK_INTERVAL: float = 2.0
 const BLINK_DURATION: float = 0.15
 
-const SOUND_CHECK_INTERVAL: float = 0.2  # Verificar som a cada 0.2s
-const FLASHLIGHT_CHECK_INTERVAL: float = 0.1  # Verificar lanterna a cada 0.1s
+const SOUND_CHECK_INTERVAL: float = 0.2  
+const FLASHLIGHT_CHECK_INTERVAL: float = 0.1  
 const TURN_SPEED: float = 0.3
-const SEARCH_DURATION: float = 10.0  # Tempo que fica no estado SEARCHING
+const SEARCH_DURATION: float = 10.0  
 
 var _sound_check_timer: float = 0.0
 var _flashlight_check_timer: float = 0.0
@@ -107,7 +105,6 @@ func _play_animation(anim_name: String) -> void:
 func _physics_process(_delta: float) -> void:
 	# Clientes só atualizam visual, não processam IA
 	if _is_multiplayer_active() and not multiplayer.is_server():
-		_update_eyes(_delta)
 		return
 
 	match _state:
@@ -122,7 +119,6 @@ func _physics_process(_delta: float) -> void:
 		State.KILLING:
 			_process_killing(_delta)
 
-	_update_eyes(_delta)
 	_maintain_fixed_rotation()
 
 
@@ -375,26 +371,9 @@ func _attack_close_player() -> void:
 func _maintain_fixed_rotation() -> void:
 	rotation.y = _fixed_rotation
 
-func _update_eyes(delta: float) -> void:
-	_blink_timer += delta
 
-	if _is_blinking:
-		_blink_phase_timer += delta
-		if _blink_phase_timer >= BLINK_DURATION:
-			_is_blinking = false
-			_blink_phase_timer = 0.0
-			_set_eyes_visible(true)
-	else:
-		if _blink_timer >= BLINK_INTERVAL:
-			_blink_timer = 0.0
-			_is_blinking = true
-			_set_eyes_visible(false)
 
-func _set_eyes_visible(eyes_visible: bool) -> void:
-	if left_eye_mesh:
-		left_eye_mesh.visible = eyes_visible
-	if right_eye_mesh:
-		right_eye_mesh.visible = eyes_visible
+
 
 func _detect_player_by_sound() -> Node3D:
 	"""Detecta se algum player está fazendo barulho perto do coelho"""

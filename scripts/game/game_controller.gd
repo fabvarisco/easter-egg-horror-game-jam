@@ -33,6 +33,10 @@ var _eggs_delivered: int = 0
 var _players_in_car: Dictionary = {}  # peer_id -> bool
 var _car_area: Area3D = null
 
+
+var _save_player_models = []
+
+
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
 

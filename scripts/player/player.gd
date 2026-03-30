@@ -43,7 +43,6 @@ const ANIM_IDLE_HOLDING := ANIM_PREFIX + "Idle_Holding"
 const ANIM_WALK_HOLDING := ANIM_PREFIX + "Walk_Holding"
 const ANIM_RUN_HOLDING := ANIM_PREFIX + "Run_Holding"
 
-# Modelos de player disponíveis (modelo + textura)
 const PLAYER_MODELS: Array[Dictionary] = [
 	{"model": "res://assets/models/player/RabbitGeneric.glb", "texture": "res://assets/models/player/RabbitGeneric_Sushi_Atlas.png"},
 	{"model": "res://assets/models/player/Rabbit Blond.glb", "texture": "res://assets/models/player/Rabbit Blond_Sushi_Atlas.png"},
@@ -60,7 +59,7 @@ const PLAYER_MODELS: Array[Dictionary] = [
 
 var _footstep_timer: float = 0.0
 
-var _texture: Texture2D = null  # Será definida ao escolher modelo aleatório
+var _texture: Texture2D = null 
 
 var _sync_timer: float = 0.0
 
@@ -93,14 +92,12 @@ func _ready() -> void:
 	vision_light.visible = true
 	_flashlight_on = false
 
-	# Escolher modelo aleatório
 	_setup_random_model()
 
 	if not visible:
 		set_physics_process(false)
 		set_process_input(false)
 
-	# Conectar detecção de voz para aumentar raio de som quando fala
 	if _has_authority():
 		_connect_voice_detection()
 
@@ -109,23 +106,18 @@ func _setup_random_model() -> void:
 	if PLAYER_MODELS.is_empty():
 		return
 
-	# Escolher modelo aleatório
 	var random_index := randi() % PLAYER_MODELS.size()
 	var chosen := PLAYER_MODELS[random_index]
 
-	# Carregar textura
 	_texture = load(chosen["texture"])
 
-	# Carregar e substituir modelo
 	var new_model_scene: PackedScene = load(chosen["model"])
 	if not new_model_scene:
 		push_error("Failed to load player model: " + chosen["model"])
 		return
 
-	# Salvar transform do modelo atual
 	var old_transform := model.transform
 
-	# Remover modelo antigo
 	model.queue_free()
 
 	# Instanciar novo modelo
@@ -278,6 +270,8 @@ func _physics_process(_delta: float) -> void:
 	# Update footsteps
 	_update_footsteps(_delta)
 
+func get_texture()-> Texture:
+	return _texture 
 
 func _get_camera_relative_direction(input_dir: Vector2) -> Vector3:
 	if input_dir.length() < 0.01:

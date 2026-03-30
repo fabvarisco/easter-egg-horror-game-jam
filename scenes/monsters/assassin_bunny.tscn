@@ -1,55 +1,29 @@
-[gd_scene load_steps=9 format=3 uid="uid://dsgccq14es87w"]
+[gd_scene load_steps=4 format=3 uid="uid://dsgccq14es87w"]
 
 [ext_resource type="Script" uid="uid://btwgstsw5s24v" path="res://scripts/monsters/assassin_bunny/assassin_bunny.gd" id="1_pgirs"]
 [ext_resource type="AudioStream" uid="uid://d4d3ptnody75r" path="res://assets/sounds/Roar.mp3" id="2_2ogok"]
-[ext_resource type="PackedScene" uid="uid://d10muek72ymoy" path="res://assets/models/player/Egg_Terror_Rabbit_Anim.glb" id="3_btrlb"]
-[ext_resource type="Shader" uid="uid://cw7iymq7ce5m1" path="res://shaders/eye_glow.gdshader" id="4_p2li5"]
-[ext_resource type="Texture2D" uid="uid://b16kswidynyfr" path="res://assets/bunny_eyes.png" id="5_5ptlo"]
-
-[sub_resource type="QuadMesh" id="QuadMesh_eye"]
-size = Vector2(0.15, 0.15)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_eye"]
-render_priority = 0
-shader = ExtResource("4_p2li5")
-shader_parameter/eye_texture = ExtResource("5_5ptlo")
-shader_parameter/eye_color = Color(1, 0, 0, 1)
-shader_parameter/intensity = 10.0
-shader_parameter/pulse_speed = 0.0
-shader_parameter/pulse_amount = 0.0
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_o4f1r"]
-size = Vector3(2.0599365, 1, 2.2370605)
+[ext_resource type="PackedScene" uid="uid://dgvs6lass8xss" path="res://scenes/monsters/assassin_bunny_model.tscn" id="3_0fehj"]
 
 [node name="AssassinBunny" type="Node3D" groups=["assassin_bunny"]]
 script = ExtResource("1_pgirs")
 bunny_wake_up_sound = ExtResource("2_2ogok")
 
-[node name="model" parent="." instance=ExtResource("3_btrlb")]
-transform = Transform3D(-0.012955039, 0, -0.39979014, 0, 0.4, 0, 0.39979014, 0, -0.012955039, 0, 0.21107244, 0)
+[node name="model" parent="." instance=ExtResource("3_0fehj")]
+transform = Transform3D(-2.6226834e-08, 0, -0.6, 0, 0.6, 0, 0.6, 0, -2.6226834e-08, 0.165, 2, 0)
 
 [node name="RayCast3D" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-target_position = Vector3(0, 0, 30)
+transform = Transform3D(-0.45012, 0.6990766, -0.5555932, -0.8061678, -0.5857152, -0.08385176, -0.3840381, 0.410158, 0.82721525, 0, 2.9513369, 0.42358983)
+target_position = Vector3(0, 0, 7.09)
+collision_mask = 3
+
+[node name="RayCast3D3" type="RayCast3D" parent="."]
+transform = Transform3D(-0.5528283, 0.69511074, 0.45956704, -0.80616784, -0.5857152, -0.08385175, 0.21088913, -0.4168438, 0.88417584, 0, 2.9513369, 0.42358983)
+target_position = Vector3(0, 0, 7.09)
+collision_mask = 3
+
+[node name="RayCast3D2" type="RayCast3D" parent="."]
+transform = Transform3D(-0.5877852, 0.809017, 0, -0.80616784, -0.5857152, -0.08385176, -0.0678375, -0.049286824, 0.99647826, 0, 2.9513369, 0.42358983)
+target_position = Vector3(0, 0, 7.09)
 collision_mask = 3
 
 [node name="Timer" type="Timer" parent="."]
-
-[node name="LeftEyeMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.97124624, -0.27957693, 1.7019548, 0.1385427, 1.1733669, 0.812627, -0.6346631, -0.17170778, 2.7819505, 0.07674825, 1.271058, 0.29144132)
-visible = false
-mesh = SubResource("QuadMesh_eye")
-surface_material_override/0 = SubResource("ShaderMaterial_eye")
-
-[node name="RightEyeMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1.281714, -0.016812885, 0.8307076, -0.04813625, 1.5022191, -0.06562355, -0.6919501, -0.07336062, -1.534172, -0.11682302, 1.2777933, 0.270298)
-visible = false
-mesh = SubResource("QuadMesh_eye")
-surface_material_override/0 = SubResource("ShaderMaterial_eye")
-
-[node name="Area3D" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.9255533)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.043518066, 0.41011214, 0.6185303)
-shape = SubResource("BoxShape3D_o4f1r")
