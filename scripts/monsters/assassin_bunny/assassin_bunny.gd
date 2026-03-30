@@ -8,7 +8,7 @@ const BLINK_DURATION: float = 0.15
 
 const SOUND_CHECK_INTERVAL: float = 0.2  
 const FLASHLIGHT_CHECK_INTERVAL: float = 0.1  
-const TURN_SPEED: float = 0.3
+const TURN_SPEED: float = 0.6
 const SEARCH_DURATION: float = 10.0  
 
 var _sound_check_timer: float = 0.0
