@@ -1,6 +1,6 @@
 extends bunny_entity
 
-@onready var raycast: RayCast3D = $RayCast3D
+@onready var raycasts: Array[RayCast3D] = [$RayCast3D, $RayCast3D2, $RayCast3D3]
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
 
 const BLINK_INTERVAL: float = 2.0
@@ -19,19 +19,34 @@ var _turn_start_rotation: float = 0.0
 var _turn_target_rotation: float = 0.0
 var _turn_lerp_progress: float = 0.0
 
-# Nomes das animações (preparado para o novo modelo)
 const ANIM_SPAWN: String = "Spawn"
 const ANIM_SEARCH: String = "Search"
 const ANIM_LEAVE: String = "Leave"
 const ANIM_DETECT: String = "Detect" 
+const ANIM_KILL: String = "Kill" 
 
 func _ready() -> void:
 	visible = false
 	set_physics_process(false)
-	raycast.enabled = false  # Raycast começa desativado
+	_set_raycasts_enabled(false)
 
 	if model:
 		model.visible = false
+
+func _set_raycasts_enabled(enabled: bool) -> void:
+	"""Ativa/desativa todos os raycasts"""
+	for rc in raycasts:
+		if rc:
+			rc.enabled = enabled
+
+func _check_raycasts_for_player() -> Node3D:
+	"""Verifica se algum dos raycasts está colidindo com um player"""
+	for rc in raycasts:
+		if rc and rc.enabled and rc.is_colliding():
+			var collider := rc.get_collider()
+			if collider is CharacterBody3D:
+				return collider
+	return null
 
 func activate() -> void:
 	if _state != State.DORMANT:
@@ -46,7 +61,7 @@ func _start_spawn_sequence() -> void:
 	"""Inicia sequência: SPAWN -> SEARCHING"""
 	_state = State.SPAWNING
 	visible = true
-	raycast.enabled = false  # Raycast desativado durante spawn
+	_set_raycasts_enabled(false) 
 
 	_play_animation(ANIM_SPAWN)
 	await anim_player.animation_finished
@@ -54,28 +69,24 @@ func _start_spawn_sequence() -> void:
 	if model:
 		model.visible = true
 	set_physics_process(true)
-
-	# Transição para SEARCHING
 	_start_search()
 
 func _start_search() -> void:
-	"""Inicia estado SEARCHING - ativa raycast e detecção"""
+	"""Inicia estado SEARCHING - ativa raycasts e detecção"""
 	_state = State.SEARCHING
 	_search_timer = 0.0
-	raycast.enabled = true  # Ativa raycast para detecção
+	_set_raycasts_enabled(true)  
 
 	_play_animation(ANIM_SEARCH)
-	# Não espera a animação terminar - continua em loop ou idle de search
 
 func _start_leave() -> void:
-	"""Inicia estado LEAVING - desativa raycast e sai"""
+	"""Inicia estado LEAVING - desativa raycasts e sai"""
 	_state = State.LEAVING
-	raycast.enabled = false  # Desativa raycast
+	_set_raycasts_enabled(false)  
 
 	_play_animation(ANIM_LEAVE)
 	await anim_player.animation_finished
 
-	# Após Leave, relocar para nova posição
 	visible = false
 	if model:
 		model.visible = false
@@ -83,7 +94,6 @@ func _start_leave() -> void:
 	_find_target_player()
 	_spawn_at_distance(SPAWN_DISTANCE)
 
-	# Recomeça sequência de spawn
 	_start_spawn_sequence()
 
 func _play_animation(anim_name: String) -> void:
@@ -91,29 +101,27 @@ func _play_animation(anim_name: String) -> void:
 	if anim_player.has_animation(anim_name):
 		anim_player.play(anim_name)
 	else:
-		# Fallback para animações antigas enquanto o novo modelo não está pronto
 		match anim_name:
 			ANIM_SPAWN:
 				if anim_player.has_animation("Spawn"):
 					anim_player.play("Spawn")
 			ANIM_DETECT:
-				if anim_player.has_animation("Detected"):
-					anim_player.play("Detected")
+				if anim_player.has_animation("Kill"):
+					anim_player.play("Kill")
 			_:
-				pass  # Sem fallback - apenas ignora
+				pass 
 
 func _physics_process(_delta: float) -> void:
-	# Clientes só atualizam visual, não processam IA
 	if _is_multiplayer_active() and not multiplayer.is_server():
 		return
 
 	match _state:
 		State.SPAWNING:
-			pass  # Aguardando animação de spawn
+			pass  
 		State.SEARCHING:
 			_process_searching(_delta)
 		State.LEAVING:
-			pass  # Aguardando animação de leave
+			pass 
 		State.APPROACHING:
 			_process_approaching(_delta)
 		State.KILLING:
@@ -158,14 +166,13 @@ func _process_searching(_delta: float) -> void:
 		_process_turning(_delta)
 		return
 
-	# === DETECÇÃO 1: RAYCAST (coelho já olhando para o player) ===
-	if raycast.enabled and raycast.is_colliding():
-		var collider := raycast.get_collider()
-		if collider is CharacterBody3D:
-			print("[BUNNY] Detectado por VISÃO (raycast)")
-			_target_player = collider
-			_start_detect()
-			return
+	# === DETECÇÃO 1: RAYCASTS (coelho já olhando para o player) ===
+	var detected_player := _check_raycasts_for_player()
+	if detected_player:
+		print("[BUNNY] Detectado por VISÃO (raycast)")
+		_target_player = detected_player
+		_start_detect()
+		return
 
 	# === DETECÇÃO 2: LANTERNA (inicia rotação lenta) ===
 	_flashlight_check_timer += _delta
@@ -188,22 +195,19 @@ func _process_searching(_delta: float) -> void:
 
 func _start_detect() -> void:
 	"""Inicia sequência de detecção:
-	1. Paralisa player
-	2. Leave (some)
-	3. Spawn na posição do player
-	4. Detect (causa strike)
+	1. Leave (some)
+	2. Spawn na posição do player
+	3. Paralisa player (após iniciar animação de aparecer)
+	4. Kill (causa strike)
 	5. Desparalisa player
 	"""
 	if not _target_player:
 		return
 
-	raycast.enabled = false
+	_set_raycasts_enabled(false)
 	_state = State.APPROACHING
 
-	# 1. Paralisa o player
-	_set_player_paralyzed(true)
-
-	# 2. Toca Leave e some
+	# 1. Toca Leave e some
 	_play_animation(ANIM_LEAVE)
 	await anim_player.animation_finished
 
@@ -211,22 +215,26 @@ func _start_detect() -> void:
 	if model:
 		model.visible = false
 
-	# 3. Move para posição do player (na frente dele)
+	# 2. Move para posição do player (na frente dele)
 	_spawn_in_front_of_player()
 
 	# Pequeno delay antes de aparecer
 	await get_tree().create_timer(0.3).timeout
 
-	# 4. Aparece com Spawn
+	# 3. Aparece com Spawn
 	visible = true
 	if model:
 		model.visible = true
 
 	_play_animation(ANIM_SPAWN)
+
+	# 4. Paralisa o player APÓS iniciar animação de aparecer
+	_set_player_paralyzed(true)
+
 	await anim_player.animation_finished
 
-	# 5. Detect (causa o strike/dano)
-	_play_animation(ANIM_DETECT)
+	# 5. Kill (causa o strike/dano)
+	_play_animation(ANIM_KILL)
 	await anim_player.animation_finished
 
 	# Incrementa strike
@@ -244,8 +252,12 @@ func _start_detect() -> void:
 		_kill_player()
 		return
 
-	# Continua - volta para ciclo de search
+	# Continua - toca Leave e aparece em outro lugar
 	await get_tree().create_timer(RESPAWN_DELAY).timeout
+
+	# Toca Leave e some
+	_play_animation(ANIM_LEAVE)
+	await anim_player.animation_finished
 
 	visible = false
 	if model:
@@ -445,15 +457,14 @@ func _process_turning(delta: float) -> void:
 	_fixed_rotation = lerp_angle(_turn_start_rotation, _turn_target_rotation, _turn_lerp_progress)
 	rotation.y = _fixed_rotation
 
-	# Verificar se o raycast está atingindo algum player durante a rotação
-	if raycast.enabled and raycast.is_colliding():
-		var collider := raycast.get_collider()
-		if collider is CharacterBody3D:
-			print("[BUNNY] Raycast atingiu player durante rotação - DETECTADO!")
-			_target_player = collider
-			_cancel_turning()
-			_start_detect()
-			return
+	# Verificar se algum raycast está atingindo um player durante a rotação
+	var detected_player := _check_raycasts_for_player()
+	if detected_player:
+		print("[BUNNY] Raycast atingiu player durante rotação - DETECTADO!")
+		_target_player = detected_player
+		_cancel_turning()
+		_start_detect()
+		return
 
 	# Terminou de girar sem pegar ninguém
 	if _turn_lerp_progress >= 1.0:
