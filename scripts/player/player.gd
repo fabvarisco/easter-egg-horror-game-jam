@@ -102,12 +102,19 @@ func _ready() -> void:
 		_connect_voice_detection()
 
 func _setup_random_model() -> void:
-	"""Escolhe e aplica um modelo de player aleatório"""
+	"""Escolhe e aplica um modelo de player (usa model_index do meta se disponível)"""
 	if PLAYER_MODELS.is_empty():
 		return
 
-	var random_index := randi() % PLAYER_MODELS.size()
-	var chosen := PLAYER_MODELS[random_index]
+	# Use model_index from meta if available (set by spawn_manager from multiplayer_manager)
+	# This ensures the same model is used across all clients and scene transitions
+	var model_index: int
+	if has_meta("model_index"):
+		model_index = get_meta("model_index")
+	else:
+		model_index = randi() % PLAYER_MODELS.size()
+
+	var chosen := PLAYER_MODELS[model_index]
 
 	_texture = load(chosen["texture"])
 
@@ -133,7 +140,8 @@ func _setup_random_model() -> void:
 	# Aplicar textura
 	_apply_texture_to_model()
 
-	print("[PLAYER] Modelo escolhido: ", chosen["model"].get_file())
+	var peer_id: int = get_meta("peer_id", -1)
+	print("[PLAYER] peer_id=%d, model_index=%d, model=%s" % [peer_id, model_index, chosen["model"].get_file()])
 
 func _input(event: InputEvent) -> void:
 	if not _has_authority():

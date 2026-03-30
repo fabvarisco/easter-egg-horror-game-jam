@@ -78,6 +78,11 @@ func spawn_player(peer_id: int) -> Node3D:
 	player.set_meta("peer_id", peer_id)
 	player.add_to_group("players")
 
+	# Set model index from multiplayer_manager (persisted across scenes)
+	var model_index: int = multiplayer_manager.get_player_model_index(peer_id)
+	if model_index >= 0:
+		player.set_meta("model_index", model_index)
+
 	# Set multiplayer authority for networked games
 	if multiplayer_manager.current_mode != multiplayer_manager.NetworkMode.NONE:
 		var my_peer_id: int = multiplayer_manager.my_peer_id
@@ -140,6 +145,10 @@ func spawn_all_players() -> void:
 
 func spawn_singleplayer() -> Node3D:
 	"""Spawn the local player for singleplayer mode."""
+	# Ensure singleplayer has a model index assigned
+	if multiplayer_manager.get_player_model_index(1) < 0:
+		multiplayer_manager._player_model_indices[1] = randi() % multiplayer_manager.NUM_PLAYER_MODELS
+
 	var player := spawn_player(1)
 
 	if player:
