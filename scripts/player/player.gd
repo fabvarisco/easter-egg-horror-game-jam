@@ -398,6 +398,7 @@ func _receive_flashlight_state(flashlight_on: bool) -> void:
 	vision_light.visible = not flashlight_on
 
 
+@rpc("authority", "call_remote", "unreliable")
 func _apply_texture_to_model() -> void:
 	if not model or not _texture:
 		return
