@@ -21,7 +21,7 @@ const FLASHLIGHT_CHECK_INTERVAL: float = 0.1
 
 var showing_item_scene = preload("res://scenes/interactable_items/showing_item.tscn")
 var _time: float = 0.0
-var _initial_y: float = 0.0
+var _initial_y: float = 2.0
 var _target_y: float = 0.0
 var _flashlight_check_timer: float = 0.0
 var _is_illuminated: bool = false
@@ -29,8 +29,7 @@ var _is_illuminated: bool = false
 func _ready() -> void:
 	add_to_group("interactable_items")
 	set_outline_active(false)
-	_initial_y = position.y
-
+	_initial_y = position.y + 1.0
 
 func _process(delta: float) -> void:
 	_flashlight_check_timer += delta
