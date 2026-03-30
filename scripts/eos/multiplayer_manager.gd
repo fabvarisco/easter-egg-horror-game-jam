@@ -32,6 +32,10 @@ var current_mode: NetworkMode = NetworkMode.NONE
 # Ready system
 var _ready_states: Dictionary = {}  # peer_id -> bool
 
+# Player model indices - assigned once per player and persisted across scenes
+var _player_model_indices: Dictionary = {}  # peer_id -> model_index
+const NUM_PLAYER_MODELS: int = 5  # Must match PLAYER_MODELS.size() in player.gd
+
 
 # EOS variables
 var _eos_available: bool = false
@@ -206,6 +210,9 @@ func host_game_eos(room_name: String = "Game") -> void:
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
 
+	# Assign model index to host
+	assign_local_model_index()
+
 	# Register own PUID for voice chat mapping
 	puid_to_peer_id[_local_product_user_id] = my_peer_id
 	peer_id_to_puid[my_peer_id] = _local_product_user_id
@@ -305,6 +312,7 @@ func leave_game() -> void:
 	connected_peers.clear()
 	puid_to_peer_id.clear()
 	peer_id_to_puid.clear()
+	_player_model_indices.clear()
 	room_code = ""
 	is_host = false
 	my_peer_id = 0
@@ -373,9 +381,17 @@ func _on_peer_connected(id: int) -> void:
 
 	# Host sends existing data to new peer
 	if is_host:
+		# Assign a random model index to the new peer if not already assigned
+		if not _player_model_indices.has(id):
+			_player_model_indices[id] = randi() % NUM_PLAYER_MODELS
+
 		# Send existing ready states
 		for peer_id in _ready_states:
 			_sync_ready_state.rpc_id(id, peer_id, _ready_states[peer_id])
+
+		# Send all model indices to new peer
+		for peer_id in _player_model_indices:
+			_sync_model_index.rpc_id(id, peer_id, _player_model_indices[peer_id])
 
 		# Send list of all connected peers so new client knows about everyone
 		_sync_peer_list.rpc_id(id, connected_peers)
@@ -397,6 +413,9 @@ func _on_connected_to_server() -> void:
 	my_peer_id = multiplayer.get_unique_id()
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
+
+	# Assign local model index (will be overwritten by host sync if needed)
+	assign_local_model_index()
 
 	# Register PUID mapping for voice chat (EOS only)
 	if current_mode == NetworkMode.EOS and _local_product_user_id != "":
@@ -591,6 +610,27 @@ func _sync_peer_list(peers: Array) -> void:
 		if not connected_peers.has(peer_id):
 			connected_peers.append(peer_id)
 			player_connected.emit(peer_id)
+
+
+# ==========================================
+# PLAYER MODEL INDEX SYSTEM
+# ==========================================
+
+
+@rpc("authority", "call_local", "reliable")
+func _sync_model_index(peer_id: int, model_index: int) -> void:
+	_player_model_indices[peer_id] = model_index
+
+
+func get_player_model_index(peer_id: int) -> int:
+	"""Returns the model index for a player, or -1 if not assigned"""
+	return _player_model_indices.get(peer_id, -1)
+
+
+func assign_local_model_index() -> void:
+	"""Assigns a model index to the local player (called when hosting or in singleplayer)"""
+	if not _player_model_indices.has(my_peer_id):
+		_player_model_indices[my_peer_id] = randi() % NUM_PLAYER_MODELS
 
 
 # ==========================================
