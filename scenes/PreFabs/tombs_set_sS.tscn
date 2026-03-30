@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3 uid="uid://jmsgfhar1vjg"]
+
+[ext_resource type="ArrayMesh" uid="uid://b3tetio8tnbbd" path="res://assets/obj/grave_A.obj" id="1_0yud7"]
+[ext_resource type="ArrayMesh" uid="uid://daq0s5u0amdos" path="res://assets/obj/gravestone.obj" id="2_4c0dx"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4ndm0"]
+size = Vector3(1.5948753, 2.3137512, 0.5713501)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3d47v"]
+size = Vector3(1.4440918, 1.6773682, 0.48765564)
+
+[node name="TombsSet" type="Node3D"]
+
+[node name="GraveA" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.99999785, -0.0020769404, -8.742259e-08, -0.0020769404, 0.99999785, -1.815719e-10, 8.742278e-08, 0, -1, -1, 0, 0)
+mesh = ExtResource("1_0yud7")
+skeleton = NodePath("../TreeDeadMedium4/StaticBody3D")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="GraveA"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GraveA/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 2.6005864e-12, 0, 1, -0.0052948, 1.0217745, 0.030853225)
+shape = SubResource("BoxShape3D_4ndm0")
+
+[node name="Gravestone" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1, 0, 0)
+mesh = ExtResource("2_4c0dx")
+skeleton = NodePath("../TreeDeadMedium4/StaticBody3D")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Gravestone"]
+transform = Transform3D(0.99999785, 0.0020769404, -1.8474111e-13, -0.0020769404, 0.99999785, -1.815719e-10, -1.8474111e-13, 1.815719e-10, 1, -0.0024203062, 0, -2.1159252e-10)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Gravestone/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 2.010836e-12, 0, 1, -0.01159668, 0.81158465, 0.017417906)
+shape = SubResource("BoxShape3D_3d47v")

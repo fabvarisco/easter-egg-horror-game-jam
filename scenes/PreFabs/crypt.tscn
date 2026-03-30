@@ -1,0 +1,57 @@
+[gd_scene load_steps=6 format=3 uid="uid://0qnc24v2ieyq"]
+
+[ext_resource type="ArrayMesh" uid="uid://1v4nb3gshk5i" path="res://assets/obj/crypt.obj" id="1_g6ms8"]
+[ext_resource type="ArrayMesh" uid="uid://bka5oa0s1j1tn" path="res://assets/obj/lantern_hanging.obj" id="2_jeipd"]
+[ext_resource type="ArrayMesh" uid="uid://862brfavnkvt" path="res://assets/obj/shrine_candles.obj" id="3_65qqi"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7ee0y"]
+size = Vector3(6.1543274, 8.24353, 8.15033)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t23yp"]
+size = Vector3(1.2573242, 1.3276367, 1.1638184)
+
+[node name="Crypt" type="Node3D"]
+
+[node name="Crypt" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_g6ms8")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Crypt"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Crypt/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.01197505, 4.136783, 0.020002127)
+shape = SubResource("BoxShape3D_7ee0y")
+
+[node name="LanternHanging" type="MeshInstance3D" parent="Crypt"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.09619522, 4.4449615, 3.3859725)
+mesh = ExtResource("2_jeipd")
+skeleton = NodePath("../..")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Crypt/LanternHanging"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.018933058, -0.9510236, 0.17791486)
+light_energy = 10.0
+light_indirect_energy = 3.462
+light_specular = 2.962
+light_bake_mode = 1
+spot_range = 4.650285
+spot_angle = 28.231253
+
+[node name="ShrineCandles" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 6)
+mesh = ExtResource("3_65qqi")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="ShrineCandles"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ShrineCandles/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.040283203, 0.6418457, -0.0345459)
+shape = SubResource("BoxShape3D_t23yp")
+
+[node name="ShrineCandles2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 6)
+mesh = ExtResource("3_65qqi")
+skeleton = NodePath("../ShrineCandles")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="ShrineCandles2"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ShrineCandles2/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.040283203, 0.6418457, -0.0345459)
+shape = SubResource("BoxShape3D_t23yp")

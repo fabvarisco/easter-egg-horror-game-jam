@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=3 uid="uid://dbclt423kb5td"]
+
+[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="1_tx68x"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_14x5l"]
+size = Vector3(20.378344, 2.3285522, 1)
+
+[node name="WallFence" type="Node3D"]
+
+[node name="Fence" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 10.090658)
+mesh = ExtResource("1_tx68x")
+skeleton = NodePath("../..")
+
+[node name="Fence2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, 10.090658)
+mesh = ExtResource("1_tx68x")
+skeleton = NodePath("../..")
+
+[node name="Fence5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 10.090658)
+mesh = ExtResource("1_tx68x")
+skeleton = NodePath("../..")
+
+[node name="Fence3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 10.090658)
+mesh = ExtResource("1_tx68x")
+skeleton = NodePath("../..")
+
+[node name="Fence4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 10.090658)
+mesh = ExtResource("1_tx68x")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.058239937, 1.6870832, 10.065213)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("BoxShape3D_14x5l")
