@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8creocdgy2c3"]
+
+[ext_resource type="ArrayMesh" uid="uid://cqj8h61lpngme" path="res://assets/obj/bench.obj" id="1_p1io5"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_udpal"]
+size = Vector3(2.0689697, 0.56970215, 0.79541016)
+
+[node name="Benches" type="Node3D"]
+
+[node name="Bench" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3, 0.5, 0)
+mesh = ExtResource("1_p1io5")
+skeleton = NodePath("../../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Bench"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bench/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0079956055, 0.24725342, 0.0026855469)
+shape = SubResource("BoxShape3D_udpal")
+
+[node name="Bench2" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 3, 0.5, 0)
+mesh = ExtResource("1_p1io5")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Bench2"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bench2/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.008, 0.5, 0.003)
+shape = SubResource("BoxShape3D_udpal")

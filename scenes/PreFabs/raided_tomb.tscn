@@ -1,0 +1,43 @@
+[gd_scene load_steps=7 format=3 uid="uid://bpmli4as5ke0s"]
+
+[ext_resource type="ArrayMesh" uid="uid://deodhy8jgb3cy" path="res://assets/obj/grave_A_destroyed.obj" id="1_3isb6"]
+[ext_resource type="ArrayMesh" uid="uid://cvbgjiqaaske8" path="res://assets/obj/coffin_decorated.obj" id="2_jnv5v"]
+[ext_resource type="ArrayMesh" uid="uid://h61w0ivoxym4" path="res://assets/obj/coffin_lid.obj" id="3_28wdf"]
+[ext_resource type="ArrayMesh" uid="uid://wxtcab2fqk6e" path="res://assets/obj/candle_melted.obj" id="4_r1mee"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jgnie"]
+size = Vector3(1.7084961, 1.9913025, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lbytk"]
+size = Vector3(1.8919716, 1.0060425, 3.0818634)
+
+[node name="RaidedTomb" type="Node3D"]
+
+[node name="GraveADestroyed" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_3isb6")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="GraveADestroyed"]
+transform = Transform3D(0.97614086, 0.21489327, 0.031142721, -0.21713819, 0.96604884, 0.14000155, 1.8626449e-09, -0.14342351, 0.98966134, -0.15473393, 0.13435835, -2.1142683)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GraveADestroyed/StaticBody3D"]
+transform = Transform3D(0.99629915, -0.08506733, -0.012328042, 0.0850672, 0.9963751, -0.0005252063, 0.012328316, -0.00052532554, 0.99992406, 0.12144722, 0.7394153, 1.9661788)
+shape = SubResource("BoxShape3D_jgnie")
+
+[node name="CoffinDecorated" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.97614086, -0.21713819, -9.291736e-10, 0.21489331, 0.966049, -0.14342353, 0.031142725, 0.14000157, 0.98966146, 0.18021643, -0.3997813, 2.0784183)
+mesh = ExtResource("2_jnv5v")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="CoffinDecorated"]
+transform = Transform3D(0.97614086, 0.21489327, 0.031142721, -0.21713819, 0.96604884, 0.14000155, 1.8626449e-09, -0.14342351, 0.98966134, -0.15473393, 0.13435835, -2.1142683)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CoffinDecorated/StaticBody3D"]
+transform = Transform3D(0.99179006, -0.12787706, -5.3666145e-08, 0.12667324, 0.98245347, -0.13689098, 0.01750527, 0.13576712, 0.9905861, 0.13015622, 0.01034707, 2.1435056)
+shape = SubResource("BoxShape3D_lbytk")
+
+[node name="CoffinLid" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.6262637, 0, -0.7796113, 0, 1, 0, 0.7796113, 0, 0.6262637, -2.075, -0.71946967, 2.512)
+mesh = ExtResource("3_28wdf")
+
+[node name="CandleMelted" type="MeshInstance3D" parent="."]
+transform = Transform3D(-3.090862e-08, -0.70710677, -0.70710677, 1, -4.371139e-08, 0, -3.090862e-08, -0.70710677, 0.70710677, 1.2979205, 0, 0.9294796)
+mesh = ExtResource("4_r1mee")

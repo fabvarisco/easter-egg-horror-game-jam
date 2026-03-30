@@ -25,6 +25,7 @@ shape = SubResource("BoxShape3D_521fh")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.772655, 2.2852712, -0.42012143)
+light_color = Color(0.89411765, 0.65882355, 0.39607844, 1)
 light_energy = 10.0
 light_indirect_energy = 3.462
 light_specular = 2.962

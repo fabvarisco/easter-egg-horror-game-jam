@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3 uid="uid://tp173a4yxre8"]
+
+[ext_resource type="ArrayMesh" uid="uid://cqj8h61lpngme" path="res://assets/obj/bench.obj" id="1_vp5pe"]
+[ext_resource type="ArrayMesh" uid="uid://c25cvajqqu8eg" path="res://assets/obj/lantern_standing.obj" id="2_eibhd"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_udpal"]
+size = Vector3(2.0689697, 0.56970215, 0.79541016)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xv083"]
+size = Vector3(0.8745117, 1.0322876, 0.65686035)
+
+[node name="Benches" type="Node3D"]
+
+[node name="Bench" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3, 0.5, 0)
+mesh = ExtResource("1_vp5pe")
+skeleton = NodePath("../../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Bench"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bench/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0079956055, 0.24725342, 0.0026855469)
+shape = SubResource("BoxShape3D_udpal")
+
+[node name="Bench2" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 3, 0.5, 0)
+mesh = ExtResource("1_vp5pe")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Bench2"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bench2/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.008, 0.5, 0.003)
+shape = SubResource("BoxShape3D_udpal")
+
+[node name="LanternStanding" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7, 0.5, 2.058)
+mesh = ExtResource("2_eibhd")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="LanternStanding"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LanternStanding/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06274414, 0.46328735, -0.006652832)
+shape = SubResource("BoxShape3D_xv083")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="LanternStanding"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.083907604, 0.7493706, 0.115749836)
+light_color = Color(0.89411765, 0.65882355, 0.39607844, 1)
+light_energy = 10.0
+light_indirect_energy = 3.462
+light_specular = 2.962
+light_bake_mode = 1
+spot_range = 1.6713952
+spot_angle = 61.21912

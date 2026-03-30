@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://bay0qpgj4sf75"]
+
+[ext_resource type="ArrayMesh" uid="uid://0v5oi2kwquox" path="res://assets/obj/plaque_candles.obj" id="1_iowec"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mt0jy"]
+size = Vector3(1.1804466, 1.4555969, 1.2691956)
+
+[node name="Candles" type="Node3D"]
+
+[node name="PlaqueCandles" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_iowec")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="PlaqueCandles"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 1.7238817, 0)
+light_color = Color(0.89411765, 0.65882355, 0.39607844, 1)
+light_energy = 2.0
+light_indirect_energy = 3.462
+light_specular = 2.962
+light_bake_mode = 1
+spot_range = 1.9778483
+spot_angle = 27.564606
+
+[node name="StaticBody3D" type="StaticBody3D" parent="PlaqueCandles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7, 0.5, 2.058)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlaqueCandles/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.641367, 0.2516327, -1.8603363)
+shape = SubResource("BoxShape3D_mt0jy")

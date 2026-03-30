@@ -3,11 +3,11 @@
 [ext_resource type="ArrayMesh" uid="uid://b0o22p3ocs65w" path="res://assets/obj/post_lantern_lantern.obj" id="1_j12bm"]
 [ext_resource type="ArrayMesh" uid="uid://lmv1jpmaswwc" path="res://assets/obj/post_lantern.obj" id="2_f4twu"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_yl3l8"]
-points = PackedVector3Array(-0.32001, 2.3292546, 0.67999, 0.31994736, 2.3292546, 0.67999, -0.21995988, 1.691425, 0.7800401, -0.32001, 2.3292546, 1.32001, -0.13607316, 2.8628473, 1, -0.03389299, 3.1, 0.8950006, -0.023869187, 3.1, 0.8730109, -6.264448e-05, 3.1, 0.8639268, 0.31994736, 2.3292546, 1.32001, 0.21989727, 1.691425, 0.7800401, 0.023806542, 3.1, 0.8730109, 0.033830345, 3.1, 0.8950006, 0.13601053, 2.8628473, 1, -0.21995988, 1.691425, 1.2198973, -6.264448e-05, 3.1, 1.1360104, -0.023869187, 3.1, 1.1269264, -0.03389299, 3.1, 1.1049367, 0.21989727, 1.691425, 1.2198973, 0.033830345, 3.1, 1.1049367, 0.023806542, 3.1, 1.1269264)
+[sub_resource type="BoxShape3D" id="BoxShape3D_f4twu"]
+size = Vector3(0.64349365, 1.5067749, 0.71188354)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5oq8c"]
-points = PackedVector3Array(0.10231145, 3.2521927, 1.35, -0.10231675, 3.2521927, 1.35, 0.10231145, 3.1171691, 1.35, 0.14996402, 3.3, 1.3023149, -0.10231675, 3.1171691, 1.35, -0.1500108, 3.3, 1.3023149, 0.14996402, 0, 0.14989857, 0.14996402, 3.0671008, 1.3023149, 0.14996402, 3.3, 0.56327194, 0.21545, 1.5811962, 0.047475204, -0.1500108, 3.0671008, 1.3023149, -0.1500108, 0, 0.14989857, -0.208239, 3.3, 0.6466826, 0.14996402, 0, -0.1500118, 0.21545, 1.5811962, -0.15399833, 0.14996402, 3.2748044, 0.041495398, 0.10231145, 3.3, -0.17071113, -0.1500108, 0, -0.1500118, -0.10231675, 3.3, -0.17071113, -0.14901544, 3.2521927, -0.216403, 0.14896865, 3.2521927, -0.216403)
+[sub_resource type="BoxShape3D" id="BoxShape3D_5oq8c"]
+size = Vector3(0.4868164, 3.3546906, 0.454731)
 
 [node name="PostLanternLantern5" type="MeshInstance3D"]
 mesh = ExtResource("1_j12bm")
@@ -16,10 +16,12 @@ skeleton = NodePath("../../..")
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
-shape = SubResource("ConvexPolygonShape3D_yl3l8")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.006439209, 2.342297, 0.9898248)
+shape = SubResource("BoxShape3D_f4twu")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.016961575, 2.2852712, 1.0843396)
+light_color = Color(0.89411765, 0.65882355, 0.39607844, 1)
 light_energy = 10.0
 light_indirect_energy = 3.462
 light_specular = 2.962
@@ -34,4 +36,5 @@ skeleton = NodePath("../../..")
 [node name="StaticBody3D" type="StaticBody3D" parent="SpotLight3D/PostLantern4"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SpotLight3D/PostLantern4/StaticBody3D"]
-shape = SubResource("ConvexPolygonShape3D_5oq8c")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009033203, 1.5949326, 0.019636154)
+shape = SubResource("BoxShape3D_5oq8c")

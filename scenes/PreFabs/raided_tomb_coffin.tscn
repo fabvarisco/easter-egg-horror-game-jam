@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://dmlp3u1ypn0hf"]
+
+[ext_resource type="ArrayMesh" uid="uid://cvbgjiqaaske8" path="res://assets/obj/coffin_decorated.obj" id="1_eb7ey"]
+[ext_resource type="ArrayMesh" uid="uid://h61w0ivoxym4" path="res://assets/obj/coffin_lid.obj" id="2_o4gmh"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lbytk"]
+size = Vector3(1.8919716, 1.0060425, 3.0818634)
+
+[node name="RaidedTomb" type="Node3D"]
+
+[node name="CoffinDecorated" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.8828335, 0.4604047, -0.09291179, -0.46865243, 0.87659967, -0.109259784, 0.031142721, 0.14000154, 0.9896614, 0.18021643, -0.3997813, 2.0784183)
+mesh = ExtResource("1_eb7ey")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="CoffinDecorated"]
+transform = Transform3D(0.97614086, 0.21489327, 0.031142721, -0.21713819, 0.96604884, 0.14000155, 1.8626449e-09, -0.14342351, 0.98966134, -0.15473393, 0.13435835, -2.1142683)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CoffinDecorated/StaticBody3D"]
+transform = Transform3D(0.99179006, -0.12787706, -5.3666145e-08, 0.12667324, 0.98245347, -0.13689098, 0.01750527, 0.13576712, 0.9905861, 0.13015622, 0.01034707, 2.1435056)
+shape = SubResource("BoxShape3D_lbytk")
+
+[node name="CoffinLid" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.41949975, 0, 0.9077556, 0, 1, 0, -0.9077556, 0, 0.41949975, 2.2036073, -0.71946967, 2.512)
+mesh = ExtResource("2_o4gmh")

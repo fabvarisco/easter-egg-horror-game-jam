@@ -1,0 +1,68 @@
+[gd_scene load_steps=9 format=3 uid="uid://bn5rqkragfj0y"]
+
+[ext_resource type="ArrayMesh" uid="uid://uwd7qr8bfrdn" path="res://assets/obj/tree_pine_yellow_medium.obj" id="1_dq8ws"]
+[ext_resource type="ArrayMesh" uid="uid://drl32w5ji0fue" path="res://assets/obj/tree_pine_yellow_small.obj" id="2_uw4ls"]
+[ext_resource type="ArrayMesh" uid="uid://2ol48ed5rgyd" path="res://assets/obj/tree_pine_orange_small.obj" id="3_eppmu"]
+[ext_resource type="ArrayMesh" uid="uid://cv46apmlkovis" path="res://assets/obj/tree_pine_orange_medium.obj" id="4_4aso5"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_wof87"]
+height = 6.0512695
+radius = 0.40576172
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_sysn1"]
+height = 5.109619
+radius = 0.29589844
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_02sff"]
+height = 3.8935547
+radius = 0.2529297
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_vymb6"]
+height = 5.418091
+radius = 0.42919922
+
+[node name="TreeTile" type="Node3D"]
+
+[node name="TreePineYellowMedium" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1429691, 0.480207, 3.3019438)
+mesh = ExtResource("1_dq8ws")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="TreePineYellowMedium"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TreePineYellowMedium/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.467041, 0)
+shape = SubResource("CylinderShape3D_wof87")
+
+[node name="TreePineYellowSmall" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7716393, 0.395064, 4.0559807)
+mesh = ExtResource("2_uw4ls")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="TreePineYellowSmall"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TreePineYellowSmall/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0836182, 0)
+shape = SubResource("CylinderShape3D_sysn1")
+
+[node name="TreePineOrangeSmall" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.0645275, 0.3950646, 7.32981)
+mesh = ExtResource("3_eppmu")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="TreePineOrangeSmall"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TreePineOrangeSmall/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4829102, 0)
+shape = SubResource("CylinderShape3D_02sff")
+
+[node name="TreePineOrangeMedium" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1089025, 0.480207, 7.0291405)
+mesh = ExtResource("4_4aso5")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="TreePineOrangeMedium"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TreePineOrangeMedium/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.144104, 0)
+shape = SubResource("CylinderShape3D_vymb6")

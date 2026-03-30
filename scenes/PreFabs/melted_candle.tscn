@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://dinlire1lm8ov"]
+
+[ext_resource type="ArrayMesh" uid="uid://wxtcab2fqk6e" path="res://assets/obj/candle_melted.obj" id="1_x5ccg"]
+
+[node name="MeltedCandle" type="Node3D"]
+
+[node name="CandleMelted" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_x5ccg")
+skeleton = NodePath("")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="CandleMelted"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 1.0943314, 0)
+light_color = Color(0.89411765, 0.65882355, 0.39607844, 1)
+light_energy = 2.0
+light_indirect_energy = 3.462
+light_specular = 2.962
+light_bake_mode = 1
+spot_range = 1.2807823
+spot_angle = 27.564606

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dbxxwg1jle4wx"]
+[gd_scene load_steps=14 format=3 uid="uid://dbxxwg1jle4wx"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_jskai"]
 [ext_resource type="ArrayMesh" uid="uid://darbc3jpnm4jt" path="res://assets/obj/path_A.obj" id="2_lhf1h"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://cghu0f7r1yoef" path="res://scenes/PreFabs/dead_tree_set.tscn" id="12_52co2"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="12_v41cl"]
 [ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="13_d8jll"]
+[ext_resource type="PackedScene" uid="uid://bpmli4as5ke0s" path="res://scenes/PreFabs/raided_tomb.tscn" id="13_jskai"]
 
 [node name="CemeteryBottom" instance=ExtResource("1_jskai")]
 
@@ -240,3 +241,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.217592, 0.36804375, 8.8491
 
 [node name="DeadTreeSet" parent="." index="17" instance=ExtResource("12_52co2")]
 transform = Transform3D(0.9818563, 0, 0.18962671, 0, 1, 0, -0.18962671, 0, 0.9818563, 0.1163044, 0.2450509, -0.11090708)
+
+[node name="RaidedTomb" parent="." index="18" instance=ExtResource("13_jskai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.202201, 0.49708724, -5.7098775)
