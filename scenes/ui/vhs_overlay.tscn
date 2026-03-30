@@ -1,18 +1,18 @@
 [gd_scene load_steps=3 format=3 uid="uid://lfob3msbcvlg"]
 
-[ext_resource type="Shader" path="res://shaders/vhs_crt.gdshader" id="1_shader"]
+[ext_resource type="Shader" uid="uid://c7qd4meh407eu" path="res://shaders/vhs_crt.gdshader" id="1_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_vhs"]
 shader = ExtResource("1_shader")
-shader_parameter/scanline_intensity = 0.25
-shader_parameter/noise_intensity = 0.1
-shader_parameter/chromatic_aberration = 1.5
-shader_parameter/vignette_intensity = 0.35
-shader_parameter/vignette_size = 0.5
-shader_parameter/screen_curvature = 0.015
-shader_parameter/flicker_intensity = 0.02
-shader_parameter/vertical_jitter = 0.001
-shader_parameter/color_bleed = 0.2
+shader_parameter/scanline_intensity = 0.2000000095
+shader_parameter/noise_intensity = 0.0050000002375
+shader_parameter/chromatic_aberration = 2.0
+shader_parameter/vignette_intensity = 0.274000013015
+shader_parameter/vignette_size = 0.53200002527
+shader_parameter/screen_curvature = 0.02
+shader_parameter/flicker_intensity = 0.03
+shader_parameter/vertical_jitter = 0.002
+shader_parameter/color_bleed = 0.518000024605
 
 [node name="VHSOverlay" type="CanvasLayer"]
 layer = 100
