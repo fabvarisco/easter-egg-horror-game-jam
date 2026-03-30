@@ -1,0 +1,59 @@
+[gd_scene load_steps=7 format=3 uid="uid://bax76itqhjh3l"]
+
+[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="1_ct5e0"]
+[ext_resource type="ArrayMesh" uid="uid://roa7n4u2gq43" path="res://assets/obj/arch.obj" id="2_2q82s"]
+[ext_resource type="ArrayMesh" uid="uid://d2qnk1kguqiwu" path="res://assets/obj/fence_broken.obj" id="3_3k77s"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_14x5l"]
+size = Vector3(8.789532, 2.3285522, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bbmhl"]
+size = Vector3(6.0167236, 2.1567383, 0.8388672)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7x4jx"]
+size = Vector3(1.1871338, 2.3370361, 0.5560913)
+
+[node name="WallFence" type="Node3D"]
+
+[node name="Fence" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 10.090658)
+mesh = ExtResource("1_ct5e0")
+skeleton = NodePath("../..")
+
+[node name="Fence2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, 10.090658)
+mesh = ExtResource("1_ct5e0")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Fence2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.94176, 1.1870832, -0.025444984)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fence2/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.794406, 0, 0)
+shape = SubResource("BoxShape3D_14x5l")
+
+[node name="Fence3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 10.090658)
+mesh = ExtResource("1_ct5e0")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Fence3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fence3/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5292358, 1.0827637, 0.080566406)
+shape = SubResource("BoxShape3D_bbmhl")
+
+[node name="Arch" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.50378585, 10.091)
+mesh = ExtResource("2_2q82s")
+
+[node name="FenceBroken" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 10.091)
+mesh = ExtResource("3_3k77s")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="FenceBroken"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FenceBroken/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.392273, 1.1133423, 0.009429932)
+shape = SubResource("BoxShape3D_7x4jx")

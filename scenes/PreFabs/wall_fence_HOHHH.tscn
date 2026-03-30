@@ -1,10 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://b1d7nd82xerpp"]
+[gd_scene load_steps=5 format=3 uid="uid://b1d7nd82xerpp"]
 
 [ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="1_tatty"]
 [ext_resource type="ArrayMesh" uid="uid://d2qnk1kguqiwu" path="res://assets/obj/fence_broken.obj" id="2_fsdg8"]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_tatty"]
+size = Vector3(5.2025757, 2.5170898, 0.5189209)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_14x5l"]
-size = Vector3(20.378344, 2.3285522, 1)
+size = Vector3(13.48399, 2.3285522, 1)
 
 [node name="WallFence" type="Node3D"]
 
@@ -28,6 +31,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 10.091)
 mesh = ExtResource("1_tatty")
 skeleton = NodePath("../..")
 
+[node name="StaticBody3D" type="StaticBody3D" parent="Fence3"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fence3/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6199646, 1.1335449, -0.010559082)
+shape = SubResource("BoxShape3D_tatty")
+
 [node name="FenceBroken" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 10.091)
 mesh = ExtResource("2_fsdg8")
@@ -36,4 +45,5 @@ mesh = ExtResource("2_fsdg8")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.058239937, 1.6870832, 10.065213)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2727566, 0, 0)
 shape = SubResource("BoxShape3D_14x5l")

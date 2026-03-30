@@ -1,0 +1,49 @@
+[gd_scene load_steps=5 format=3 uid="uid://jvvsw11qtxr5"]
+
+[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="1_blrr7"]
+[ext_resource type="ArrayMesh" uid="uid://roa7n4u2gq43" path="res://assets/obj/arch.obj" id="2_tjwyx"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_14x5l"]
+size = Vector3(8.789532, 2.3285522, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bbmhl"]
+size = Vector3(8.533691, 2.1567383, 0.8388672)
+
+[node name="WallFence" type="Node3D"]
+
+[node name="Fence" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 10.090658)
+mesh = ExtResource("1_blrr7")
+skeleton = NodePath("../..")
+
+[node name="Fence2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, 10.090658)
+mesh = ExtResource("1_blrr7")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Fence2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.94176, 1.1870832, -0.025444984)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fence2/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.794406, 0, 0)
+shape = SubResource("BoxShape3D_14x5l")
+
+[node name="Fence3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 10.090658)
+mesh = ExtResource("1_blrr7")
+skeleton = NodePath("../..")
+
+[node name="Fence4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 10.090658)
+mesh = ExtResource("1_blrr7")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Fence4"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fence4/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.270752, 1.0827637, 0.080566406)
+shape = SubResource("BoxShape3D_bbmhl")
+
+[node name="Arch" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.50378585, 10.091)
+mesh = ExtResource("2_tjwyx")

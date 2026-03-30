@@ -1,10 +1,16 @@
-[gd_scene load_steps=4 format=3 uid="uid://5xwnq1uo7ikw"]
+[gd_scene load_steps=6 format=3 uid="uid://5xwnq1uo7ikw"]
 
 [ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="1_lu4v5"]
 [ext_resource type="ArrayMesh" uid="uid://d2qnk1kguqiwu" path="res://assets/obj/fence_broken.obj" id="2_47kux"]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_lu4v5"]
+size = Vector3(5.3621216, 2.8705444, 0.49169922)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_47kux"]
+size = Vector3(2.590149, 2.1645508, 0.65319824)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_14x5l"]
-size = Vector3(20.378344, 2.3285522, 1)
+size = Vector3(9.596887, 2.3285522, 1)
 
 [node name="WallFence" type="Node3D"]
 
@@ -23,14 +29,27 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 10.091)
 mesh = ExtResource("1_lu4v5")
 skeleton = NodePath("../..")
 
+[node name="StaticBody3D" type="StaticBody3D" parent="Fence3"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fence3/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.67196655, 1.2481995, 0.03881836)
+shape = SubResource("BoxShape3D_lu4v5")
+
 [node name="FenceBroken" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 10.091)
 mesh = ExtResource("2_47kux")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="FenceBroken"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FenceBroken/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9570618, 1.0324707, -0.03668213)
+shape = SubResource("BoxShape3D_47kux")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.058239937, 1.6870832, 10.065213)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.3907285, 0, 0)
 shape = SubResource("BoxShape3D_14x5l")
 
 [node name="FenceBroken2" type="MeshInstance3D" parent="."]

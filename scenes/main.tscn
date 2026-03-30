@@ -28,7 +28,7 @@ volumetric_fog_density = 0.1
 volumetric_fog_albedo = Color(0.40308273, 0.26075915, 0.24595517, 1)
 volumetric_fog_emission = Color(0.2995475, 0.29954743, 0.29954734, 1)
 adjustment_enabled = true
-adjustment_brightness = 0.5
+adjustment_brightness = 0.65
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_gamectrl")
