@@ -348,7 +348,7 @@ func _sync_player_paralyzed(peer_id: int, paralyzed: bool) -> void:
 			return
 
 
-@rpc("authority", "call_remote", "unreliable_ordered")
+@rpc("authority", "call_remote", "unreliable")
 func _sync_transform(pos: Vector3, rot: float) -> void:
 	"""Recebe posição e rotação do servidor"""
 	global_position = pos

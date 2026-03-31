@@ -102,6 +102,12 @@ func _cleanup() -> void:
 func _update_voice_volumes() -> void:
 	if not _current_lobby:
 		return
+	if not is_inside_tree():
+		return
+
+	var current_scene := get_tree().current_scene
+	if not current_scene or not is_instance_valid(current_scene):
+		return
 
 	var local_player = _get_local_player()
 	if not local_player:
@@ -135,7 +141,15 @@ func _get_local_player() -> Node3D:
 			return player
 
 	# Fallback: find player in tree by peer_id
-	var players_container := get_tree().current_scene.get_node_or_null("Players")
+	# Check if tree and current_scene are valid first
+	if not is_inside_tree():
+		return null
+
+	var current_scene := get_tree().current_scene
+	if not current_scene or not is_instance_valid(current_scene):
+		return null
+
+	var players_container := current_scene.get_node_or_null("Players")
 	if players_container:
 		var player := players_container.get_node_or_null(str(MultiplayerManager.my_peer_id))
 		if player and is_instance_valid(player):
@@ -152,7 +166,15 @@ func _get_player_by_peer_id(peer_id: int) -> Node3D:
 			return player
 
 	# Fallback: find player in tree by peer_id
-	var players_container := get_tree().current_scene.get_node_or_null("Players")
+	# Check if tree and current_scene are valid first
+	if not is_inside_tree():
+		return null
+
+	var current_scene := get_tree().current_scene
+	if not current_scene or not is_instance_valid(current_scene):
+		return null
+
+	var players_container := current_scene.get_node_or_null("Players")
 	if players_container:
 		var player := players_container.get_node_or_null(str(peer_id))
 		if player and is_instance_valid(player):
