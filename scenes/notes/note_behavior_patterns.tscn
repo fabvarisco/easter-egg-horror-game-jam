@@ -13,15 +13,8 @@ size = Vector3(0, 0.5, 0.5)
 
 [node name="NoteBehaviorPatterns" type="Node3D"]
 script = ExtResource("1_note_item")
-note_text = "Observations on the transformed subjects:
-
-- Highly sensitive to sound. Even small noises trigger aggressive pursuit.
-- Direct light causes extreme agitation. Flashlight exposure results in immediate hostile response.
-- Seem to rely more on hearing than sight in darkness.
-- Do not appear to sleep. Constant patrol patterns.
-- Will consume any organic matter. Preferably... fresh.
-
-Recommendation: Avoid detection at all costs. Do not engage."
+note_text = "Direct light causes
+extreme agitation."
 note_title = "BEHAVIOR PATTERNS"
 showing_item_scale = 6.5
 is_static = true

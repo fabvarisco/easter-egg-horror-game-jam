@@ -15,10 +15,7 @@ size = Vector3(0, 0.5, 0.5)
 script = ExtResource("1_note_item")
 note_text = "It knows when you're looking.
 Don't run. Don't hide.
-Just... keep searching.
-
-If you stop...
-it will come."
+Just... keep searching."
 note_title = "LAST ENTRY"
 showing_item_scale = 6.5
 is_static = true
