@@ -240,7 +240,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1487055, 0.36804327, 9.2915
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.217592, 0.36804375, 8.849192)
 
 [node name="DeadTreeSet" parent="." index="17" instance=ExtResource("12_52co2")]
-transform = Transform3D(0.9818563, 0, 0.18962671, 0, 1, 0, -0.18962671, 0, 0.9818563, 0.1163044, 0.2450509, -0.11090708)
+transform = Transform3D(0.9818563, 0, 0.18962671, 0, 1, 0, -0.18962671, 0, 0.9818563, 0.1163044, 0.2450509, -0.6780405)
 
 [node name="RaidedTomb" parent="." index="18" instance=ExtResource("13_jskai")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.202201, 0.49708724, -5.7098775)
