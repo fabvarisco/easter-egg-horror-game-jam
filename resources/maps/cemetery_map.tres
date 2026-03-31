@@ -1,29 +1,40 @@
-[gd_resource type="Resource" script_class="MapTypeDefinition" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="MapTypeDefinition" load_steps=24 format=3]
 
 [ext_resource type="Script" uid="uid://bv1vv3ikd7x6r" path="res://scripts/utils/map_type_definition.gd" id="1_1"]
 [ext_resource type="PackedScene" uid="uid://jj3rrsclryqf" path="res://scenes/chunks/cemetery/cemetery_start.tscn" id="2_1"]
 [ext_resource type="PackedScene" uid="uid://beb8al3yv600p" path="res://scenes/chunks/cemetery/cemetery_center_1.tscn" id="3_1"]
 [ext_resource type="PackedScene" uid="uid://cpy5dq7xflldh" path="res://scenes/chunks/cemetery/cemetery_center_2.tscn" id="4_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_center_3.tscn" id="4_2"]
 [ext_resource type="PackedScene" uid="uid://c8bhn444c1i2w" path="res://scenes/chunks/cemetery/cemetery_top_1.tscn" id="5_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_top_2.tscn" id="5_2"]
 [ext_resource type="PackedScene" uid="uid://ddutwjd3rkmk1" path="res://scenes/chunks/cemetery/cemetery_bottom_1.tscn" id="6_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_bottom_2.tscn" id="6_2"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_bottom_3.tscn" id="6_3"]
 [ext_resource type="PackedScene" uid="uid://bs3vy84tur0p" path="res://scenes/chunks/cemetery/cemetery_left_1.tscn" id="7_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_left_2.tscn" id="7_2"]
 [ext_resource type="PackedScene" uid="uid://bkx61fffpippw" path="res://scenes/chunks/cemetery/cemetery_right_1.tscn" id="8_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_right_2.tscn" id="8_2"]
 [ext_resource type="PackedScene" uid="uid://dox0du0kq2q4o" path="res://scenes/chunks/cemetery/cemetery_top_left_1.tscn" id="9_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_top_left_2.tscn" id="9_2"]
 [ext_resource type="PackedScene" uid="uid://u4be6frdxh7" path="res://scenes/chunks/cemetery/cemetery_top_right_1.tscn" id="10_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_top_right_2.tscn" id="10_2"]
 [ext_resource type="PackedScene" uid="uid://cyvnsprpfbg86" path="res://scenes/chunks/cemetery/cemetery_bottom_left_1.tscn" id="11_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_bottom_left_2.tscn" id="11_2"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_bottom_left_3.tscn" id="11_3"]
 [ext_resource type="PackedScene" uid="uid://blbd1bwjkxw8v" path="res://scenes/chunks/cemetery/cemetery_bottom_right_1.tscn" id="12_1"]
+[ext_resource type="PackedScene" path="res://scenes/chunks/cemetery/cemetery_bottom_right_2.tscn" id="12_2"]
 
 [resource]
 script = ExtResource("1_1")
 map_name = "cemetery"
 display_name = "Cemitério"
 chunk_start = ExtResource("2_1")
-chunks_center = Array[PackedScene]([ExtResource("3_1"), ExtResource("4_1")])
-chunks_edge_top = Array[PackedScene]([ExtResource("5_1")])
-chunks_edge_bottom = Array[PackedScene]([ExtResource("6_1")])
-chunks_edge_left = Array[PackedScene]([ExtResource("7_1")])
-chunks_edge_right = Array[PackedScene]([ExtResource("8_1")])
-chunks_corner_top_left = Array[PackedScene]([ExtResource("9_1")])
-chunks_corner_top_right = Array[PackedScene]([ExtResource("10_1")])
-chunks_corner_bottom_left = Array[PackedScene]([ExtResource("11_1")])
-chunks_corner_bottom_right = Array[PackedScene]([ExtResource("12_1")])
+chunks_center = Array[PackedScene]([ExtResource("3_1"), ExtResource("4_1"), ExtResource("4_2")])
+chunks_edge_top = Array[PackedScene]([ExtResource("5_1"), ExtResource("5_2")])
+chunks_edge_bottom = Array[PackedScene]([ExtResource("6_1"), ExtResource("6_2"), ExtResource("6_3")])
+chunks_edge_left = Array[PackedScene]([ExtResource("7_1"), ExtResource("7_2")])
+chunks_edge_right = Array[PackedScene]([ExtResource("8_1"), ExtResource("8_2")])
+chunks_corner_top_left = Array[PackedScene]([ExtResource("9_1"), ExtResource("9_2")])
+chunks_corner_top_right = Array[PackedScene]([ExtResource("10_1"), ExtResource("10_2")])
+chunks_corner_bottom_left = Array[PackedScene]([ExtResource("11_1"), ExtResource("11_2"), ExtResource("11_3")])
+chunks_corner_bottom_right = Array[PackedScene]([ExtResource("12_1"), ExtResource("12_2")])
