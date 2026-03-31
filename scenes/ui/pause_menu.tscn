@@ -38,7 +38,7 @@ theme_override_constants/separation = 15
 
 [node name="Title" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 36
 text = "Settings"
 horizontal_alignment = 1
 
@@ -47,6 +47,7 @@ layout_mode = 2
 
 [node name="MasterVolumeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Volume Master"
 
 [node name="MasterVolumeSlider" type="HSlider" parent="Panel/MarginContainer/VBoxContainer"]
@@ -57,6 +58,7 @@ value = 100.0
 
 [node name="MusicVolumeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Music Volume"
 
 [node name="MusicVolumeSlider" type="HSlider" parent="Panel/MarginContainer/VBoxContainer"]
@@ -67,6 +69,7 @@ value = 100.0
 
 [node name="SFXVolumeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "SFX Volume"
 
 [node name="SFXVolumeSlider" type="HSlider" parent="Panel/MarginContainer/VBoxContainer"]
@@ -77,6 +80,7 @@ value = 100.0
 
 [node name="MicVolumeLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Mic Volume"
 
 [node name="MicVolumeSlider" type="HSlider" parent="Panel/MarginContainer/VBoxContainer"]
@@ -87,6 +91,7 @@ value = 100.0
 
 [node name="MicMuteButton" type="CheckButton" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Mute Microphone"
 
 [node name="Separator2" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
@@ -94,17 +99,21 @@ layout_mode = 2
 
 [node name="AudioOutputLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Audio Device"
 
 [node name="AudioOutputDropdown" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 
 [node name="MicInputLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Microphone Device"
 
 [node name="MicInputDropdown" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 
 [node name="Separator3" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -116,8 +125,10 @@ theme_override_constants/separation = 20
 
 [node name="ResumeButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/ButtonsContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "Resume"
 
 [node name="DisconnectButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/ButtonsContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "Disconnect"

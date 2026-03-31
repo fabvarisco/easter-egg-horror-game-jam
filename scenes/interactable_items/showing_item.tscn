@@ -32,6 +32,7 @@ offset_bottom = -112.0
 grow_horizontal = 0
 grow_vertical = 0
 size_flags_vertical = 8
+theme_override_font_sizes/font_size = 28
 text = "Close"
 
 [node name="Info" type="RichTextLabel" parent="CanvasLayer"]
@@ -39,11 +40,12 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -105.0
+offset_top = -130.0
 offset_right = -200.0
 grow_horizontal = 2
 grow_vertical = 0
 size_flags_vertical = 8
+theme_override_font_sizes/normal_font_size = 24
 text = "Display Information"
 
 [node name="Camera3D" type="Camera3D" parent="."]
