@@ -1,8 +1,19 @@
-[gd_scene load_steps=4 format=3 uid="uid://blbd1bwjkxw8v"]
+[gd_scene load_steps=15 format=3 uid="uid://blbd1bwjkxw8v"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_rqsth"]
 [ext_resource type="PackedScene" uid="uid://dbclt423kb5td" path="res://scenes/PreFabs/wall_fence_HHHHH.tscn" id="2_btmm3"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="2_w8i1t"]
+[ext_resource type="PackedScene" uid="uid://dsu8uhte0hj1y" path="res://scenes/PreFabs/path_way_L.tscn" id="4_wj5yx"]
+[ext_resource type="PackedScene" uid="uid://tp173a4yxre8" path="res://scenes/PreFabs/benches_lantern.tscn" id="5_w8i1t"]
+[ext_resource type="PackedScene" uid="uid://dppm8ass0kby0" path="res://scenes/PreFabs/tree_tile_LLm.tscn" id="6_0ajtm"]
+[ext_resource type="PackedScene" uid="uid://dlqin3c5j0si" path="res://scenes/PreFabs/tree_tile_Lmms.tscn" id="7_et5b1"]
+[ext_resource type="PackedScene" uid="uid://dhymyujrvoq6" path="res://scenes/PreFabs/tree_tile_Lss.tscn" id="8_gkxpa"]
+[ext_resource type="PackedScene" uid="uid://dsg3ieupixnkq" path="res://scenes/chunks/cemetery/utils/post_lantern.tscn" id="9_ycmjh"]
+[ext_resource type="PackedScene" uid="uid://bpmli4as5ke0s" path="res://scenes/PreFabs/raided_tomb.tscn" id="10_xpx4j"]
+[ext_resource type="PackedScene" uid="uid://jmsgfhar1vjg" path="res://scenes/PreFabs/tombs_set_sS.tscn" id="11_7hvc7"]
+[ext_resource type="PackedScene" uid="uid://b5ubk6upey7n2" path="res://scenes/PreFabs/tombs_set_w_S.tscn" id="12_u2bba"]
+[ext_resource type="PackedScene" uid="uid://cqxcq1rjxag7p" path="res://scenes/PreFabs/tombs_set_wW.tscn" id="13_ygixc"]
+[ext_resource type="PackedScene" uid="uid://bqt4bck5yr1dl" path="res://scenes/PreFabs/tombs_set_Ws.tscn" id="14_r01d4"]
 
 [node name="CemeteryBottomRight1" instance=ExtResource("1_rqsth")]
 
@@ -10,7 +21,10 @@
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.427413, -0.6778929, 2.751008)
 
 [node name="Point" type="Node3D" parent="EggSpawnPoints" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.316787, 0.44941187, -8.1197)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.316787, 0.44941187, -5.3919725)
+
+[node name="Point2" type="Node3D" parent="EggSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5239363, 0.44941187, 7.3704386)
 
 [node name="WallFence" parent="World" index="0" instance=ExtResource("2_btmm3")]
 
@@ -19,3 +33,36 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0
 
 [node name="Floor" parent="World" index="2" instance=ExtResource("2_w8i1t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="PathWayL" parent="World" index="3" instance=ExtResource("4_wj5yx")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
+
+[node name="Benches" parent="World" index="4" instance=ExtResource("5_w8i1t")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.4356687, -0.01961422, 0.066188335)
+
+[node name="TreeTile" parent="World" index="5" instance=ExtResource("6_0ajtm")]
+transform = Transform3D(-0.5572669, 0, -0.8303334, 0, 1, 0, 0.8303334, 0, -0.5572669, -0.6452176, 0.3659668, 7.8883195)
+
+[node name="TreeTile2" parent="World" index="6" instance=ExtResource("7_et5b1")]
+transform = Transform3D(0.9119913, 0, 0.41020957, 0, 1, 0, -0.41020957, 0, 0.9119913, -1.7602873, 0, -9.894184)
+
+[node name="TreeTile3" parent="World" index="7" instance=ExtResource("8_gkxpa")]
+transform = Transform3D(-0.67742825, 0, -0.7355889, 0, 1, 0, 0.7355889, 0, -0.67742825, -5.438531, 0, 1.4585714)
+
+[node name="PostLanternLantern5" parent="World" index="8" instance=ExtResource("9_ycmjh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7782001, 0.7416091, -2.290423)
+
+[node name="RaidedTomb" parent="World" index="9" instance=ExtResource("10_xpx4j")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.47229767, 0.38575196, 9.012857)
+
+[node name="TombsSet" parent="World" index="10" instance=ExtResource("11_7hvc7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9451876, 0.36804375, 9.35655)
+
+[node name="TombsSet2" parent="World" index="11" instance=ExtResource("12_u2bba")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.689909, 0.36804375, 9.271863)
+
+[node name="TombsSet3" parent="World" index="12" instance=ExtResource("13_ygixc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.6343613, 0.3659668, 5.65701)
+
+[node name="TombsSet4" parent="World" index="13" instance=ExtResource("14_r01d4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7488484, 0.3659668, 5.522308)
