@@ -153,9 +153,47 @@ func _initialize_eos() -> bool:
 		return false
 
 	_local_product_user_id = HAuth.product_user_id
+
+	# Configure P2P for better NAT traversal (helps with Windows firewall issues)
+	_configure_p2p_settings()
+
 	_eos_initialized = true
 	my_peer_id = abs(hash(_local_product_user_id)) % 1000000
 	return true
+
+# ==========================================
+# P2P CONFIGURATION
+# ==========================================
+
+
+func _configure_p2p_settings() -> void:
+	# Enable relay servers for NAT traversal
+	# This is critical for Windows builds where firewalls are more restrictive
+	var p2p_node = get_node_or_null("/root/HP2P")
+	if not p2p_node:
+		print("[EOS] HP2P not found, skipping P2P configuration")
+		return
+
+	# Force relay servers to ensure connection works through any firewall/NAT
+	# AllowRelays = use relay as fallback, ForceRelays = always use relay
+	if p2p_node.has_method("set_relay_control"):
+		# Use ForceRelays to guarantee connectivity (slightly higher latency but more reliable)
+		var result = p2p_node.set_relay_control(EOS.P2P.RelayControl.ForceRelays)
+		if result == EOS.Result.Success:
+			print("[EOS] Relay servers FORCED for guaranteed connectivity")
+		else:
+			# Fallback to AllowRelays if ForceRelays fails
+			result = p2p_node.set_relay_control(EOS.P2P.RelayControl.AllowRelays)
+			if result == EOS.Result.Success:
+				print("[EOS] Relay servers enabled as fallback")
+			else:
+				push_warning("[EOS] Could not configure relay servers")
+
+	# Set port range for better connectivity
+	if p2p_node.has_method("set_port_range"):
+		p2p_node.set_port_range(7777, 50)
+		print("[EOS] Port range configured: 7777-7827")
+
 
 # ==========================================
 # EOS MULTIPLAYER
@@ -257,13 +295,24 @@ func join_game_eos(code: String) -> void:
 	for lobby in lobbies:
 		var found_code := _generate_lobby_code(lobby.lobby_id)
 		if found_code == room_code:
+			print("[EOS] Found lobby: ", lobby.lobby_id, " with ", lobby.available_slots, " slots available")
 
-			# Join the lobby
-			var joined_lobby = await HLobbies.join_by_id_async(lobby.lobby_id)
-			if not joined_lobby:
-				lobby_join_failed.emit("Failed to join room. It may be full or closed.")
+			# Check if lobby is full before trying to join
+			if lobby.available_slots <= 0:
+				lobby_join_failed.emit("Room is full. Wait for a slot to open.")
 				current_mode = NetworkMode.NONE
 				return
+
+			# Join the lobby
+			print("[EOS] Attempting to join lobby...")
+			var joined_lobby = await HLobbies.join_by_id_async(lobby.lobby_id)
+			if not joined_lobby:
+				push_error("[EOS] join_by_id_async returned null")
+				lobby_join_failed.emit("Could not join room. Host may have connection issues.")
+				current_mode = NetworkMode.NONE
+				return
+
+			print("[EOS] Joined lobby successfully, creating P2P client...")
 
 			# Create P2P client connection to lobby owner
 			_eos_peer = EOSGMultiplayerPeer.new()
@@ -277,10 +326,11 @@ func join_game_eos(code: String) -> void:
 				if joined_lobby:
 					joined_lobby.leave_async()
 				_current_lobby = null
-				lobby_join_failed.emit("Connection failed. Check your firewall or try again.")
+				lobby_join_failed.emit("P2P connection failed. Both players should check firewall settings.")
 				current_mode = NetworkMode.NONE
 				return
 
+			print("[EOS] P2P client created, waiting for connection...")
 			multiplayer.multiplayer_peer = _eos_peer
 			_current_lobby = joined_lobby
 			return
