@@ -15,6 +15,7 @@ var _mic_muted: bool = false
 var _mic_volume: float = 100.0
 var _speaking_states: Dictionary = {}  # peer_id -> bool
 var _last_rtc_update_time: int = 0
+var _player_volume_overrides: Dictionary = {}  # peer_id -> float (0.0 to 2.0, 1.0 is normal)
 
 
 func _ready() -> void:
@@ -84,9 +85,10 @@ func _on_server_disconnected() -> void:
 	_cleanup()
 
 
-func _on_player_disconnected(_peer_id: int) -> void:
-	# Volume will be updated on next tick, no special handling needed
-	pass
+func _on_player_disconnected(peer_id: int) -> void:
+	# Remove volume override for disconnected player
+	_player_volume_overrides.erase(peer_id)
+	_speaking_states.erase(peer_id)
 
 
 func _cleanup() -> void:
@@ -94,6 +96,7 @@ func _cleanup() -> void:
 	_current_lobby = null
 	_update_timer = 0.0
 	_speaking_states.clear()
+	_player_volume_overrides.clear()
 
 
 func _update_voice_volumes() -> void:
@@ -119,7 +122,7 @@ func _update_voice_volumes() -> void:
 			continue
 
 		var distance: float = local_position.distance_to(remote_player.global_position)
-		var volume: float = _calculate_volume(distance)
+		var volume: float = _calculate_volume(distance, peer_id)
 
 		_set_participant_volume(puid, volume)
 
@@ -176,20 +179,28 @@ func _get_player_sound_radius(player: Node3D) -> float:
 	return MAX_VOICE_DISTANCE
 
 
-func _calculate_volume(distance: float) -> float:
+func _calculate_volume(distance: float, peer_id: int = -1) -> float:
 	# At MIN_VOICE_DISTANCE or closer: full volume (MAX_VOLUME)
 	# At MAX_VOICE_DISTANCE or farther: muted (0)
 	# Linear falloff between
 
+	var base_volume: float = 0.0
+
 	if distance <= MIN_VOICE_DISTANCE:
-		return MAX_VOLUME
+		base_volume = MAX_VOLUME
+	elif distance >= MAX_VOICE_DISTANCE:
+		base_volume = 0.0
+	else:
+		# Linear interpolation
+		var t := (distance - MIN_VOICE_DISTANCE) / (MAX_VOICE_DISTANCE - MIN_VOICE_DISTANCE)
+		base_volume = MAX_VOLUME * (1.0 - t)
 
-	if distance >= MAX_VOICE_DISTANCE:
-		return 0.0
+	# Apply player volume override (1.0 = normal, 0.0 = mute, 2.0 = 2x)
+	if peer_id != -1 and _player_volume_overrides.has(peer_id):
+		var multiplier: float = _player_volume_overrides[peer_id]
+		base_volume *= multiplier
 
-	# Linear interpolation
-	var t := (distance - MIN_VOICE_DISTANCE) / (MAX_VOICE_DISTANCE - MIN_VOICE_DISTANCE)
-	return MAX_VOLUME * (1.0 - t)
+	return clamp(base_volume, 0.0, 100.0)
 
 
 func _set_participant_volume(puid: String, volume: float) -> void:
@@ -282,6 +293,41 @@ func set_mic_muted(muted: bool) -> void:
 func set_mic_volume(volume: float) -> void:
 	_mic_volume = volume
 	_apply_mic_volume()
+
+
+# ==========================================
+# PLAYER VOLUME CONTROL
+# ==========================================
+
+
+func set_player_volume(peer_id: int, multiplier: float) -> void:
+	"""
+	Ajusta o volume de um jogador específico.
+	multiplier: 0.0 = mudo, 1.0 = normal, 2.0 = 2x volume
+	"""
+	multiplier = clamp(multiplier, 0.0, 2.0)
+	_player_volume_overrides[peer_id] = multiplier
+	print("[VoiceManager] Set volume for peer ", peer_id, " to ", multiplier)
+
+
+func get_player_volume(peer_id: int) -> float:
+	"""Retorna o multiplicador de volume atual de um jogador (1.0 = normal)"""
+	return _player_volume_overrides.get(peer_id, 1.0)
+
+
+func reset_player_volume(peer_id: int) -> void:
+	"""Reseta o volume de um jogador para o normal"""
+	_player_volume_overrides.erase(peer_id)
+
+
+func reset_all_player_volumes() -> void:
+	"""Reseta o volume de todos os jogadores para o normal"""
+	_player_volume_overrides.clear()
+
+
+func get_all_players_with_custom_volume() -> Dictionary:
+	"""Retorna um dicionário de peer_id -> multiplier para todos os jogadores com volume customizado"""
+	return _player_volume_overrides.duplicate()
 
 
 # ==========================================

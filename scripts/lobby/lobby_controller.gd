@@ -134,7 +134,11 @@ func _handle_return_from_game() -> void:
 	multiplayer_manager.reset_ready_states()
 
 	# Spawn players
-	_spawn_local_player()
+	spawn_manager.reset()
+	if _is_singleplayer:
+		spawn_manager.spawn_singleplayer()
+	else:
+		spawn_manager.spawn_all_players()
 
 	# Setup HUD
 	lobby_hud.clear_players()
@@ -157,6 +161,7 @@ func _handle_return_from_game() -> void:
 
 
 func _on_connection_established(is_singleplayer: bool) -> void:
+	print("[LobbyController] Connection established. Singleplayer: ", is_singleplayer, " is_host: ", multiplayer_manager.is_host)
 	_is_singleplayer = is_singleplayer
 
 	# Reset ready states
@@ -194,17 +199,31 @@ func _spawn_local_player() -> void:
 	spawn_manager.reset()
 
 	if _is_singleplayer:
+		print("[LobbyController] Spawning singleplayer")
 		spawn_manager.spawn_singleplayer()
 	else:
-		spawn_manager.spawn_all_players()
+		if multiplayer_manager.is_host:
+			print("[LobbyController] Host spawning all players. connected_peers: ", multiplayer_manager.connected_peers)
+			spawn_manager.spawn_all_players()
+		else:
+			var my_peer_id: int = multiplayer_manager.my_peer_id
+			print("[LobbyController] Client spawning only local player: ", my_peer_id)
+			print("[LobbyController] Current connected_peers: ", multiplayer_manager.connected_peers)
+			spawn_manager.spawn_player(my_peer_id)
 
 
 func _on_player_connected(peer_id: int) -> void:
+	print("[LobbyController] player_connected: ", peer_id, " state: ", _state)
+
 	if _state == LobbyState.MENU:
+		print("[LobbyController] Ignoring player_connected in MENU state")
 		return
 
 	if not spawn_manager.is_player_spawned(peer_id):
+		print("[LobbyController] Spawning player: ", peer_id)
 		spawn_manager.spawn_player(peer_id)
+	else:
+		print("[LobbyController] Player already spawned: ", peer_id)
 
 	var is_local = multiplayer_manager.is_local_player(peer_id)
 	lobby_hud.add_player(peer_id, is_local)

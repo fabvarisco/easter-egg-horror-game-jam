@@ -51,9 +51,11 @@ func add_player(peer_id: int, is_local: bool) -> void:
 
 	var panel := HBoxContainer.new()
 	panel.name = "Player_%d" % peer_id
+	panel.custom_minimum_size = Vector2(300, 0)
 
 	var name_label := Label.new()
 	name_label.name = "NameLabel"
+	name_label.custom_minimum_size = Vector2(120, 0)
 	var player_name := "Player %d" % peer_id
 	if is_local:
 		player_name += " (You)"
@@ -63,10 +65,34 @@ func add_player(peer_id: int, is_local: bool) -> void:
 
 	var voice_label := Label.new()
 	voice_label.name = "VoiceLabel"
-	voice_label.text = " [Speaking]"
+	voice_label.text = " [Mic]"
+	voice_label.custom_minimum_size = Vector2(50, 0)
 	voice_label.add_theme_color_override("font_color", COLOR_SPEAKING)
 	voice_label.visible = false
 	panel.add_child(voice_label)
+
+	# Add volume slider for remote players only
+	if not is_local and not _is_singleplayer:
+		# Get saved volume or default to 1.0
+		var saved_multiplier: float = VoiceManager.get_player_volume(peer_id)
+		var saved_value: float = saved_multiplier * 100.0
+
+		var volume_slider := HSlider.new()
+		volume_slider.name = "VolumeSlider"
+		volume_slider.min_value = 0.0
+		volume_slider.max_value = 200.0
+		volume_slider.value = saved_value
+		volume_slider.step = 1.0
+		volume_slider.custom_minimum_size = Vector2(100, 0)
+		volume_slider.value_changed.connect(_on_player_volume_changed.bind(peer_id))
+		volume_slider.tooltip_text = "Volume: %d%%" % int(saved_value)
+		panel.add_child(volume_slider)
+
+		var volume_label := Label.new()
+		volume_label.name = "VolumeLabel"
+		volume_label.text = "%d%%" % int(saved_value)
+		volume_label.custom_minimum_size = Vector2(40, 0)
+		panel.add_child(volume_label)
 
 	_player_list.add_child(panel)
 	_player_panels[peer_id] = panel
@@ -111,6 +137,28 @@ func _on_player_connected(peer_id: int) -> void:
 
 func _on_player_disconnected(peer_id: int) -> void:
 	remove_player(peer_id)
+
+
+func _on_player_volume_changed(value: float, peer_id: int) -> void:
+	"""Called when a player's volume slider changes"""
+	# Convert from 0-200 range to 0.0-2.0 multiplier
+	var multiplier: float = value / 100.0
+
+	# Update VoiceManager
+	VoiceManager.set_player_volume(peer_id, multiplier)
+
+	# Update UI label and tooltip
+	if _player_panels.has(peer_id):
+		var panel: HBoxContainer = _player_panels[peer_id]
+		if is_instance_valid(panel):
+			var volume_label: Label = panel.get_node_or_null("VolumeLabel")
+			var volume_slider: HSlider = panel.get_node_or_null("VolumeSlider")
+
+			if volume_label:
+				volume_label.text = "%d%%" % int(value)
+
+			if volume_slider:
+				volume_slider.tooltip_text = "Volume: %d%%" % int(value)
 
 
 # ==========================================
