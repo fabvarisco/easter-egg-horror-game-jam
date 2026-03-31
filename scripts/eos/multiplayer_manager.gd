@@ -442,8 +442,13 @@ func _cleanup_on_exit() -> void:
 func _on_peer_connected(id: int) -> void:
 	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
+
+	print("[MultiplayerManager] Peer connected: ", id)
+
 	if not connected_peers.has(id):
 		connected_peers.append(id)
+
+	print("[MultiplayerManager] Host connected_peers: ", connected_peers)
 
 	# Host sends existing data to new peer
 	if is_host:
@@ -467,8 +472,10 @@ func _on_peer_connected(id: int) -> void:
 		_sync_model_index.rpc(id, _player_model_indices[id])
 
 		# Send list of all connected peers so new client knows about everyone
+		print("[MultiplayerManager] Sending _sync_peer_list to ", id, ": ", connected_peers)
 		_sync_peer_list.rpc_id(id, connected_peers)
 
+	print("[MultiplayerManager] Emitting player_connected for: ", id)
 	player_connected.emit(id)
 
 
@@ -484,8 +491,12 @@ func _on_connected_to_server() -> void:
 	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
 	my_peer_id = multiplayer.get_unique_id()
+	print("[MultiplayerManager] Connected to server. my_peer_id: ", my_peer_id)
+
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
+
+	print("[MultiplayerManager] Initial connected_peers (only local): ", connected_peers)
 
 	# Do NOT assign local model index - wait for host to sync it
 	# This prevents race conditions where spawn happens before sync
@@ -494,6 +505,7 @@ func _on_connected_to_server() -> void:
 	if current_mode == NetworkMode.EOS and _local_product_user_id != "":
 		_register_puid.rpc(_local_product_user_id, my_peer_id)
 
+	print("[MultiplayerManager] Emitting connection_succeeded")
 	connection_succeeded.emit()
 
 
@@ -679,10 +691,18 @@ func _receive_game_start() -> void:
 
 @rpc("authority", "reliable")
 func _sync_peer_list(peers: Array) -> void:
+	print("[MultiplayerManager] Received _sync_peer_list: ", peers)
+	print("[MultiplayerManager] Current connected_peers: ", connected_peers)
+
 	for peer_id in peers:
 		if not connected_peers.has(peer_id):
+			print("[MultiplayerManager] Adding new peer: ", peer_id)
 			connected_peers.append(peer_id)
 			player_connected.emit(peer_id)
+		else:
+			print("[MultiplayerManager] Peer already in list: ", peer_id)
+
+	print("[MultiplayerManager] Final connected_peers: ", connected_peers)
 
 
 # ==========================================
