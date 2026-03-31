@@ -21,6 +21,12 @@
 
 [node name="CemeteryRight1" instance=ExtResource("1_oc6lm")]
 
+[node name="Point" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.678131, 0.25025797, 1.3365841)
+
+[node name="Point2" type="Node3D" parent="IntectableItemSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2656226, 0.50051594, -3.9618227)
+
 [node name="Point" type="Node3D" parent="EggSpawnPoints" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5933194, 0.25025797, 5.7917814)
 

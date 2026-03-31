@@ -22,6 +22,12 @@
 [node name="Point3" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.86475754, -0.3769498, 5.502016)
 
+[node name="Point" type="Node3D" parent="IntectableItemSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.159597, 0.25025797, 5.3127127)
+
+[node name="Point2" type="Node3D" parent="IntectableItemSpawnPoints" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.573697, 0.50051594, -3.6104772)
+
 [node name="Point2" type="Node3D" parent="EggSpawnPoints" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3667393, 0.25025797, 3.5716085)
 
