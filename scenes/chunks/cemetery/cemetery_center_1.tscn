@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://beb8al3yv600p"]
+[gd_scene load_steps=9 format=3 uid="uid://beb8al3yv600p"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_2ab70"]
 [ext_resource type="PackedScene" uid="uid://cm82d75qcyi3f" path="res://scenes/PreFabs/path_way_x.tscn" id="3_gta2p"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://b8creocdgy2c3" path="res://scenes/PreFabs/benches.tscn" id="5_qqud8"]
 [ext_resource type="PackedScene" uid="uid://dhymyujrvoq6" path="res://scenes/PreFabs/tree_tile_Lss.tscn" id="6_jigqj"]
 [ext_resource type="PackedScene" uid="uid://bn5rqkragfj0y" path="res://scenes/PreFabs/tree_tile_mmss.tscn" id="7_ye1ec"]
+[ext_resource type="PackedScene" uid="uid://cghu0f7r1yoef" path="res://scenes/PreFabs/dead_tree_set.tscn" id="8_jigqj"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="19_31ekg"]
 
 [node name="CemeteryCenter1" instance=ExtResource("1_2ab70")]
@@ -27,87 +28,74 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.043382168, 0.45726585, 0.02
 
 [node name="PathWayT" parent="World" index="1" instance=ExtResource("3_gta2p")]
 
-[node name="PostLanternLantern5" parent="World" index="2" instance=ExtResource("4_f7lqb")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.7124505, 0.56986666, 2.9579897)
-skeleton = NodePath("../../../..")
-
-[node name="PostLanternLantern7" parent="World" index="3" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern7" parent="World" index="2" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.7124505, 0.56986666, 8.468282)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern8" parent="World" index="4" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern8" parent="World" index="3" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.7124505, 0.56986666, -8.779221)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern10" parent="World" index="5" instance=ExtResource("4_f7lqb")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.7124505, 0.56986666, -2.5278225)
-skeleton = NodePath("../../../..")
-
-[node name="PostLanternLantern11" parent="World" index="6" instance=ExtResource("4_f7lqb")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.7879348, 0.56986666, 2.9579897)
-skeleton = NodePath("../../../..")
-
-[node name="PostLanternLantern13" parent="World" index="7" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern13" parent="World" index="4" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.7879348, 0.56986666, 8.468282)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern14" parent="World" index="8" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern14" parent="World" index="5" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.7879348, 0.56986666, -8.779221)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern16" parent="World" index="9" instance=ExtResource("4_f7lqb")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.7879348, 0.56986666, -2.5278225)
-skeleton = NodePath("../../../..")
-
-[node name="PostLanternLantern18" parent="World" index="10" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern18" parent="World" index="6" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.469064, 0.56986666, -2.0830593)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern19" parent="World" index="11" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern19" parent="World" index="7" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.651614, 0.56986666, -2.045054)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern20" parent="World" index="12" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern20" parent="World" index="8" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.335652, 0.56986666, -2.264822)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern21" parent="World" index="13" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern21" parent="World" index="9" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.036052, 0.56986666, -2.2264533)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern22" parent="World" index="14" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern22" parent="World" index="10" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4.469064, 0.56986666, 2.1088247)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern23" parent="World" index="15" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern23" parent="World" index="11" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -8.651614, 0.56986666, 2.14683)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern24" parent="World" index="16" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern24" parent="World" index="12" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 9.335652, 0.56986666, 1.927062)
 skeleton = NodePath("../../../..")
 
-[node name="PostLanternLantern25" parent="World" index="17" instance=ExtResource("4_f7lqb")]
+[node name="PostLanternLantern25" parent="World" index="13" instance=ExtResource("4_f7lqb")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 5.036052, 0.56986666, 1.9654307)
 skeleton = NodePath("../../../..")
 
-[node name="Benches" parent="World" index="18" instance=ExtResource("5_qqud8")]
+[node name="Benches" parent="World" index="14" instance=ExtResource("5_qqud8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23814511, -0.09664059, 6.00023)
 
-[node name="Benches2" parent="World" index="19" instance=ExtResource("5_qqud8")]
+[node name="Benches2" parent="World" index="15" instance=ExtResource("5_qqud8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.068896055, -0.03485489, -5.871418)
 
-[node name="TreeTile" parent="World" index="20" instance=ExtResource("6_jigqj")]
+[node name="TreeTile" parent="World" index="16" instance=ExtResource("6_jigqj")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8954282, 0.48726654, 1.1040192)
 
-[node name="TreeTile2" parent="World" index="21" instance=ExtResource("7_ye1ec")]
+[node name="TreeTile2" parent="World" index="17" instance=ExtResource("7_ye1ec")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 2.6958847, 0.24138835, -10.648342)
 
-[node name="Benches3" parent="World" index="22" instance=ExtResource("5_qqud8")]
+[node name="Benches3" parent="World" index="18" instance=ExtResource("5_qqud8")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 6.827572, -0.09664059, 0.15221548)
 
-[node name="Benches4" parent="World" index="23" instance=ExtResource("5_qqud8")]
+[node name="Benches4" parent="World" index="19" instance=ExtResource("5_qqud8")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.326933, -0.03485489, -0.08698797)
 
 [node name="Camera3D" parent="." index="4"]
 transform = Transform3D(1, 0, 0, 0, 0.56562924, 0.8246597, 0, -0.8246597, 0.56562924, 0, 10.320823, 8.255884)
+
+[node name="DeadTreeSet" parent="." index="7" instance=ExtResource("8_jigqj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18435347, 0.16830754, -0.09362293)
