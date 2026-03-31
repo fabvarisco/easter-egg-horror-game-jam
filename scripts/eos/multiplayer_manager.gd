@@ -153,6 +153,21 @@ func _initialize_eos() -> bool:
 		return false
 
 	_local_product_user_id = HAuth.product_user_id
+
+	# 5. Configure P2P NAT traversal - Allow relay servers as fallback
+	# This is critical for players behind restrictive firewalls/NAT
+	var relay_result = HP2P.set_relay_control(EOS.P2P.RelayControl.AllowRelays)
+	if relay_result != EOS.Result.Success:
+		push_warning("[EOS] Failed to set relay control: " + EOS.result_str(relay_result))
+	else:
+		print("[EOS] Relay servers enabled as fallback")
+
+	# 6. Configure port range for better connectivity
+	# Default port 7777, try up to 100 additional ports if blocked
+	var port_result = HP2P.set_port_range(7777, 100)
+	if port_result != EOS.Result.Success:
+		push_warning("[EOS] Failed to set port range: " + EOS.result_str(port_result))
+
 	_eos_initialized = true
 	my_peer_id = abs(hash(_local_product_user_id)) % 1000000
 	return true
@@ -164,7 +179,8 @@ func _initialize_eos() -> bool:
 
 func host_game_eos(room_name: String = "Game") -> void:
 	if not _eos_available:
-		push_error("[EOS] Plugin não disponível")
+		push_error("[EOS] Plugin not available")
+		lobby_join_failed.emit("Online services unavailable. Please restart the game.")
 		connection_failed.emit()
 		return
 
@@ -175,7 +191,7 @@ func host_game_eos(room_name: String = "Game") -> void:
 	if not _eos_initialized:
 		var success := await _initialize_eos()
 		if not success:
-			lobby_join_failed.emit("Falha na inicialização do EOS")
+			lobby_join_failed.emit("Connection failed. Check your internet and try again.")
 			connection_failed.emit()
 			current_mode = NetworkMode.NONE
 			return
@@ -188,8 +204,8 @@ func host_game_eos(room_name: String = "Game") -> void:
 
 	_current_lobby = await HLobbies.create_lobby_async(create_opts)
 	if not _current_lobby:
-		push_error("[EOS] Falha ao criar lobby")
-		lobby_join_failed.emit("Falha ao criar lobby")
+		push_error("[EOS] Failed to create lobby")
+		lobby_join_failed.emit("Failed to create room. Server may be unavailable.")
 		connection_failed.emit()
 		current_mode = NetworkMode.NONE
 		return
@@ -198,7 +214,15 @@ func host_game_eos(room_name: String = "Game") -> void:
 	_eos_peer = EOSGMultiplayerPeer.new()
 	var result := _eos_peer.create_server(GAME_ID)
 	if result != OK:
-		push_error("[EOS] Falha ao criar servidor P2P: " + str(result))
+		push_error("[EOS] Failed to create P2P server: " + str(result))
+		# Cleanup on failure
+		if _eos_peer:
+			_eos_peer.close()
+			_eos_peer = null
+		if _current_lobby:
+			_current_lobby.destroy_async()
+			_current_lobby = null
+		lobby_join_failed.emit("Failed to start server. Check your firewall settings.")
 		connection_failed.emit()
 		current_mode = NetworkMode.NONE
 		return
@@ -223,7 +247,7 @@ func host_game_eos(room_name: String = "Game") -> void:
 
 func join_game_eos(code: String) -> void:
 	if not _eos_available:
-		lobby_join_failed.emit("EOS não disponível")
+		lobby_join_failed.emit("Online services unavailable. Please restart the game.")
 		return
 
 	current_mode = NetworkMode.EOS
@@ -233,14 +257,14 @@ func join_game_eos(code: String) -> void:
 	if not _eos_initialized:
 		var success := await _initialize_eos()
 		if not success:
-			lobby_join_failed.emit("Falha na inicialização do EOS")
+			lobby_join_failed.emit("Connection failed. Check your internet and try again.")
 			current_mode = NetworkMode.NONE
 			return
 
 	# Search for lobbies by bucket_id
 	var lobbies = await HLobbies.search_by_bucket_id_async(GAME_ID)
 	if not lobbies or lobbies.size() == 0:
-		lobby_join_failed.emit("Nenhum lobby encontrado")
+		lobby_join_failed.emit("No rooms found. Check if the host is still online.")
 		current_mode = NetworkMode.NONE
 		return
 
@@ -252,7 +276,7 @@ func join_game_eos(code: String) -> void:
 			# Join the lobby
 			var joined_lobby = await HLobbies.join_by_id_async(lobby.lobby_id)
 			if not joined_lobby:
-				lobby_join_failed.emit("Falha ao entrar no lobby")
+				lobby_join_failed.emit("Failed to join room. It may be full or closed.")
 				current_mode = NetworkMode.NONE
 				return
 
@@ -260,8 +284,15 @@ func join_game_eos(code: String) -> void:
 			_eos_peer = EOSGMultiplayerPeer.new()
 			var result := _eos_peer.create_client(GAME_ID, lobby.owner_product_user_id)
 			if result != OK:
-				push_error("[EOS] Falha ao criar cliente P2P: " + str(result))
-				lobby_join_failed.emit("Falha na conexão P2P")
+				push_error("[EOS] Failed to create P2P client: " + str(result))
+				# Cleanup on failure
+				if _eos_peer:
+					_eos_peer.close()
+					_eos_peer = null
+				if joined_lobby:
+					joined_lobby.leave_async()
+				_current_lobby = null
+				lobby_join_failed.emit("Connection failed. Check your firewall or try again.")
 				current_mode = NetworkMode.NONE
 				return
 
@@ -269,7 +300,7 @@ func join_game_eos(code: String) -> void:
 			_current_lobby = joined_lobby
 			return
 
-	lobby_join_failed.emit("Lobby não encontrado: " + room_code)
+	lobby_join_failed.emit("Room '" + room_code + "' not found. Check the code and try again.")
 	current_mode = NetworkMode.NONE
 
 

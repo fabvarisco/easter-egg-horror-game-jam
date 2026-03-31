@@ -11,7 +11,7 @@ var _player_entries: Dictionary = {}  # peer_id -> HBoxContainer
 
 func _ready() -> void:
 	countdown_label.visible = false
-	instruction_label.text = "pres F no car para confirmar"
+	instruction_label.text = "press F on car to confirm"
 
 
 func add_player(peer_id: int, is_local: bool = false) -> void:
