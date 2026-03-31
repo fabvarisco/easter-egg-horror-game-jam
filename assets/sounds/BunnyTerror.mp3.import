@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/BunnyTerror.mp3-2535050b3f77d36668eb494f5cd0e
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0
