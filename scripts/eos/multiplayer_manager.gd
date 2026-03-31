@@ -153,21 +153,6 @@ func _initialize_eos() -> bool:
 		return false
 
 	_local_product_user_id = HAuth.product_user_id
-
-	# 5. Configure P2P NAT traversal - Allow relay servers as fallback
-	# This is critical for players behind restrictive firewalls/NAT
-	var relay_result = HP2P.set_relay_control(EOS.P2P.RelayControl.AllowRelays)
-	if relay_result != EOS.Result.Success:
-		push_warning("[EOS] Failed to set relay control: " + EOS.result_str(relay_result))
-	else:
-		print("[EOS] Relay servers enabled as fallback")
-
-	# 6. Configure port range for better connectivity
-	# Default port 7777, try up to 100 additional ports if blocked
-	var port_result = HP2P.set_port_range(7777, 100)
-	if port_result != EOS.Result.Success:
-		push_warning("[EOS] Failed to set port range: " + EOS.result_str(port_result))
-
 	_eos_initialized = true
 	my_peer_id = abs(hash(_local_product_user_id)) % 1000000
 	return true
