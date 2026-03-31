@@ -13,15 +13,9 @@ size = Vector3(0, 0.5, 0.5)
 
 [node name="NoteWhatTheyBecame" type="Node3D"]
 script = ExtResource("1_note_item")
-note_text = "The ritual was supposed to protect us. Make us stronger. The elders said it would keep the mercenaries away forever.
-
-They lied. Or maybe they didn't know.
-
-The ones who stood in the circle... they changed first. Their screams turned to growls. Their eyes turned red. By morning, they weren't rabbits anymore.
-
-They were hungry.
-
-And they started with the elders."
+note_text = "The ritual was supposed to
+protect us. 
+Make us stronger."
 note_title = "WHAT THEY BECAME"
 showing_item_scale = 6.5
 is_static = true

@@ -14,7 +14,8 @@ size = Vector3(0, 0.5, 0.5)
 [node name="NoteDiary" type="Node3D"]
 script = ExtResource("1_note_item")
 note_text = "Something is wrong.
-The bunnies know we're here."
+The bunnies know 
+we're here."
 note_title = "Abandoned Diary"
 showing_item_scale = 6.5
 is_static = true

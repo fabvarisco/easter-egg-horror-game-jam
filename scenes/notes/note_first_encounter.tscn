@@ -13,12 +13,8 @@ size = Vector3(0, 0.5, 0.5)
 
 [node name="NoteFirstEncounter" type="Node3D"]
 script = ExtResource("1_note_item")
-note_text = "I saw it. God help me, I saw it.
-
-It used to be a rabbit. I could still see the fur, the long ears... but everything else was wrong. Its eyes were hollow pits of red light. Its mouth stretched too wide, filled with teeth that don't belong on any creature.
-
-It didn't walk. It crawled. Fast. Too fast.
-
+note_text = "I saw it. God help me,
+ I saw it.
 I ran. I'm still running."
 note_title = "FIRST ENCOUNTER"
 showing_item_scale = 6.5

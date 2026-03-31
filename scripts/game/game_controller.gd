@@ -793,8 +793,9 @@ func deliver_egg(player: Node3D) -> bool:
 
 	var egg: Node3D = player.get_carried_egg()
 	if egg.get("is_monster"):
-		return false 
+		return false
 
+	var egg_name := egg.name
 	player._clear_carried_egg()
 	egg.queue_free()
 
@@ -803,6 +804,7 @@ func deliver_egg(player: Node3D) -> bool:
 
 	if not _is_singleplayer:
 		_sync_egg_delivered()
+		_sync_player_egg_delivery(player, egg_name)
 
 	if _eggs_delivered >= _total_good_eggs:
 		_on_all_eggs_delivered()
@@ -866,6 +868,14 @@ func _sync_egg_delivered() -> void:
 	var host_manager := get_node_or_null("/root/HostManager")
 	if host_manager:
 		host_manager.sync_egg_delivered(_eggs_delivered, _total_good_eggs)
+
+
+func _sync_player_egg_delivery(player: Node3D, egg_name: String) -> void:
+	var host_manager := get_node_or_null("/root/HostManager")
+	if host_manager:
+		var player_id: int = player.get_meta("peer_id", -1)
+		if player_id != -1:
+			host_manager.sync_player_delivered_egg(player_id, egg_name)
 
 
 func _sync_player_entered_car(peer_id: int) -> void:

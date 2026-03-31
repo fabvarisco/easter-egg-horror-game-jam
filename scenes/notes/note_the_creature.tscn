@@ -13,7 +13,8 @@ size = Vector3(0, 0.5, 0.5)
 
 [node name="NoteEvacuation" type="Node3D"]
 script = ExtResource("1_frwuv")
-note_text = "What is that?? It's not a normal bunny..."
+note_text = "What is that?? 
+It's not a normal bunny..."
 note_title = "Evacuation Instructions"
 showing_item_scale = 6.5
 is_static = true

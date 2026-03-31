@@ -39,6 +39,12 @@ func _set_raycasts_enabled(enabled: bool) -> void:
 		if rc:
 			rc.enabled = enabled
 
+
+func _sync_visibility_to_clients(_is_visible: bool, model_visible: bool) -> void:
+	"""Sincroniza visibilidade com clientes"""
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_visibility.rpc(_is_visible, model_visible)
+
 func _check_raycasts_for_player() -> Node3D:
 	"""Verifica se algum dos raycasts está colidindo com um player"""
 	for rc in raycasts:
@@ -61,13 +67,20 @@ func _start_spawn_sequence() -> void:
 	"""Inicia sequência: SPAWN -> SEARCHING"""
 	_state = State.SPAWNING
 	visible = true
-	_set_raycasts_enabled(false) 
+	_set_raycasts_enabled(false)
+
+	# Sync visibility
+	_sync_visibility_to_clients(true, false)
 
 	_play_animation(ANIM_SPAWN)
 	await anim_player.animation_finished
 
 	if model:
 		model.visible = true
+
+	# Sync model visibility
+	_sync_visibility_to_clients(true, true)
+
 	set_physics_process(true)
 	_start_search()
 
@@ -82,7 +95,7 @@ func _start_search() -> void:
 func _start_leave() -> void:
 	"""Inicia estado LEAVING - desativa raycasts e sai"""
 	_state = State.LEAVING
-	_set_raycasts_enabled(false)  
+	_set_raycasts_enabled(false)
 
 	_play_animation(ANIM_LEAVE)
 	await anim_player.animation_finished
@@ -90,6 +103,7 @@ func _start_leave() -> void:
 	visible = false
 	if model:
 		model.visible = false
+	_sync_visibility_to_clients(false, false)
 
 	_find_target_player()
 	_spawn_at_distance(SPAWN_DISTANCE)
@@ -97,19 +111,32 @@ func _start_leave() -> void:
 	_start_spawn_sequence()
 
 func _play_animation(anim_name: String) -> void:
-	"""Toca animação se existir, senão faz fallback"""
-	if anim_player.has_animation(anim_name):
-		anim_player.play(anim_name)
-	else:
+	"""Toca animação se existir, senão faz fallback. Sincroniza com clientes."""
+	var final_anim := anim_name
+
+	if not anim_player.has_animation(anim_name):
 		match anim_name:
 			ANIM_SPAWN:
 				if anim_player.has_animation("Spawn"):
-					anim_player.play("Spawn")
+					final_anim = "Spawn"
 			ANIM_DETECT:
 				if anim_player.has_animation("Kill"):
-					anim_player.play("Kill")
+					final_anim = "Kill"
 			_:
-				pass 
+				return
+
+	anim_player.play(final_anim)
+
+	# Sync animation to clients
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_animation.rpc(final_anim)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_animation(anim_name: String) -> void:
+	"""Recebe animação do servidor"""
+	if anim_player and anim_player.has_animation(anim_name):
+		anim_player.play(anim_name) 
 
 func _physics_process(_delta: float) -> void:
 	if _is_multiplayer_active() and not multiplayer.is_server():
@@ -214,6 +241,7 @@ func _start_detect() -> void:
 	visible = false
 	if model:
 		model.visible = false
+	_sync_visibility_to_clients(false, false)
 
 	# 2. Move para posição do player (na frente dele)
 	_spawn_in_front_of_player()
@@ -225,6 +253,7 @@ func _start_detect() -> void:
 	visible = true
 	if model:
 		model.visible = true
+	_sync_visibility_to_clients(true, true)
 
 	_play_animation(ANIM_SPAWN)
 
@@ -262,6 +291,7 @@ func _start_detect() -> void:
 	visible = false
 	if model:
 		model.visible = false
+	_sync_visibility_to_clients(false, false)
 
 	_find_target_player()
 	_spawn_at_distance(SPAWN_DISTANCE)
@@ -287,13 +317,51 @@ func _spawn_in_front_of_player() -> void:
 	_fixed_rotation = atan2(dir_to_player.x, dir_to_player.z)
 	rotation.y = _fixed_rotation
 
+	# Sync position to clients
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_transform.rpc(global_position, _fixed_rotation)
+
 func _set_player_paralyzed(paralyzed: bool) -> void:
-	"""Ativa/desativa movimento do player"""
+	"""Ativa/desativa movimento do player. Sincroniza com todos os clientes."""
 	if not _target_player:
 		return
 
+	# Get peer_id from player name
+	var peer_id := int(_target_player.name)
+
 	if _target_player.has_method("set_movement_enabled"):
 		_target_player.set_movement_enabled(not paralyzed)
+
+	# Sync paralysis to all clients
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_player_paralyzed.rpc(peer_id, paralyzed)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_player_paralyzed(peer_id: int, paralyzed: bool) -> void:
+	"""Recebe paralisia do servidor e aplica ao player correto"""
+	var players := get_tree().get_nodes_in_group("players")
+	for player in players:
+		if player.name == str(peer_id):
+			if player.has_method("set_movement_enabled"):
+				player.set_movement_enabled(not paralyzed)
+			return
+
+
+@rpc("authority", "call_remote", "unreliable_ordered")
+func _sync_transform(pos: Vector3, rot: float) -> void:
+	"""Recebe posição e rotação do servidor"""
+	global_position = pos
+	_fixed_rotation = rot
+	rotation.y = rot
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_visibility(_is_visible: bool, model_visible: bool) -> void:
+	"""Recebe visibilidade do servidor"""
+	visible = _is_visible
+	if model:
+		model.visible = model_visible
 
 func _process_approaching(_delta: float) -> void:
 	pass
@@ -309,13 +377,17 @@ func _play_detection_effects() -> void:
 	if not _target_player:
 		return
 
+	var peer_id := int(_target_player.name)
+
 	# Só aplica shake se for o jogador local
 	if _is_local_player(_target_player):
-		var camera_manager := get_node_or_null("/root/CameraManager")
-		if camera_manager:
-			camera_manager.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
+		_apply_local_detection_effects()
 
-	# Play roar sound via AudioManager
+	# Sync effects to the affected player's client
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_detection_effects.rpc_id(peer_id)
+
+	# Play roar sound via AudioManager (server plays it)
 	var audio_manager := get_node_or_null("/root/AudioManager")
 	if audio_manager:
 		audio_manager.play_roar()
@@ -326,6 +398,24 @@ func _play_detection_effects() -> void:
 	_target_player.add_child(audio_player)
 	audio_player.play()
 	audio_player.finished.connect(audio_player.queue_free)
+
+
+func _apply_local_detection_effects() -> void:
+	"""Aplica efeitos locais de detecção"""
+	var camera_manager := get_node_or_null("/root/CameraManager")
+	if camera_manager:
+		camera_manager.shake_camera(SHAKE_INTENSITY, SHAKE_DURATION)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_detection_effects() -> void:
+	"""Recebe comando para aplicar efeitos de detecção no cliente"""
+	_apply_local_detection_effects()
+
+	# Play sounds on client
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.play_roar()
 
 
 func _find_target_player() -> void:
@@ -356,6 +446,10 @@ func _spawn_at_distance(distance: float) -> void:
 	rotation.y = _fixed_rotation
 
 	_idle_timer = 0.0
+
+	# Sync position to clients
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_transform.rpc(global_position, _fixed_rotation)
 
 func _relocate() -> void:
 	"""Relocação via animação Leave"""

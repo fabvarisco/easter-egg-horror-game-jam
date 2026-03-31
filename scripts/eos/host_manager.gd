@@ -301,6 +301,43 @@ func _sync_egg_delivered_rpc(delivered: int, total: int) -> void:
 		game_ctrl._on_remote_egg_delivered(delivered, total)
 
 
+func sync_player_delivered_egg(player_id: int, egg_name: String) -> void:
+	if not _is_multiplayer_active():
+		return
+	_sync_player_delivered_egg_rpc.rpc(player_id, egg_name)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _sync_player_delivered_egg_rpc(player_id: int, egg_name: String) -> void:
+	# Validar player existe
+	if not MultiplayerManager.players.has(player_id):
+		return
+
+	var player: Node3D = MultiplayerManager.players[player_id]
+	if not is_instance_valid(player):
+		return
+
+	# Se este cliente tem authority sobre o player, ele já processou localmente
+	if player.is_multiplayer_authority():
+		return
+
+	# Buscar o ovo nos filhos do player
+	var egg: Node3D = null
+	for child in player.get_children():
+		if child.is_in_group("eggs") and child.name == egg_name:
+			egg = child
+			break
+
+	if egg:
+		# Remover o ovo da cena
+		player.remove_child(egg)
+		egg.queue_free()
+
+	# Limpar _carried_egg no player remoto
+	if "_carried_egg" in player:
+		player._carried_egg = null
+
+
 func sync_player_entered_car(peer_id: int) -> void:
 	if not _is_multiplayer_active():
 		return

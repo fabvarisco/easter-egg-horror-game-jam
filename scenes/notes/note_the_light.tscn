@@ -13,13 +13,9 @@ size = Vector3(0, 0.5, 0.5)
 
 [node name="NoteTheLight" type="Node3D"]
 script = ExtResource("1_note_item")
-note_text = "DON'T USE YOUR FLASHLIGHT ON THEM.
-
-I thought the light would scare it away. I was wrong. So wrong.
-
-The moment the beam hit its face, it SCREAMED. Not in pain. In rage. It charged straight at me like a moth to a flame, but this moth has claws and hunger.
-
-Stay in the dark. Let them pass. The light only makes them angry."
+note_text = "DON'T USE YOUR 
+FLASHLIGHT ON THEM.
+"
 note_title = "THE LIGHT"
 showing_item_scale = 6.5
 is_static = true

@@ -191,13 +191,11 @@ func _on_connection_established(is_singleplayer: bool) -> void:
 
 
 func _spawn_local_player() -> void:
-	# Reset spawn state for new lobby session
 	spawn_manager.reset()
 
 	if _is_singleplayer:
 		spawn_manager.spawn_singleplayer()
 	else:
-		# Let spawn manager handle spawning all connected players
 		spawn_manager.spawn_all_players()
 
 
@@ -205,7 +203,6 @@ func _on_player_connected(peer_id: int) -> void:
 	if _state == LobbyState.MENU:
 		return
 
-	# Spawn the new player visually if not already spawned
 	if not spawn_manager.is_player_spawned(peer_id):
 		spawn_manager.spawn_player(peer_id)
 
@@ -221,7 +218,6 @@ func _on_player_disconnected(peer_id: int) -> void:
 	lobby_hud.remove_player(peer_id)
 	_update_pedestal_indicators()
 
-	# Cancel countdown if someone disconnects
 	if _state == LobbyState.COUNTDOWN:
 		_set_state(LobbyState.WAITING)
 		lobby_hud.hide_countdown()
@@ -231,7 +227,6 @@ func _on_pedestal_interacted(peer_id: int) -> void:
 	if _state != LobbyState.WAITING and _state != LobbyState.COUNTDOWN:
 		return
 
-	# Toggle ready state
 	var current_ready = multiplayer_manager.get_ready_state(peer_id)
 	multiplayer_manager.set_player_ready(not current_ready)
 
@@ -240,7 +235,6 @@ func _on_player_ready_changed(peer_id: int, is_ready: bool) -> void:
 	lobby_hud.update_player_ready(peer_id, is_ready)
 	_update_pedestal_indicators()
 
-	# Cancel countdown if someone becomes not ready
 	if not is_ready and _state == LobbyState.COUNTDOWN:
 		_set_state(LobbyState.WAITING)
 		lobby_hud.hide_countdown()
@@ -250,7 +244,6 @@ func _on_all_players_ready() -> void:
 	if _state == LobbyState.WAITING:
 		_set_state(LobbyState.COUNTDOWN)
 
-		# Notify clients to start countdown
 		if not _is_singleplayer and multiplayer_manager.is_host:
 			_start_countdown_on_clients.rpc()
 
@@ -272,12 +265,10 @@ func _transition_to_game() -> void:
 	_set_state(LobbyState.TRANSITIONING)
 
 	if _is_singleplayer or multiplayer_manager.is_host:
-		# Host or singleplayer initiates the transition
 		if not _is_singleplayer:
 			multiplayer_manager.broadcast_game_start()
 
 		_start_fade_and_load_game()
-	# Clients will receive broadcast_game_start via multiplayer_manager
 
 
 func _start_fade_and_load_game() -> void:

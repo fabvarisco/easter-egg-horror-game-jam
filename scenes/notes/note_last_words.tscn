@@ -13,13 +13,10 @@ size = Vector3(0, 0.5, 0.5)
 
 [node name="NoteLastWords" type="Node3D"]
 script = ExtResource("1_note_item")
-note_text = "If you're reading this, turn back. There's nothing here worth dying for.
-
-The contract isn't worth it. The money isn't worth it.
-
-I can hear it outside the door now. Scratching. Waiting.
-
-Tell my family I"
+note_text = "If you're reading this, 
+turn back. There's 
+nothing here worth
+dying for."
 note_title = "LAST WORDS"
 showing_item_scale = 6.5
 is_static = true

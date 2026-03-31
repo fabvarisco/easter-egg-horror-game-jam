@@ -13,15 +13,8 @@ size = Vector3(0, 0.5, 0.5)
 
 [node name="NoteTheEggs" type="Node3D"]
 script = ExtResource("1_note_item")
-note_text = "The eggs changed too.
-
-They pulse now. Like heartbeats. Some of them... move when you're not looking.
-
-Don't touch them. Don't even get close.
-
-I saw Jenkins pick one up. It cracked open in his hands. What came out wasn't a chick.
-
-He stopped screaming after a few seconds. That was the worst part."
+note_text = "The eggs 
+changed too."
 note_title = "THE EGGS"
 showing_item_scale = 6.5
 is_static = true
