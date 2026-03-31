@@ -73,12 +73,17 @@ func _process(delta: float) -> void:
 func _on_connection_succeeded() -> void:
 	# Only activate for EOS mode
 	if MultiplayerManager.current_mode != MultiplayerManager.NetworkMode.EOS:
+		print("[VoiceManager] Not activating - not in EOS mode")
 		return
 
 	_current_lobby = MultiplayerManager.get_current_lobby()
 	if _current_lobby:
+		print("[VoiceManager] Connection succeeded - activating voice chat")
+		print("[VoiceManager] RTC Room: ", _current_lobby.rtc_room_name)
 		_is_active = true
 		_apply_mic_settings()
+	else:
+		print("[VoiceManager] ERROR: No lobby found after connection")
 
 
 func _on_server_disconnected() -> void:
@@ -102,13 +107,9 @@ func _cleanup() -> void:
 func _update_voice_volumes() -> void:
 	if not _current_lobby:
 		return
-	if not is_inside_tree():
-		return
 
-	var current_scene := get_tree().current_scene
-	if not current_scene or not is_instance_valid(current_scene):
-		return
-
+	# Don't block voice updates just because scene isn't ready
+	# The _get_local_player() function will handle null scenes safely
 	var local_player = _get_local_player()
 	if not local_player:
 		return
@@ -241,6 +242,11 @@ func _set_participant_volume(puid: String, volume: float) -> void:
 	volume_opts.participant_id = puid
 	volume_opts.volume = volume
 
+	# Debug log (can be removed later)
+	var peer_id = MultiplayerManager.puid_to_peer_id.get(puid, -1)
+	if Engine.get_frames_drawn() % 60 == 0:  # Log every 60 frames to avoid spam
+		print("[VoiceManager] Setting volume for peer ", peer_id, " (", puid.substr(0, 8), "...) to ", volume)
+
 	EOS.RTCAudio.RTCAudioInterface.update_receiving_volume(volume_opts)
 
 
@@ -252,11 +258,15 @@ func _set_participant_volume(puid: String, volume: float) -> void:
 func _apply_mic_settings() -> void:
 	"""Apply saved mic settings to EOS RTC after connection is established"""
 	if not _current_lobby:
+		print("[VoiceManager] Cannot apply mic settings - no lobby")
 		return
 
 	var room_name: String = _current_lobby.rtc_room_name
 	if room_name.is_empty():
+		print("[VoiceManager] Cannot apply mic settings - no room name")
 		return
+
+	print("[VoiceManager] Applying mic settings - Muted: ", _mic_muted, " Volume: ", _mic_volume)
 
 	var mute_opts = EOS.RTCAudio.UpdateSendingOptions.new()
 	mute_opts.room_name = room_name
@@ -269,6 +279,7 @@ func _apply_mic_settings() -> void:
 		push_error("[VoiceManager] Failed to apply mic settings: %s" % EOS.result_str(ret))
 		return
 
+	print("[VoiceManager] Mic settings applied successfully")
 	_apply_mic_volume()
 
 

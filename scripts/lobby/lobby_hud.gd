@@ -8,10 +8,16 @@ extends CanvasLayer
 
 var _player_entries: Dictionary = {}  # peer_id -> HBoxContainer
 
+const COLOR_DEFAULT := Color.WHITE
+const COLOR_SPEAKING := Color.GREEN
+
 
 func _ready() -> void:
 	countdown_label.visible = false
 	instruction_label.text = "press F on car to confirm"
+
+	# Connect to VoiceManager speaking signal
+	VoiceManager.player_speaking_changed.connect(_on_player_speaking_changed)
 
 
 func add_player(peer_id: int, is_local: bool = false) -> void:
@@ -28,7 +34,16 @@ func add_player(peer_id: int, is_local: bool = false) -> void:
 		player_name += " (You)"
 	name_label.text = player_name
 	name_label.custom_minimum_size.x = 150
+	name_label.add_theme_color_override("font_color", COLOR_DEFAULT)
 	entry.add_child(name_label)
+
+	var voice_label := Label.new()
+	voice_label.name = "VoiceLabel"
+	voice_label.text = " [Mic]"
+	voice_label.custom_minimum_size.x = 50
+	voice_label.add_theme_color_override("font_color", COLOR_SPEAKING)
+	voice_label.visible = false
+	entry.add_child(voice_label)
 
 	var status_label := Label.new()
 	status_label.name = "StatusLabel"
@@ -95,3 +110,28 @@ func set_room_code(code: String) -> void:
 func clear_room_code() -> void:
 	room_code_label.text = ""
 	room_code_label.visible = false
+
+
+func _on_player_speaking_changed(peer_id: int, is_speaking: bool) -> void:
+	"""Update visual feedback when a player starts/stops speaking"""
+	if not _player_entries.has(peer_id):
+		return
+
+	var entry: HBoxContainer = _player_entries[peer_id]
+	if not is_instance_valid(entry):
+		return
+
+	var name_label: Label = entry.get_node_or_null("NameLabel")
+	var voice_label: Label = entry.get_node_or_null("VoiceLabel")
+
+	if name_label:
+		name_label.add_theme_color_override("font_color", COLOR_SPEAKING if is_speaking else COLOR_DEFAULT)
+
+	if voice_label:
+		voice_label.visible = is_speaking
+
+
+func _exit_tree() -> void:
+	# Disconnect from VoiceManager to prevent errors when scene changes
+	if VoiceManager.player_speaking_changed.is_connected(_on_player_speaking_changed):
+		VoiceManager.player_speaking_changed.disconnect(_on_player_speaking_changed)
