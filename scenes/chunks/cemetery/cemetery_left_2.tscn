@@ -16,43 +16,44 @@
 
 [node name="CemeteryLeft1" instance=ExtResource("1_w4iev")]
 
-[node name="Point3" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.019252777, -0.3769498, -1.5697138)
+[node name="Point2" type="Node3D" parent="EggSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8233266, 0.25025797, 6.0507917)
 
-[node name="Point2" type="Node3D" parent="IntectableItemSpawnPoints" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.327344, -0.1884749, -1.1067832)
+[node name="Point3" type="Node3D" parent="EggSpawnPoints" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.39598, 0.061783075, 6.8561907)
 
 [node name="Floor" parent="World" index="0" instance=ExtResource("2_tmfoj")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
-[node name="WallFence" parent="." index="7" instance=ExtResource("3_n4i77")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
+[node name="WallFence" parent="World/Floor" index="6" instance=ExtResource("3_n4i77")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.5, 0)
 
-[node name="PathWayT" parent="." index="8" instance=ExtResource("4_t7pnp")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
+[node name="PathWayT" parent="World/Floor" index="7" instance=ExtResource("4_t7pnp")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.5, 0)
 
-[node name="WallFence2" parent="." index="9" instance=ExtResource("5_tmftt")]
+[node name="WallFence2" parent="World/Floor" index="8" instance=ExtResource("5_tmftt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
-[node name="WallFence3" parent="." index="10" instance=ExtResource("6_j1i1j")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
+[node name="WallFence3" parent="World/Floor" index="9" instance=ExtResource("6_j1i1j")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.5, 0)
 
-[node name="DeadTreeSet" parent="." index="11" instance=ExtResource("7_t7pnp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.33535862, -0.5240522, -0.5907997)
+[node name="DeadTreeSet" parent="World/Floor" index="10" instance=ExtResource("7_t7pnp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.33535862, -1.0240521, -0.5907997)
 
-[node name="TreeTile" parent="." index="12" instance=ExtResource("8_kmbhn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.00717, 0.57755184, -0.13879108)
+[node name="TreeTile" parent="World/Floor" index="11" instance=ExtResource("8_kmbhn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.00717, 0.07755184, -0.13879108)
 
-[node name="RaidedTomb" parent="." index="13" instance=ExtResource("9_6l6da")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -8.931296, 0.38265824, -3.3903344)
+[node name="RaidedTomb" parent="World/Floor" index="12" instance=ExtResource("9_6l6da")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -8.931296, -0.11734176, -3.3903344)
 
-[node name="TombsSet" parent="." index="14" instance=ExtResource("10_3jgpf")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -9.314631, 0.36804375, 0.09336114)
+[node name="TombsSet" parent="World/Floor" index="13" instance=ExtResource("10_3jgpf")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -9.314631, -0.13195625, 0.09336114)
 
-[node name="TombsSet2" parent="." index="15" instance=ExtResource("11_76tjh")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -9.195748, 0.36804375, -8.023695)
+[node name="TombsSet2" parent="World/Floor" index="14" instance=ExtResource("11_76tjh")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -9.195748, -0.13195625, -8.023695)
 
-[node name="Benches" parent="." index="16" instance=ExtResource("12_godjj")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.1497126, -0.050833702, -0.20500588)
+[node name="Benches" parent="World/Floor" index="15" instance=ExtResource("12_godjj")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.1497126, -0.5508337, -0.20500588)
 
-[node name="TreeTile2" parent="." index="17" instance=ExtResource("13_nu40c")]
-transform = Transform3D(0.8544927, 0, 0.28256336, 0, 0.9, 0, -0.28256336, 0, 0.8544927, 0.028637886, 0.36596683, 2.996521)
+[node name="TreeTile2" parent="World/Floor" index="16" instance=ExtResource("13_nu40c")]
+transform = Transform3D(0.8544927, 0, 0.28256336, 0, 0.9, 0, -0.28256336, 0, 0.8544927, 0.028637886, -0.13403317, 2.996521)
