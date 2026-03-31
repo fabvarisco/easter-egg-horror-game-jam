@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c8bhn444c1i2w"]
+[gd_scene load_steps=15 format=3 uid="uid://c8bhn444c1i2w"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_stxak"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="2_xp1yl"]
@@ -13,51 +13,85 @@
 [ext_resource type="PackedScene" uid="uid://jmsgfhar1vjg" path="res://scenes/PreFabs/tombs_set_sS.tscn" id="11_3a5wo"]
 [ext_resource type="PackedScene" uid="uid://bqt4bck5yr1dl" path="res://scenes/PreFabs/tombs_set_Ws.tscn" id="12_ibyel"]
 [ext_resource type="PackedScene" uid="uid://bpmli4as5ke0s" path="res://scenes/PreFabs/raided_tomb.tscn" id="13_hcri0"]
+[ext_resource type="PackedScene" uid="uid://dsg3ieupixnkq" path="res://scenes/chunks/cemetery/utils/post_lantern.tscn" id="14_6fq7x"]
 
 [node name="CemeteryTop1" instance=ExtResource("1_stxak")]
 
+[node name="Point" type="Node3D" parent="IntectableItemSpawnPoints" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2899303, 0.44941187, -4.2295322)
+
 [node name="Point" type="Node3D" parent="EggSpawnPoints" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44941187, 8.608991)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2899303, 0.44941187, 7.909896)
 
 [node name="Floor" parent="World" index="0" instance=ExtResource("2_xp1yl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
-[node name="FogVolume" parent="." index="5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.10147762, 0.4887638, 0.3679428)
-
-[node name="WallFence" parent="." index="7" instance=ExtResource("3_xhgca")]
+[node name="WallFence" parent="World" index="1" instance=ExtResource("3_xhgca")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 
-[node name="WallFence2" parent="." index="8" instance=ExtResource("4_6fq7x")]
+[node name="WallFence2" parent="World" index="2" instance=ExtResource("4_6fq7x")]
 
-[node name="PathWayI" parent="." index="9" instance=ExtResource("5_xp1yl")]
+[node name="PathWayI" parent="World" index="3" instance=ExtResource("5_xp1yl")]
 
-[node name="TombsSet" parent="." index="10" instance=ExtResource("6_3bnre")]
+[node name="TombsSet" parent="World" index="4" instance=ExtResource("6_3bnre")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.318207, 0.36804375, 9.436205)
 
-[node name="TombsSet2" parent="." index="11" instance=ExtResource("7_hetfv")]
+[node name="TombsSet2" parent="World" index="5" instance=ExtResource("7_hetfv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12595505, 0.3659668, 9.295987)
 
-[node name="TombsSet3" parent="." index="12" instance=ExtResource("8_4ir6p")]
+[node name="TombsSet3" parent="World" index="6" instance=ExtResource("8_4ir6p")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.165292, 0.3680428, 9.298555)
 
-[node name="RaidedTomb" parent="." index="13" instance=ExtResource("9_hctlu")]
+[node name="RaidedTomb" parent="World" index="7" instance=ExtResource("9_hctlu")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 5.554796, 0.21533966, 9.997739)
 
-[node name="TombsSet4" parent="." index="14" instance=ExtResource("10_op2jw")]
+[node name="TombsSet4" parent="World" index="8" instance=ExtResource("10_op2jw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9754019, 0.3659668, 9.394523)
 
-[node name="TombsSet5" parent="." index="15" instance=ExtResource("11_3a5wo")]
+[node name="TombsSet5" parent="World" index="9" instance=ExtResource("11_3a5wo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25990868, 0.36804327, 5.4935455)
 
-[node name="TombsSet6" parent="." index="16" instance=ExtResource("7_hetfv")]
+[node name="TombsSet6" parent="World" index="10" instance=ExtResource("7_hetfv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.893633, 0.3659668, 5.4758825)
 
-[node name="TombsSet7" parent="." index="17" instance=ExtResource("12_ibyel")]
+[node name="TombsSet7" parent="World" index="11" instance=ExtResource("12_ibyel")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0351596, 0.36596727, 5.641099)
 
-[node name="TombsSet8" parent="." index="18" instance=ExtResource("10_op2jw")]
+[node name="TombsSet8" parent="World" index="12" instance=ExtResource("10_op2jw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.068029, 0.3659668, 5.6620684)
 
-[node name="RaidedTomb2" parent="." index="19" instance=ExtResource("13_hcri0")]
+[node name="RaidedTomb2" parent="World" index="13" instance=ExtResource("13_hcri0")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 4.6779337, 0.3845389, 5.6513824)
+
+[node name="TombsSet9" parent="World" index="14" instance=ExtResource("10_op2jw")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.19993009, 0.3659668, -9.299004)
+
+[node name="TombsSet10" parent="World" index="15" instance=ExtResource("8_4ir6p")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 3.7152681, 0.36804375, -9.10969)
+
+[node name="TombsSet11" parent="World" index="16" instance=ExtResource("11_3a5wo")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 7.9865646, 0.36804375, -9.2046385)
+
+[node name="TombsSet12" parent="World" index="17" instance=ExtResource("6_3bnre")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.23661494, 0.36804423, -5.6131606)
+
+[node name="RaidedTomb3" parent="World" index="18" instance=ExtResource("9_hctlu")]
+transform = Transform3D(0.68052906, 0, 0.7327211, 0, 1, 0, -0.7327211, 0, 0.68052906, 4.349756, 0.32558298, -6.2515717)
+
+[node name="RaidedTomb4" parent="World" index="19" instance=ExtResource("13_hcri0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1944666, 0.3671329, -5.540083)
+
+[node name="TombsSet13" parent="World" index="20" instance=ExtResource("7_hetfv")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -8.193178, 0.48183846, -9.194823)
+
+[node name="TombsSet14" parent="World" index="21" instance=ExtResource("11_3a5wo")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4.1267915, 0.36804375, -8.931099)
+
+[node name="PostLanternLantern5" parent="World" index="22" instance=ExtResource("14_6fq7x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.010625, 0.502543, -2.304227)
+
+[node name="PostLanternLantern6" parent="World" index="23" instance=ExtResource("14_6fq7x")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -8.058975, 0.8593812, 2.4727614)
+
+[node name="FogVolume" parent="." index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.10147762, 0.4887638, 0.3679428)
