@@ -1,9 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://cconnmenu123"]
+[gd_scene load_steps=3 format=3 uid="uid://cconnmenu123"]
 
 [ext_resource type="Script" uid="uid://comipmofxtlaa" path="res://scripts/eos/connection_menu.gd" id="1_connmenu"]
+[ext_resource type="Texture2D" uid="uid://r5wfw5vi6aif" path="res://assets/banner.png" id="2_nc6gj"]
 
 [node name="ConnectionMenu" type="CanvasLayer"]
 script = ExtResource("1_connmenu")
+
+[node name="Banner" type="Sprite2D" parent="."]
+position = Vector2(1011, 567)
+texture = ExtResource("2_nc6gj")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -37,30 +42,29 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="TitleLabel" type="Label" parent="Control/VBoxContainer"]
-layout_mode = 2
-text = "Easter Egg Horror"
-horizontal_alignment = 1
-
 [node name="MainMenu" type="VBoxContainer" parent="Control/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="SingleplayerButton" type="Button" parent="Control/VBoxContainer/MainMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Singleplayer"
 
 [node name="OnlineButton" type="Button" parent="Control/VBoxContainer/MainMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Online"
 
 [node name="LANButton" type="Button" parent="Control/VBoxContainer/MainMenu"]
 visible = false
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "LAN"
 
 [node name="SettingsButton" type="Button" parent="Control/VBoxContainer/MainMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Settings"
 
 [node name="OnlineMenu" type="VBoxContainer" parent="Control/VBoxContainer"]
@@ -70,19 +74,23 @@ theme_override_constants/separation = 8
 
 [node name="HostButton" type="Button" parent="Control/VBoxContainer/OnlineMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Host Game"
 
 [node name="CodeInput" type="LineEdit" parent="Control/VBoxContainer/OnlineMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 placeholder_text = "Enter room code..."
 max_length = 6
 
 [node name="JoinButton" type="Button" parent="Control/VBoxContainer/OnlineMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Join Game"
 
 [node name="BackButton" type="Button" parent="Control/VBoxContainer/OnlineMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Back"
 
 [node name="LANMenu" type="VBoxContainer" parent="Control/VBoxContainer"]
@@ -92,10 +100,12 @@ theme_override_constants/separation = 8
 
 [node name="HostButton" type="Button" parent="Control/VBoxContainer/LANMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Host LAN Game"
 
 [node name="FindButton" type="Button" parent="Control/VBoxContainer/LANMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Find LAN Games"
 
 [node name="ServerList" type="VBoxContainer" parent="Control/VBoxContainer/LANMenu"]
@@ -105,6 +115,7 @@ theme_override_constants/separation = 4
 
 [node name="BackButton" type="Button" parent="Control/VBoxContainer/LANMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Back"
 
 [node name="RoomMenu" type="VBoxContainer" parent="Control/VBoxContainer"]
@@ -114,19 +125,23 @@ theme_override_constants/separation = 8
 
 [node name="RoomCodeLabel" type="Label" parent="Control/VBoxContainer/RoomMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 28
 text = "Code: XXXXXX"
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Control/VBoxContainer/RoomMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Waiting..."
 horizontal_alignment = 1
 
 [node name="LeaveButton" type="Button" parent="Control/VBoxContainer/RoomMenu"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Leave"
 
 [node name="StatusLabel" type="Label" parent="Control/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 autowrap_mode = 2
