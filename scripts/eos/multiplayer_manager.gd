@@ -447,9 +447,12 @@ func _on_peer_connected(id: int) -> void:
 
 	# Host sends existing data to new peer
 	if is_host:
-		# Assign a random model index to the new peer if not already assigned
+		# Assign a deterministic model index to the new peer if not already assigned
+		# Using peer_id as seed ensures all clients generate the same fallback
 		if not _player_model_indices.has(id):
-			_player_model_indices[id] = randi() % NUM_PLAYER_MODELS
+			var rng := RandomNumberGenerator.new()
+			rng.seed = id
+			_player_model_indices[id] = rng.randi() % NUM_PLAYER_MODELS
 
 		# Send existing ready states
 		for peer_id in _ready_states:
@@ -458,6 +461,10 @@ func _on_peer_connected(id: int) -> void:
 		# Send all model indices to new peer
 		for peer_id in _player_model_indices:
 			_sync_model_index.rpc_id(id, peer_id, _player_model_indices[peer_id])
+
+		# CRITICAL: Broadcast new peer's model index to ALL clients (including host)
+		# This ensures everyone sees the same model for the new player
+		_sync_model_index.rpc(id, _player_model_indices[id])
 
 		# Send list of all connected peers so new client knows about everyone
 		_sync_peer_list.rpc_id(id, connected_peers)
@@ -480,8 +487,8 @@ func _on_connected_to_server() -> void:
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
 
-	# Assign local model index (will be overwritten by host sync if needed)
-	assign_local_model_index()
+	# Do NOT assign local model index - wait for host to sync it
+	# This prevents race conditions where spawn happens before sync
 
 	# Register PUID mapping for voice chat (EOS only)
 	if current_mode == NetworkMode.EOS and _local_product_user_id != "":
@@ -686,6 +693,7 @@ func _sync_peer_list(peers: Array) -> void:
 @rpc("authority", "call_local", "reliable")
 func _sync_model_index(peer_id: int, model_index: int) -> void:
 	_player_model_indices[peer_id] = model_index
+	print("[MultiplayerManager] Synced model_index for peer ", peer_id, ": model_index=", model_index)
 
 
 func get_player_model_index(peer_id: int) -> int:
@@ -694,9 +702,19 @@ func get_player_model_index(peer_id: int) -> int:
 
 
 func assign_local_model_index() -> void:
-	"""Assigns a model index to the local player (called when hosting or in singleplayer)"""
+	"""Assigns a deterministic model index to the local player (called when hosting or in singleplayer)"""
 	if not _player_model_indices.has(my_peer_id):
-		_player_model_indices[my_peer_id] = randi() % NUM_PLAYER_MODELS
+		var rng := RandomNumberGenerator.new()
+		rng.seed = my_peer_id
+		_player_model_indices[my_peer_id] = rng.randi() % NUM_PLAYER_MODELS
+
+
+func assign_model_index_for_peer(peer_id: int) -> void:
+	"""Assigns a deterministic model index for a specific peer_id"""
+	if not _player_model_indices.has(peer_id):
+		var rng := RandomNumberGenerator.new()
+		rng.seed = peer_id
+		_player_model_indices[peer_id] = rng.randi() % NUM_PLAYER_MODELS
 
 
 # ==========================================

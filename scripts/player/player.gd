@@ -112,7 +112,12 @@ func _setup_random_model() -> void:
 	if has_meta("model_index"):
 		model_index = get_meta("model_index")
 	else:
-		model_index = randi() % PLAYER_MODELS.size()
+		# Fallback: use peer_id as seed for deterministic model selection
+		# This ensures all clients see the same model even if sync hasn't arrived yet
+		var peer_id: int = get_meta("peer_id", 1)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = peer_id
+		model_index = rng.randi() % PLAYER_MODELS.size()
 
 	var chosen := PLAYER_MODELS[model_index]
 

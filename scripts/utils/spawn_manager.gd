@@ -148,7 +148,7 @@ func spawn_all_players() -> void:
 func spawn_singleplayer() -> Node3D:
 	"""Spawn the local player for singleplayer mode."""
 	if multiplayer_manager.get_player_model_index(1) < 0:
-		multiplayer_manager._player_model_indices[1] = randi() % multiplayer_manager.NUM_PLAYER_MODELS
+		multiplayer_manager.assign_model_index_for_peer(1)
 
 	var player := spawn_player(1)
 
