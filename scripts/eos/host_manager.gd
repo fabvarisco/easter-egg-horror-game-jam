@@ -43,13 +43,16 @@ func _is_multiplayer_active() -> bool:
 # BUNNY SYNC
 # ==========================================
 func _sync_bunny() -> void:
+	if not is_inside_tree():
+		return
+
 	# Only sync in game scene (not lobby)
 	var current_scene := get_tree().current_scene
-	if not current_scene or "lobby" in current_scene.name.to_lower():
+	if not current_scene or not is_instance_valid(current_scene) or "lobby" in current_scene.name.to_lower():
 		return
 
 	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
-	if not bunny or not bunny.is_inside_tree():
+	if not bunny or not is_instance_valid(bunny) or not bunny.is_inside_tree():
 		return
 
 	var state: int = bunny.get_state() if bunny.has_method("get_state") else 0
@@ -66,13 +69,16 @@ func _sync_bunny() -> void:
 
 @rpc("authority", "call_remote", "unreliable")
 func _sync_bunny_state(pos: Vector3, rot_y: float, is_visible: bool, state: int, approach_count: int) -> void:
+	if not is_inside_tree():
+		return
+
 	# Only process in game scene
 	var current_scene := get_tree().current_scene
-	if not current_scene or "lobby" in current_scene.name.to_lower():
+	if not current_scene or not is_instance_valid(current_scene) or "lobby" in current_scene.name.to_lower():
 		return
 
 	var bunny := get_tree().get_first_node_in_group("assassin_bunny")
-	if not bunny or not bunny.is_inside_tree():
+	if not bunny or not is_instance_valid(bunny) or not bunny.is_inside_tree():
 		return
 
 	bunny.global_position = pos
@@ -112,8 +118,11 @@ func bunny_kill_player(player_id: int) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _bunny_kill_player_rpc(player_id: int) -> void:
+	if not is_inside_tree():
+		return
+
 	var current_scene := get_tree().current_scene
-	if not current_scene or "lobby" in current_scene.name.to_lower():
+	if not current_scene or not is_instance_valid(current_scene) or "lobby" in current_scene.name.to_lower():
 		return
 
 	# Validar que player existe antes de processar
@@ -121,7 +130,7 @@ func _bunny_kill_player_rpc(player_id: int) -> void:
 		return
 
 	var player: Node3D = MultiplayerManager.players[player_id]
-	if not is_instance_valid(player):
+	if not is_instance_valid(player) or not player.is_inside_tree():
 		return
 
 	if player.has_method("die"):
@@ -145,7 +154,7 @@ func _pickup_egg_rpc(egg_name: String, player_id: int) -> void:
 		return
 
 	var player: Node3D = MultiplayerManager.players[player_id]
-	if not is_instance_valid(player):
+	if not is_instance_valid(player) or not player.is_inside_tree():
 		return
 
 	# Se este cliente tem authority sobre o player, ele já processou localmente
@@ -155,7 +164,7 @@ func _pickup_egg_rpc(egg_name: String, player_id: int) -> void:
 	# Buscar o ovo pelo nome
 	var egg: Node3D = null
 	for e in get_tree().get_nodes_in_group("eggs"):
-		if e.name == egg_name:
+		if e.name == egg_name and is_instance_valid(e) and e.is_inside_tree():
 			egg = e
 			break
 
@@ -195,7 +204,7 @@ func _drop_egg_rpc(_egg_name: String, player_id: int, drop_position: Vector3) ->
 		return
 
 	var player: Node3D = MultiplayerManager.players[player_id]
-	if not is_instance_valid(player):
+	if not is_instance_valid(player) or not player.is_inside_tree():
 		return
 
 	# Se este cliente tem authority sobre o player, ele já processou localmente
@@ -205,17 +214,19 @@ func _drop_egg_rpc(_egg_name: String, player_id: int, drop_position: Vector3) ->
 	# Buscar o ovo nos filhos do player
 	var egg: Node3D = null
 	for child in player.get_children():
-		if child.is_in_group("eggs"):
+		if is_instance_valid(child) and child.is_in_group("eggs"):
 			egg = child
 			break
 
-	if not egg:
+	if not egg or not is_instance_valid(egg):
 		return
 
 	# Processar drop no cliente remoto
 	player.remove_child(egg)
-	get_tree().current_scene.add_child(egg)
-	egg.global_position = drop_position
+	var current_scene := get_tree().current_scene
+	if is_instance_valid(current_scene) and current_scene.is_inside_tree():
+		current_scene.add_child(egg)
+		egg.global_position = drop_position
 
 	# Atualizar _carried_egg no player remoto
 	if "_carried_egg" in player:
@@ -296,8 +307,11 @@ func sync_egg_delivered(delivered: int, total: int) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _sync_egg_delivered_rpc(delivered: int, total: int) -> void:
+	if not is_inside_tree():
+		return
+
 	var game_ctrl := get_tree().current_scene
-	if game_ctrl and game_ctrl.has_method("_on_remote_egg_delivered"):
+	if game_ctrl and is_instance_valid(game_ctrl) and game_ctrl.has_method("_on_remote_egg_delivered"):
 		game_ctrl._on_remote_egg_delivered(delivered, total)
 
 
@@ -314,7 +328,7 @@ func _sync_player_delivered_egg_rpc(player_id: int, egg_name: String) -> void:
 		return
 
 	var player: Node3D = MultiplayerManager.players[player_id]
-	if not is_instance_valid(player):
+	if not is_instance_valid(player) or not player.is_inside_tree():
 		return
 
 	# Se este cliente tem authority sobre o player, ele já processou localmente
@@ -324,11 +338,11 @@ func _sync_player_delivered_egg_rpc(player_id: int, egg_name: String) -> void:
 	# Buscar o ovo nos filhos do player
 	var egg: Node3D = null
 	for child in player.get_children():
-		if child.is_in_group("eggs") and child.name == egg_name:
+		if is_instance_valid(child) and child.is_in_group("eggs") and child.name == egg_name:
 			egg = child
 			break
 
-	if egg:
+	if egg and is_instance_valid(egg):
 		# Remover o ovo da cena
 		player.remove_child(egg)
 		egg.queue_free()
@@ -346,8 +360,11 @@ func sync_player_entered_car(peer_id: int) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _sync_player_entered_car_rpc(peer_id: int) -> void:
+	if not is_inside_tree():
+		return
+
 	var game_ctrl := get_tree().current_scene
-	if game_ctrl and game_ctrl.has_method("_on_remote_player_entered_car"):
+	if game_ctrl and is_instance_valid(game_ctrl) and game_ctrl.has_method("_on_remote_player_entered_car"):
 		game_ctrl._on_remote_player_entered_car(peer_id)
 
 
@@ -361,8 +378,11 @@ func sync_mission_complete() -> void:
 
 @rpc("authority", "call_local", "reliable")
 func _sync_mission_complete_rpc() -> void:
+	if not is_inside_tree():
+		return
+
 	var game_ctrl := get_tree().current_scene
-	if game_ctrl and game_ctrl.has_method("_on_remote_mission_complete"):
+	if game_ctrl and is_instance_valid(game_ctrl) and game_ctrl.has_method("_on_remote_mission_complete"):
 		game_ctrl._on_remote_mission_complete()
 
 

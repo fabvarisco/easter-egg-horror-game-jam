@@ -104,19 +104,21 @@ func _play_music(stream: AudioStream) -> void:
 	_active_player.volume_db = -80.0
 	_active_player.play()
 
+	# Only create tween if we're actually going to use it
 	var tween := create_tween()
 	tween.set_parallel(true)
 
-	# Fade in new music
 	tween.tween_property(_active_player, "volume_db", linear_to_db(_music_volume), CROSSFADE_DURATION)
 
-	# Fade out old music
 	if _inactive_player.playing:
 		tween.tween_property(_inactive_player, "volume_db", -80.0, CROSSFADE_DURATION)
 		tween.tween_callback(_inactive_player.stop).set_delay(CROSSFADE_DURATION)
 
 
 func stop_music() -> void:
+	if not _active_player.playing and not _inactive_player.playing:
+		return
+
 	var tween := create_tween()
 	tween.set_parallel(true)
 

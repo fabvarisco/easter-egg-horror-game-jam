@@ -340,6 +340,8 @@ func _rotate_to_mouse(_delta: float) -> void:
 func _send_position_sync() -> void:
 	if not _is_multiplayer_connected():
 		return
+	if not is_inside_tree():
+		return
 	_sync_position.rpc(global_position, rotation.y, _current_speed, _is_sprinting, is_on_floor(), _flashlight_on)
 
 
@@ -361,6 +363,8 @@ func _is_multiplayer_connected() -> bool:
 
 @rpc("authority", "call_remote", "unreliable")
 func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool, on_floor: bool = true, flashlight_on: bool = false) -> void:
+	if not is_inside_tree():
+		return
 	global_position = pos
 	rotation.y = rot_y
 	_current_speed = speed
@@ -375,6 +379,8 @@ func _sync_position(pos: Vector3, rot_y: float, speed: float, sprinting: bool, o
 func _sync_pickup_egg(egg_name: String) -> void:
 	if not _is_multiplayer_connected():
 		return
+	if not is_inside_tree():
+		return
 
 	var host_manager := get_node_or_null("/root/HostManager")
 	if host_manager:
@@ -385,6 +391,8 @@ func _sync_pickup_egg(egg_name: String) -> void:
 func _sync_drop_egg(egg_name: String, drop_pos: Vector3) -> void:
 	if not _is_multiplayer_connected():
 		return
+	if not is_inside_tree():
+		return
 
 	var host_manager := get_node_or_null("/root/HostManager")
 	if host_manager:
@@ -394,6 +402,8 @@ func _sync_drop_egg(egg_name: String, drop_pos: Vector3) -> void:
 
 func _sync_flashlight_state() -> void:
 	if not _is_multiplayer_connected():
+		return
+	if not is_inside_tree():
 		return
 	_receive_flashlight_state.rpc(_flashlight_on)
 
