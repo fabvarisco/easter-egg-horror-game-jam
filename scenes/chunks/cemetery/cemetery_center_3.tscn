@@ -36,14 +36,14 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -2.9
 [node name="DeadTreeSet" parent="World" index="5" instance=ExtResource("4_cnagc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23699242, 0.06601858, -1.1183207)
 
+[node name="Benches" parent="World" index="6" instance=ExtResource("6_i2udm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009607896, -0.061083794, -3.6451669)
+
+[node name="Benches2" parent="World" index="7" instance=ExtResource("6_i2udm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.057244897, -0.04133892, 7.562153)
+
 [node name="Camera3D" parent="." index="4"]
 transform = Transform3D(1, 0, 0, 0, 0.56562924, 0.8246597, 0, -0.8246597, 0.56562924, 0, 10.320823, 8.255884)
 
 [node name="FogVolume" parent="." index="5"]
 visible = false
-
-[node name="Benches" parent="." index="7" instance=ExtResource("6_i2udm")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009607896, -0.061083794, -3.6451669)
-
-[node name="Benches2" parent="." index="8" instance=ExtResource("6_i2udm")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.057244897, -0.04133892, 7.562153)
