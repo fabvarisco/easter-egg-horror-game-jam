@@ -10,27 +10,17 @@ albedo_texture = ExtResource("2_paper_texture")
 size = Vector3(0, 0.5, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_area"]
-size = Vector3(1, 1, 1)
 
 [node name="NoteEvacuation" type="Node3D"]
 script = ExtResource("1_note_item")
-descriptionValue = ""
-is_static = true
-enable_rotation = true
-rotation_speed = 0.05
-enable_floating = true
-float_amplitude = 0.35
-float_speed = 0.3
-float_lerp_speed = 3.0
 note_text = "Collect ALL the good eggs.
 Take them to the car.
-Don't leave any behind.
-
-The evacuation depends on it.
-
-RUN."
+Don't look  behind."
 note_title = "Evacuation Instructions"
 showing_item_scale = 6.5
+is_static = true
+rotation_speed = 0.05
+float_amplitude = 0.35
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(-0.30033514, -0.92038524, -0.25037962, -0.27858862, 0.33569598, -0.8998314, 0.9122428, -0.20049818, -0.3572301, 0, 0, 0)

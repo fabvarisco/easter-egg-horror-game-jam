@@ -1,10 +1,19 @@
-[gd_scene load_steps=9 format=3 uid="uid://skdaejm2ow6n"]
+[gd_scene load_steps=18 format=3 uid="uid://skdaejm2ow6n"]
 
 [ext_resource type="Script" uid="uid://df38gge5t3i8c" path="res://scripts/game/game_controller.gd" id="1_gamectrl"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_behavior_patterns.tscn" id="2_a8y0u"]
 [ext_resource type="PackedScene" uid="uid://dq8tfcgg6jpll" path="res://scenes/notes/note_bunny_threat.tscn" id="2_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://bvtxtai7mctvv" path="res://scenes/notes/note_diary.tscn" id="3_tefeu"]
 [ext_resource type="PackedScene" uid="uid://cq8tfcgg6jpkk" path="res://scenes/notes/note_egg_warning.tscn" id="4_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://vtxtai7mctuu" path="res://scenes/notes/note_evacuation.tscn" id="5_tipki"]
+[ext_resource type="PackedScene" uid="uid://bodl2fn2nhljq" path="res://scenes/notes/note_egg_warning_2.tscn" id="6_jkv2x"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_first_encounter.tscn" id="8_jbj1t"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_last_words.tscn" id="9_muem4"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_sound_silence.tscn" id="10_dp3eg"]
+[ext_resource type="PackedScene" uid="uid://4d17j5rqkcaa" path="res://scenes/notes/note_the_creature.tscn" id="11_0ld40"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_the_eggs.tscn" id="12_gqmmt"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_the_light.tscn" id="13_yc10j"]
+[ext_resource type="PackedScene" path="res://scenes/notes/note_what_they_became.tscn" id="14_jscy8"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_tbgi4"]
 sky_top_color = Color(0.16565639, 0.16565642, 0.16565639, 1)
@@ -32,7 +41,7 @@ adjustment_brightness = 0.65
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_gamectrl")
-spawnable_items = Array[PackedScene]([ExtResource("2_tbgi4"), ExtResource("3_tefeu"), ExtResource("4_o6xl0"), ExtResource("5_tipki")])
+spawnable_items = Array[PackedScene]([ExtResource("2_a8y0u"), ExtResource("2_tbgi4"), ExtResource("3_tefeu"), ExtResource("4_o6xl0"), ExtResource("6_jkv2x"), ExtResource("5_tipki"), ExtResource("8_jbj1t"), ExtResource("9_muem4"), ExtResource("10_dp3eg"), ExtResource("11_0ld40"), ExtResource("12_gqmmt"), ExtResource("13_yc10j"), ExtResource("14_jscy8")])
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8660253, -0.35355332, 0.35355374, 0, 0.70710725, 0.7071064, -0.50000024, -0.61237204, 0.61237276, 0, 10, 0)

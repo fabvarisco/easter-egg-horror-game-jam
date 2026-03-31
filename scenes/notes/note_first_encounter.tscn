@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bvtxtai7mctvv"]
+[gd_scene load_steps=6 format=3 uid="uid://cxu5s8qcnk1ph"]
 
 [ext_resource type="Script" uid="uid://cptqlhji4xy8s" path="res://scripts/interactable_items/note_item.gd" id="1_note_item"]
 [ext_resource type="Texture2D" uid="uid://d04tmxfy8mwr0" path="res://assets/papers_textures/Paper Texture4.jpg" id="2_paper_texture"]
@@ -11,15 +11,21 @@ size = Vector3(0, 0.5, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_area"]
 
-[node name="NoteDiary" type="Node3D"]
+[node name="NoteFirstEncounter" type="Node3D"]
 script = ExtResource("1_note_item")
-note_text = "Something is wrong.
-The bunnies know we're here."
-note_title = "Abandoned Diary"
+note_text = "I saw it. God help me, I saw it.
+
+It used to be a rabbit. I could still see the fur, the long ears... but everything else was wrong. Its eyes were hollow pits of red light. Its mouth stretched too wide, filled with teeth that don't belong on any creature.
+
+It didn't walk. It crawled. Fast. Too fast.
+
+I ran. I'm still running."
+note_title = "FIRST ENCOUNTER"
 showing_item_scale = 6.5
 is_static = true
-rotation_speed = 0.08
-float_amplitude = 0.4
+rotation_speed = 0.05
+float_amplitude = 0.3
+float_speed = 0.25
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(-0.30033514, -0.92038524, -0.25037962, -0.27858862, 0.33569598, -0.8998314, 0.9122428, -0.20049818, -0.3572301, 0, 0, 0)

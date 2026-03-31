@@ -1,13 +1,13 @@
 [gd_scene load_steps=3 format=3 uid="uid://ddappt7o6s13k"]
 
 [ext_resource type="Script" uid="uid://dxrarl27rg2y7" path="res://scripts/ui/game_over.gd" id="1_wqhvx"]
-[ext_resource type="PackedScene" uid="uid://ri8p3uj8tcjf" path="res://assets/assassin_bunny.glb" id="2_wqhvx"]
+[ext_resource type="PackedScene" uid="uid://dgvs6lass8xss" path="res://scenes/monsters/assassin_bunny_model.tscn" id="2_fu4wh"]
 
 [node name="game_over" type="Node3D"]
 script = ExtResource("1_wqhvx")
 
-[node name="assassin_bunny" parent="." instance=ExtResource("2_wqhvx")]
-transform = Transform3D(0.06754516, 0, -0.9977162, 0, 1, 0, 0.9977162, 0, 0.06754516, 0.35787702, 1.2138911, 0.32864726)
+[node name="anim_cueio_zoio" parent="." instance=ExtResource("2_fu4wh")]
+transform = Transform3D(0.24473208, 0, -0.9695907, 0, 1, 0, 0.9695907, 0, 0.24473208, -0.18045455, -0.6552673, -0.4291048)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0958085, 1.8509206)
