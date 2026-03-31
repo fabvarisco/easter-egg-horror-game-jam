@@ -13,6 +13,7 @@ signal disconnect_requested
 @onready var mic_input_dropdown: OptionButton = $Panel/MarginContainer/VBoxContainer/MicInputDropdown
 @onready var resume_button: Button = $Panel/MarginContainer/VBoxContainer/ButtonsContainer/ResumeButton
 @onready var disconnect_button: Button = $Panel/MarginContainer/VBoxContainer/ButtonsContainer/DisconnectButton
+@onready var quit_button: Button = $Panel/MarginContainer/VBoxContainer/ButtonsContainer/QuitButton
 
 var _previous_mouse_mode: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
 
@@ -28,6 +29,7 @@ func _ready() -> void:
 	mic_input_dropdown.item_selected.connect(_on_mic_input_selected)
 	resume_button.pressed.connect(_on_resume_pressed)
 	disconnect_button.pressed.connect(_on_disconnect_pressed)
+	quit_button.pressed.connect(_on_quit_pressed)
 
 	# Populate devices
 	_populate_audio_devices()
@@ -157,3 +159,7 @@ func _on_resume_pressed() -> void:
 func _on_disconnect_pressed() -> void:
 	_close_menu()
 	disconnect_requested.emit()
+
+
+func _on_quit_pressed() -> void:
+	get_tree().quit()

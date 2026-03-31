@@ -9,6 +9,7 @@ signal settings_requested
 @onready var singleplayer_button: Button = $Control/VBoxContainer/MainMenu/SingleplayerButton
 @onready var online_button: Button = $Control/VBoxContainer/MainMenu/OnlineButton
 @onready var settings_button: Button = $Control/VBoxContainer/MainMenu/SettingsButton
+@onready var quit_button: Button = $Control/VBoxContainer/MainMenu/QuitButton
 
 # Online menu (EOS)
 @onready var online_menu: VBoxContainer = $Control/VBoxContainer/OnlineMenu
@@ -35,6 +36,7 @@ func _ready() -> void:
 	singleplayer_button.pressed.connect(_on_singleplayer_pressed)
 	online_button.pressed.connect(_on_online_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
+	quit_button.pressed.connect(_on_quit_pressed)
 
 	# Online menu
 	online_host_button.pressed.connect(_on_online_host_pressed)
@@ -98,6 +100,10 @@ func _on_lan_pressed() -> void:
 
 func _on_settings_pressed() -> void:
 	settings_requested.emit()
+
+
+func _on_quit_pressed() -> void:
+	get_tree().quit()
 
 
 func _on_back_pressed() -> void:

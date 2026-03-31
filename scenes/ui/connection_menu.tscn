@@ -67,6 +67,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Settings"
 
+[node name="QuitButton" type="Button" parent="Control/VBoxContainer/MainMenu"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Quit"
+
 [node name="OnlineMenu" type="VBoxContainer" parent="Control/VBoxContainer"]
 visible = false
 layout_mode = 2
