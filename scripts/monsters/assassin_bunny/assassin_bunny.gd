@@ -264,6 +264,16 @@ func _start_detect() -> void:
 
 	# 5. Kill (causa o strike/dano)
 	_play_animation(ANIM_KILL)
+
+	# NOVO: Mostrar jumpscare para o player afetado
+	if _target_player:
+		if _is_local_player(_target_player):
+			_show_jumpscare_local()
+
+		if _is_multiplayer_active() and multiplayer.is_server():
+			var peer_id := int(_target_player.name)
+			_show_jumpscare_remote.rpc_id(peer_id)
+
 	await anim_player.animation_finished
 
 	# Incrementa strike
@@ -575,3 +585,23 @@ func get_state() -> State:
 
 func get_approach_count() -> int:
 	return _approach_count
+
+func _show_jumpscare_local() -> void:
+	"""Mostra jumpscare no cliente local"""
+	var jumpscare_scene = load("res://scenes/monsters/jump_scare.tscn")
+	if not jumpscare_scene:
+		print("[BUNNY] Erro ao carregar cena de jumpscare")
+		return
+
+	var jumpscare_instance = jumpscare_scene.instantiate()
+	get_tree().root.add_child(jumpscare_instance)
+
+	# Duração = duração da animação ANIM_KILL
+	var anim_duration := anim_player.get_animation(ANIM_KILL).length
+	if jumpscare_instance.has_method("show_jumpscare"):
+		jumpscare_instance.show_jumpscare(anim_duration)
+
+@rpc("authority", "call_remote", "reliable")
+func _show_jumpscare_remote() -> void:
+	"""Recebe comando para mostrar jumpscare no cliente remoto"""
+	_show_jumpscare_local()

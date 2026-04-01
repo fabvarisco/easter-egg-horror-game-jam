@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://r1c03w7ob3wb"]
+
+[ext_resource type="PackedScene" uid="uid://dgvs6lass8xss" path="res://scenes/monsters/assassin_bunny_model.tscn" id="1_07g3m"]
+[ext_resource type="Script" uid="uid://dj411q6fewm88" path="res://scripts/monsters/jumpscare_controller.gd" id="2_jumpscare"]
+
+[node name="JumpScare" type="Node3D"]
+script = ExtResource("2_jumpscare")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.03403002, 1.65, 0.7722537)
+
+[node name="anim_cueio_zoio" parent="." instance=ExtResource("1_07g3m")]
+transform = Transform3D(-0.033085432, 0, -0.99945253, 0, 1, 0, 0.99945253, 0, -0.033085432, 0.032553077, -0.14239657, -1.0870211)

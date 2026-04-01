@@ -1,14 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://h1wgcmab7rxk"]
+[gd_scene load_steps=3 format=3 uid="uid://h1wgcmab7rxk"]
 
 [ext_resource type="Script" uid="uid://duh67dnsy4ohe" path="res://scripts/interactable_items/showing_item.gd" id="1_wyo1r"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jeqtq"]
 
 [node name="ShowingItem" type="Node3D"]
 script = ExtResource("1_wyo1r")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(-1.3113416e-07, 0, -0.1, 0, 3, 0, 3, 0, -4.371139e-09, 0, 0, 0)
+mesh = SubResource("CylinderMesh_jeqtq")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 110
+follow_viewport_scale = 52.095
 
 [node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
 anchors_preset = 15

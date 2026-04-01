@@ -110,7 +110,7 @@ func apply_all_settings() -> void:
 # ==========================================
 
 func apply_display_settings() -> void:
-	var display := current_settings.get("display", {})
+	var display: Dictionary = current_settings.get("display", {})
 
 	# Apply fullscreen
 	var fullscreen: bool = display.get("fullscreen", false)
@@ -204,7 +204,7 @@ func _parse_resolution(value) -> Vector2i:
 # ==========================================
 
 func apply_audio_settings() -> void:
-	var audio := current_settings.get("audio", {})
+	var audio: Dictionary = current_settings.get("audio", {})
 
 	# Apply master volume
 	var master_volume: float = audio.get("master_volume", 1.0)
