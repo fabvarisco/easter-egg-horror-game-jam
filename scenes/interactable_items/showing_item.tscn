@@ -1,19 +1,43 @@
-[gd_scene load_steps=3 format=3 uid="uid://h1wgcmab7rxk"]
+[gd_scene load_steps=4 format=3 uid="uid://h1wgcmab7rxk"]
 
 [ext_resource type="Script" uid="uid://duh67dnsy4ohe" path="res://scripts/interactable_items/showing_item.gd" id="1_wyo1r"]
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_jeqtq"]
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 3
+background_color = Color(0, 0, 0, 1)
+ambient_light_source = 3
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 1.0
+reflected_light_source = 2
+
+[sub_resource type="World3D" id="World3D_1"]
+environment = SubResource("Environment_1")
 
 [node name="ShowingItem" type="Node3D"]
 script = ExtResource("1_wyo1r")
 
-[node name="Mesh" type="MeshInstance3D" parent="."]
+[node name="SubViewport" type="SubViewport" parent="."]
+own_world_3d = true
+world_3d = SubResource("World3D_1")
+transparent_bg = true
+size = Vector2i(1920, 1080)
+render_target_update_mode = 4
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewport"]
+environment = SubResource("Environment_1")
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -30)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 10, 10)
+light_energy = 1.5
+
+[node name="Mesh" type="MeshInstance3D" parent="SubViewport"]
 transform = Transform3D(-1.3113416e-07, 0, -0.1, 0, 3, 0, 3, 0, -4.371139e-09, 0, 0, 0)
-mesh = SubResource("CylinderMesh_jeqtq")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
-layer = 110
-follow_viewport_scale = 52.095
+layer = 101
 
 [node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
 anchors_preset = 15
@@ -23,6 +47,15 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 color = Color(0, 0, 0, 0.2509804)
+
+[node name="ViewportTexture" type="TextureRect" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch_mode = 5
 
 [node name="Button" type="Button" parent="CanvasLayer"]
 anchors_preset = 3
@@ -52,8 +85,5 @@ grow_vertical = 0
 size_flags_vertical = 8
 theme_override_font_sizes/normal_font_size = 24
 text = "Display Information"
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20.422813)
 
 [connection signal="pressed" from="CanvasLayer/Button" to="." method="_on_button_pressed"]

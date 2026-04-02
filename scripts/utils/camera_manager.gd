@@ -37,6 +37,7 @@ func _setup_vhs_overlay() -> void:
 
 	var color_rect := _vhs_overlay.get_node("ColorRect") as ColorRect
 	if color_rect:
+		color_rect.visibility_layer = -1
 		_vhs_material = color_rect.material as ShaderMaterial
 
 func set_vhs_enabled(enabled: bool) -> void:
@@ -50,7 +51,6 @@ func is_vhs_enabled() -> bool:
 func set_vhs_intensity(intensity: float) -> void:
 	if not _vhs_material:
 		return
-	# Scale all effects based on intensity (0.0 - 1.0)
 	_vhs_material.set_shader_parameter("scanline_intensity", 0.25 * intensity)
 	_vhs_material.set_shader_parameter("noise_intensity", 0.1 * intensity)
 	_vhs_material.set_shader_parameter("chromatic_aberration", 1.5 * intensity)
@@ -71,7 +71,6 @@ func set_active_camera(camera: Camera3D) -> void:
 	if _active_camera == camera:
 		return
 
-	# Restaurar transform da câmera anterior se estava tremendo
 	if _active_camera and is_instance_valid(_active_camera) and _shake_timer < _shake_duration:
 		_active_camera.transform = _original_transform
 

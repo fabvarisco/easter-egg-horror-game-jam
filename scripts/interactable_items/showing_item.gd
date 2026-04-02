@@ -1,6 +1,8 @@
 extends Node3D
-@onready var mesh_instance: MeshInstance3D = $Mesh
+@onready var mesh_instance: MeshInstance3D = $SubViewport/Mesh
 @onready var description := $CanvasLayer/Info
+@onready var sub_viewport: SubViewport = $SubViewport
+@onready var texture_rect: TextureRect = $CanvasLayer/ViewportTexture
 
 var _is_static: bool = true
 var descriptionValue: String = ""
@@ -8,9 +10,14 @@ var _is_dragging: bool = false
 var _last_mouse_position: Vector2 = Vector2.ZERO
 var _rotation_sensitivity: float = 0.005
 
+
+func _ready() -> void:
+	if sub_viewport and texture_rect:
+		texture_rect.texture = sub_viewport.get_texture()
+
+
 func _process(_delta: float) -> void:
 	pass
-
 
 func _input(event: InputEvent) -> void:
 	if not _is_static:
