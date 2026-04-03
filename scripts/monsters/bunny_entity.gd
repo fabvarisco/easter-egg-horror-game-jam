@@ -21,7 +21,6 @@ const ATTACK_RANGE: float = 4.0
 
 var _state: State = State.DORMANT
 var _target_player: Node3D = null
-var _approach_count: int = 0
 var _blink_timer: float = 0.0
 var _is_blinking: bool = false
 var _blink_phase_timer: float = 0.0
@@ -70,7 +69,6 @@ func _is_multiplayer_active() -> bool:
 
 func _hunt_next_player() -> void:
 	_target_player = null
-	_approach_count = 0
 
 	# Find remaining alive players
 	var alive_players := _get_alive_players()

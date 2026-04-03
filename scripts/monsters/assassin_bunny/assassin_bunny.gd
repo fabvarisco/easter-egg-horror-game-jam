@@ -9,7 +9,8 @@ const BLINK_DURATION: float = 0.15
 const SOUND_CHECK_INTERVAL: float = 0.2  
 const FLASHLIGHT_CHECK_INTERVAL: float = 0.1  
 const TURN_SPEED: float = 0.6
-const SEARCH_DURATION: float = 10.0  
+const SEARCH_DURATION: float = 10.0
+const BUNNY_ATTACK_DAMAGE: int = 34  
 
 var _sound_check_timer: float = 0.0
 var _flashlight_check_timer: float = 0.0
@@ -69,7 +70,6 @@ func _start_spawn_sequence() -> void:
 	visible = true
 	_set_raycasts_enabled(false)
 
-	# Sync visibility
 	_sync_visibility_to_clients(true, false)
 
 	_play_animation(ANIM_SPAWN)
@@ -78,7 +78,6 @@ func _start_spawn_sequence() -> void:
 	if model:
 		model.visible = true
 
-	# Sync model visibility
 	_sync_visibility_to_clients(true, true)
 
 	set_physics_process(true)
@@ -127,7 +126,6 @@ func _play_animation(anim_name: String) -> void:
 
 	anim_player.play(final_anim)
 
-	# Sync animation to clients
 	if _is_multiplayer_active() and multiplayer.is_server():
 		_sync_animation.rpc(final_anim)
 
@@ -160,7 +158,7 @@ func _physics_process(_delta: float) -> void:
 func _is_multiplayer_active() -> bool:
 	var single_player := get_tree().get_first_node_in_group("player")
 	if single_player:
-		return false  # Singleplayer mode
+		return false  
 
 	return multiplayer.has_multiplayer_peer() and \
 		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
@@ -170,10 +168,6 @@ func _is_local_player(player: Node3D) -> bool:
 		return true
 	return player.is_multiplayer_authority()
 
-func set_synced_state(state: int, approach_count: int) -> void:
-	_state = state as State
-	_approach_count = approach_count
-
 func _process_searching(_delta: float) -> void:
 	"""Processa estado SEARCHING - raycast ativo, detectando players"""
 	_find_target_player()
@@ -181,19 +175,16 @@ func _process_searching(_delta: float) -> void:
 	if not _target_player:
 		return
 
-	# Timer de search - após tempo limite, inicia Leave
 	_search_timer += _delta
 	if _search_timer >= SEARCH_DURATION:
 		print("[BUNNY] Tempo de search esgotado - iniciando Leave")
 		_start_leave()
 		return
 
-	# === ROTAÇÃO LENTA (lanterna ou som) ===
 	if _is_turning:
 		_process_turning(_delta)
 		return
 
-	# === DETECÇÃO 1: RAYCASTS (coelho já olhando para o player) ===
 	var detected_player := _check_raycasts_for_player()
 	if detected_player:
 		print("[BUNNY] Detectado por VISÃO (raycast)")
@@ -201,7 +192,6 @@ func _process_searching(_delta: float) -> void:
 		_start_detect()
 		return
 
-	# === DETECÇÃO 2: LANTERNA (inicia rotação lenta) ===
 	_flashlight_check_timer += _delta
 	if _flashlight_check_timer >= FLASHLIGHT_CHECK_INTERVAL:
 		_flashlight_check_timer = 0.0
@@ -211,7 +201,6 @@ func _process_searching(_delta: float) -> void:
 			_start_turning(illuminating_player)
 			return
 
-	# === DETECÇÃO 3: SOM (inicia rotação lenta) ===
 	_sound_check_timer += _delta
 	if _sound_check_timer >= SOUND_CHECK_INTERVAL:
 		_sound_check_timer = 0.0
@@ -243,13 +232,10 @@ func _start_detect() -> void:
 		model.visible = false
 	_sync_visibility_to_clients(false, false)
 
-	# 2. Move para posição do player (na frente dele)
 	_spawn_in_front_of_player()
 
-	# Pequeno delay antes de aparecer
 	await get_tree().create_timer(0.3).timeout
 
-	# 3. Aparece com Spawn
 	visible = true
 	if model:
 		model.visible = true
@@ -257,44 +243,41 @@ func _start_detect() -> void:
 
 	_play_animation(ANIM_SPAWN)
 
-	# 4. Paralisa o player APÓS iniciar animação de aparecer
 	_set_player_paralyzed(true)
 
 	await anim_player.animation_finished
 
-	# 5. Kill (causa o strike/dano)
 	_play_animation(ANIM_KILL)
 
-	# NOVO: Mostrar jumpscare para o player afetado
 	if _target_player:
 		if _is_local_player(_target_player):
 			_show_jumpscare_local()
 
-		if _is_multiplayer_active() and multiplayer.is_server():
+		if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(_target_player):
 			var peer_id := int(_target_player.name)
 			_show_jumpscare_remote.rpc_id(peer_id)
 
 	await anim_player.animation_finished
 
-	# Incrementa strike
-	_approach_count += 1
-	print("[BUNNY] Strike %d/3" % _approach_count)
+	if _target_player and _target_player.has_method("take_damage"):
+		_target_player.take_damage(BUNNY_ATTACK_DAMAGE)
 
-	# Efeitos de detecção (shake, som)
+		if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(_target_player):
+			var peer_id := int(_target_player.name)
+			_sync_player_damage.rpc_id(peer_id, BUNNY_ATTACK_DAMAGE)
+
+		print("[BUNNY] Causou %d de dano" % BUNNY_ATTACK_DAMAGE)
+
 	_play_detection_effects()
-
-	# 6. Desparalisa o player
 	_set_player_paralyzed(false)
 
-	# Verifica se matou
-	if _approach_count >= 3:
-		_kill_player()
+	if _target_player.has_method("is_dead") and _target_player.is_dead():
+		await get_tree().create_timer(1.0).timeout
+		_hunt_next_player()
 		return
 
-	# Continua - toca Leave e aparece em outro lugar
 	await get_tree().create_timer(RESPAWN_DELAY).timeout
 
-	# Toca Leave e some
 	_play_animation(ANIM_LEAVE)
 	await anim_player.animation_finished
 
@@ -312,22 +295,18 @@ func _spawn_in_front_of_player() -> void:
 	if not _target_player:
 		return
 
-	# Pega a direção que o player está olhando
 	var player_forward := -_target_player.global_transform.basis.z.normalized()
 	player_forward.y = 0
 
-	# Posiciona o coelho na frente do player
-	var spawn_distance := 2.5  # Distância na frente do player
+	var spawn_distance := 2.5 
 	global_position = _target_player.global_position + player_forward * spawn_distance
 	global_position.y = 0
 
-	# Vira o coelho para olhar para o player
 	var dir_to_player := (_target_player.global_position - global_position).normalized()
 	dir_to_player.y = 0
 	_fixed_rotation = atan2(dir_to_player.x, dir_to_player.z)
 	rotation.y = _fixed_rotation
 
-	# Sync position to clients
 	if _is_multiplayer_active() and multiplayer.is_server():
 		_sync_transform.rpc(global_position, _fixed_rotation)
 
@@ -336,13 +315,11 @@ func _set_player_paralyzed(paralyzed: bool) -> void:
 	if not _target_player:
 		return
 
-	# Get peer_id from player name
 	var peer_id := int(_target_player.name)
 
 	if _target_player.has_method("set_movement_enabled"):
 		_target_player.set_movement_enabled(not paralyzed)
 
-	# Sync paralysis to all clients
 	if _is_multiplayer_active() and multiplayer.is_server():
 		_sync_player_paralyzed.rpc(peer_id, paralyzed)
 
@@ -389,15 +366,12 @@ func _play_detection_effects() -> void:
 
 	var peer_id := int(_target_player.name)
 
-	# Só aplica shake se for o jogador local
 	if _is_local_player(_target_player):
 		_apply_local_detection_effects()
 
-	# Sync effects to the affected player's client
-	if _is_multiplayer_active() and multiplayer.is_server():
+	if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(_target_player):
 		_sync_detection_effects.rpc_id(peer_id)
 
-	# Play roar sound via AudioManager (server plays it)
 	var audio_manager := get_node_or_null("/root/AudioManager")
 	if audio_manager:
 		audio_manager.play_roar()
@@ -422,10 +396,19 @@ func _sync_detection_effects() -> void:
 	"""Recebe comando para aplicar efeitos de detecção no cliente"""
 	_apply_local_detection_effects()
 
-	# Play sounds on client
 	var audio_manager := get_node_or_null("/root/AudioManager")
 	if audio_manager:
 		audio_manager.play_roar()
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_player_damage(damage: int) -> void:
+	var players := get_tree().get_nodes_in_group("players")
+	for player in players:
+		if player.is_multiplayer_authority():
+			if player.has_method("take_damage"):
+				player.take_damage(damage)
+			return
 
 
 func _find_target_player() -> void:
@@ -457,7 +440,6 @@ func _spawn_at_distance(distance: float) -> void:
 
 	_idle_timer = 0.0
 
-	# Sync position to clients
 	if _is_multiplayer_active() and multiplayer.is_server():
 		_sync_transform.rpc(global_position, _fixed_rotation)
 
@@ -486,10 +468,6 @@ func _attack_close_player() -> void:
 
 func _maintain_fixed_rotation() -> void:
 	rotation.y = _fixed_rotation
-
-
-
-
 
 func _detect_player_by_sound() -> Node3D:
 	"""Detecta se algum player está fazendo barulho perto do coelho"""
@@ -544,24 +522,20 @@ func _start_turning(player: Node3D) -> void:
 	"""Inicia rotação lenta em direção à posição do player"""
 	_is_turning = true
 	_turn_lerp_progress = 0.0
-	_turn_start_rotation = _fixed_rotation  # Guarda rotação inicial
+	_turn_start_rotation = _fixed_rotation
 
-	# Captura a posição do jogador no momento da detecção
 	var dir_to_player := (player.global_position - global_position).normalized()
 	dir_to_player.y = 0
 	_turn_target_rotation = atan2(dir_to_player.x, dir_to_player.z)
 
 func _process_turning(delta: float) -> void:
 	"""Processa a rotação lenta até a posição capturada do jogador"""
-	# Avança o progresso do lerp
 	_turn_lerp_progress += TURN_SPEED * delta
 	_turn_lerp_progress = clampf(_turn_lerp_progress, 0.0, 1.0)
 
-	# Rotação suavizada com lerp_angle (da rotação inicial até o alvo)
 	_fixed_rotation = lerp_angle(_turn_start_rotation, _turn_target_rotation, _turn_lerp_progress)
 	rotation.y = _fixed_rotation
 
-	# Verificar se algum raycast está atingindo um player durante a rotação
 	var detected_player := _check_raycasts_for_player()
 	if detected_player:
 		print("[BUNNY] Raycast atingiu player durante rotação - DETECTADO!")
@@ -570,7 +544,6 @@ func _process_turning(delta: float) -> void:
 		_start_detect()
 		return
 
-	# Terminou de girar sem pegar ninguém
 	if _turn_lerp_progress >= 1.0:
 		print("[BUNNY] Rotação completa - nenhum player encontrado")
 		_cancel_turning()
@@ -583,9 +556,6 @@ func _cancel_turning() -> void:
 func get_state() -> State:
 	return _state
 
-func get_approach_count() -> int:
-	return _approach_count
-
 func _show_jumpscare_local() -> void:
 	"""Mostra jumpscare no cliente local"""
 	var jumpscare_scene = load("res://scenes/monsters/jump_scare.tscn")
@@ -596,7 +566,6 @@ func _show_jumpscare_local() -> void:
 	var jumpscare_instance = jumpscare_scene.instantiate()
 	get_tree().root.add_child(jumpscare_instance)
 
-	# Duração = duração da animação ANIM_KILL
 	var anim_duration := anim_player.get_animation(ANIM_KILL).length
 	if jumpscare_instance.has_method("show_jumpscare"):
 		jumpscare_instance.show_jumpscare(anim_duration)

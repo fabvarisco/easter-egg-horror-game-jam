@@ -56,19 +56,17 @@ func _sync_bunny() -> void:
 		return
 
 	var state: int = bunny.get_state() if bunny.has_method("get_state") else 0
-	var approach_count: int = bunny.get_approach_count() if bunny.has_method("get_approach_count") else 0
 
 	_sync_bunny_state.rpc(
 		bunny.global_position,
 		bunny.rotation.y,
 		bunny.visible,
-		state,
-		approach_count
+		state
 	)
 
 
 @rpc("authority", "call_remote", "unreliable")
-func _sync_bunny_state(pos: Vector3, rot_y: float, is_visible: bool, state: int, approach_count: int) -> void:
+func _sync_bunny_state(pos: Vector3, rot_y: float, is_visible: bool, state: int) -> void:
 	if not is_inside_tree():
 		return
 
@@ -85,8 +83,9 @@ func _sync_bunny_state(pos: Vector3, rot_y: float, is_visible: bool, state: int,
 	bunny.rotation.y = rot_y
 	bunny.visible = is_visible
 
-	if bunny.has_method("set_synced_state"):
-		bunny.set_synced_state(state, approach_count)
+	# Sincronizar apenas o state
+	if "_state" in bunny:
+		bunny._state = state
 
 
 func activate_bunny() -> void:

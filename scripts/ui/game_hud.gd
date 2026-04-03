@@ -5,27 +5,25 @@ extends CanvasLayer
 @onready var _egg_counter: Label = $Control/EggCounter
 @onready var _car_message: Label = $Control/CarMessage
 @onready var _stamina_bar: ProgressBar = $Control/StaminaContainer/StaminaBar
+@onready var _health_bar: ProgressBar = $Control/HealthContainer/HealthBar
 
-var _player_panels: Dictionary = {}  # peer_id -> HBoxContainer
+var _player_panels: Dictionary = {}
 var _is_singleplayer: bool = false
 var _local_player: Node = null
+var _player_health_connection_made: bool = false
 
 const COLOR_DEFAULT := Color.WHITE
 const COLOR_SPEAKING := Color.GREEN
 
 
 func _ready() -> void:
-	# Connect to VoiceManager speaking signal
 	VoiceManager.player_speaking_changed.connect(_on_player_speaking_changed)
 
-	# Connect to multiplayer events for player join/leave
 	MultiplayerManager.player_connected.connect(_on_player_connected)
 	MultiplayerManager.player_disconnected.connect(_on_player_disconnected)
 
-	# Check if singleplayer
 	_is_singleplayer = MultiplayerManager.current_mode == MultiplayerManager.NetworkMode.NONE
 
-	# Add existing players (deferred to ensure scene is fully loaded)
 	call_deferred("_initialize_players")
 	call_deferred("_find_local_player")
 
@@ -36,10 +34,8 @@ func _process(_delta: float) -> void:
 
 func _initialize_players() -> void:
 	if _is_singleplayer:
-		# In singleplayer, just show "Player 1 (You)"
 		add_player(1, true)
 	else:
-		# Add all currently connected players
 		for peer_id in MultiplayerManager.players:
 			var is_local: bool = peer_id == MultiplayerManager.my_peer_id
 			add_player(peer_id, is_local)
@@ -71,9 +67,7 @@ func add_player(peer_id: int, is_local: bool) -> void:
 	voice_label.visible = false
 	panel.add_child(voice_label)
 
-	# Add volume slider for remote players only
 	if not is_local and not _is_singleplayer:
-		# Get saved volume or default to 1.0
 		var saved_multiplier: float = VoiceManager.get_player_volume(peer_id)
 		var saved_value: float = saved_multiplier * 100.0
 
@@ -141,13 +135,10 @@ func _on_player_disconnected(peer_id: int) -> void:
 
 func _on_player_volume_changed(value: float, peer_id: int) -> void:
 	"""Called when a player's volume slider changes"""
-	# Convert from 0-200 range to 0.0-2.0 multiplier
 	var multiplier: float = value / 100.0
 
-	# Update VoiceManager
 	VoiceManager.set_player_volume(peer_id, multiplier)
 
-	# Update UI label and tooltip
 	if _player_panels.has(peer_id):
 		var panel: HBoxContainer = _player_panels[peer_id]
 		if is_instance_valid(panel):
@@ -194,22 +185,25 @@ func show_mission_complete() -> void:
 func _find_local_player() -> void:
 	var players := get_tree().get_nodes_in_group("players")
 	if players.is_empty():
-		# Tentar grupo alternativo
 		players = get_tree().get_nodes_in_group("player")
 
 	for player in players:
 		if not multiplayer.has_multiplayer_peer():
 			_local_player = player
+			_connect_to_player_health()
 			return
 		if player.is_multiplayer_authority():
 			_local_player = player
+			_connect_to_player_health()
 			return
 
 
 func _update_stamina_bar() -> void:
-	# Se ainda não encontrou o player, tentar novamente
 	if not is_instance_valid(_local_player):
 		_find_local_player()
+
+	if is_instance_valid(_local_player) and not _player_health_connection_made:
+		_connect_to_player_health()
 
 	if not _stamina_bar or not is_instance_valid(_local_player):
 		return
@@ -218,7 +212,6 @@ func _update_stamina_bar() -> void:
 		var stamina_percent: float = _local_player.get_stamina_percent()
 		_stamina_bar.value = stamina_percent * 100.0
 
-		# Mudar cor baseado no nível de stamina
 		if stamina_percent < 0.2:
 			_stamina_bar.modulate = Color.RED
 		elif stamina_percent < 0.5:
@@ -227,8 +220,34 @@ func _update_stamina_bar() -> void:
 			_stamina_bar.modulate = Color.WHITE
 
 
+func _connect_to_player_health() -> void:
+	if not is_instance_valid(_local_player) or _player_health_connection_made:
+		return
+
+	if _local_player.has_signal("health_changed"):
+		_local_player.health_changed.connect(_on_player_health_changed)
+		_player_health_connection_made = true
+
+		if _local_player.has_method("get_health"):
+			_on_player_health_changed(_local_player.get_health(), _local_player.MAX_HEALTH)
+
+
+func _on_player_health_changed(current_health: float, max_health: float) -> void:
+	if not _health_bar:
+		return
+
+	var health_percent: float = current_health / max_health if max_health > 0 else 0.0
+	_health_bar.value = health_percent * 100.0
+
+	if health_percent < 0.2:
+		_health_bar.modulate = Color.RED
+	elif health_percent < 0.5:
+		_health_bar.modulate = Color.ORANGE
+	else:
+		_health_bar.modulate = Color.GREEN
+
+
 func _exit_tree() -> void:
-	# Disconnect from autoload signals to prevent errors when scene changes
 	if VoiceManager.player_speaking_changed.is_connected(_on_player_speaking_changed):
 		VoiceManager.player_speaking_changed.disconnect(_on_player_speaking_changed)
 	if MultiplayerManager.player_connected.is_connected(_on_player_connected):

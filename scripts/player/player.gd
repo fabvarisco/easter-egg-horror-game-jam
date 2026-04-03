@@ -20,6 +20,9 @@ const STAMINA_REGEN_RATE: float = 8.0  # Slower default recovery
 const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
 const MIN_STAMINA_TO_SPRINT: float = 10.0
 
+# Health
+const MAX_HEALTH: float = 100.0
+
 # Sound radius constants
 const SOUND_RADIUS_IDLE: float = 2.0
 const SOUND_RADIUS_WALK_SLOW: float = 2.0
@@ -67,6 +70,7 @@ var _target_rotation: float = 0.0
 var _flashlight_on: bool = false
 var _current_speed: float = 0.0
 var _stamina: float = MAX_STAMINA
+var _health: float = MAX_HEALTH
 var _is_sprinting: bool = false
 var _is_walking: bool = false
 var _is_speaking: bool = false
@@ -83,6 +87,7 @@ var _movement_enabled: bool = true
 var _jump_anim_started: bool = false  
 
 signal player_died
+signal health_changed(new_health: float, max_health: float)
 
 func _ready() -> void:
 	if not _has_authority():
@@ -100,6 +105,7 @@ func _ready() -> void:
 
 	if _has_authority():
 		_connect_voice_detection()
+		health_changed.emit(_health, MAX_HEALTH)
 
 func _setup_random_model() -> void:
 	"""Escolhe e aplica um modelo de player (usa model_index do meta se disponível)"""
@@ -474,6 +480,23 @@ func get_stamina() -> float:
 
 func get_stamina_percent() -> float:
 	return _stamina / MAX_STAMINA
+
+func get_health() -> float:
+	return _health
+
+func get_health_percent() -> float:
+	return _health / MAX_HEALTH
+
+func take_damage(amount: float) -> void:
+	if _is_dead:
+		return
+
+	_health = max(0, _health - amount)
+	health_changed.emit(_health, MAX_HEALTH)
+	shake_camera(0.2, 0.3)
+
+	if _health <= 0:
+		die()
 
 func is_sprinting() -> bool:
 	return _is_sprinting
