@@ -19,6 +19,7 @@ var _is_turning: bool = false
 var _turn_start_rotation: float = 0.0
 var _turn_target_rotation: float = 0.0
 var _turn_lerp_progress: float = 0.0
+var _is_attacking: bool = false  # Flag para prevenir interrupcoes durante ataque
 
 const ANIM_SPAWN: String = "Spawn"
 const ANIM_SEARCH: String = "Search"
@@ -220,21 +221,41 @@ func _start_detect() -> void:
 	if not _target_player:
 		return
 
+	if _is_attacking:
+		return
+	_is_attacking = true
+
+	var attack_target: Node3D = _target_player
+
 	_set_raycasts_enabled(false)
 	_state = State.APPROACHING
 
-	# 1. Toca Leave e some
 	_play_animation(ANIM_LEAVE)
 	await anim_player.animation_finished
+
+	if not is_instance_valid(attack_target) or not attack_target.is_inside_tree():
+		_is_attacking = false
+		_find_target_player()
+		_spawn_at_distance(SPAWN_DISTANCE)
+		_start_spawn_sequence()
+		return
 
 	visible = false
 	if model:
 		model.visible = false
 	_sync_visibility_to_clients(false, false)
 
-	_spawn_in_front_of_player()
+	_spawn_in_front_of_player_target(attack_target)
 
 	await get_tree().create_timer(0.3).timeout
+
+	# Verificar novamente
+	if not is_instance_valid(attack_target) or not attack_target.is_inside_tree():
+		_is_attacking = false
+		_find_target_player()
+		_spawn_at_distance(SPAWN_DISTANCE)
+		_start_spawn_sequence()
+		return
 
 	visible = true
 	if model:
@@ -243,35 +264,37 @@ func _start_detect() -> void:
 
 	_play_animation(ANIM_SPAWN)
 
-	_set_player_paralyzed(true)
+	_set_player_paralyzed_target(attack_target, true)
 
 	await anim_player.animation_finished
 
 	_play_animation(ANIM_KILL)
 
-	if _target_player:
-		if _is_local_player(_target_player):
+	if is_instance_valid(attack_target) and attack_target.is_inside_tree():
+		if _is_local_player(attack_target):
 			_show_jumpscare_local()
 
-		if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(_target_player):
-			var peer_id := int(_target_player.name)
+		if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(attack_target):
+			var peer_id := int(attack_target.name)
 			_show_jumpscare_remote.rpc_id(peer_id)
 
 	await anim_player.animation_finished
 
-	if _target_player and _target_player.has_method("take_damage"):
-		_target_player.take_damage(BUNNY_ATTACK_DAMAGE)
+	if is_instance_valid(attack_target) and attack_target.is_inside_tree() and attack_target.has_method("take_damage"):
+		attack_target.take_damage(BUNNY_ATTACK_DAMAGE)
 
-		if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(_target_player):
-			var peer_id := int(_target_player.name)
+		if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(attack_target):
+			var peer_id := int(attack_target.name)
 			_sync_player_damage.rpc_id(peer_id, BUNNY_ATTACK_DAMAGE)
 
 		print("[BUNNY] Causou %d de dano" % BUNNY_ATTACK_DAMAGE)
 
-	_play_detection_effects()
-	_set_player_paralyzed(false)
+	_play_detection_effects_target(attack_target)
+	_set_player_paralyzed_target(attack_target, false)
 
-	if _target_player.has_method("is_dead") and _target_player.is_dead():
+	_is_attacking = false
+
+	if is_instance_valid(attack_target) and attack_target.has_method("is_dead") and attack_target.is_dead():
 		await get_tree().create_timer(1.0).timeout
 		_hunt_next_player()
 		return
@@ -294,15 +317,22 @@ func _spawn_in_front_of_player() -> void:
 	"""Posiciona o coelho na frente do player, olhando para ele"""
 	if not _target_player:
 		return
+	_spawn_in_front_of_player_target(_target_player)
 
-	var player_forward := -_target_player.global_transform.basis.z.normalized()
+
+func _spawn_in_front_of_player_target(target: Node3D) -> void:
+	"""Posiciona o coelho na frente do player especificado, olhando para ele"""
+	if not is_instance_valid(target):
+		return
+
+	var player_forward := -target.global_transform.basis.z.normalized()
 	player_forward.y = 0
 
-	var spawn_distance := 2.5 
-	global_position = _target_player.global_position + player_forward * spawn_distance
+	var spawn_distance := 2.5
+	global_position = target.global_position + player_forward * spawn_distance
 	global_position.y = 0
 
-	var dir_to_player := (_target_player.global_position - global_position).normalized()
+	var dir_to_player := (target.global_position - global_position).normalized()
 	dir_to_player.y = 0
 	_fixed_rotation = atan2(dir_to_player.x, dir_to_player.z)
 	rotation.y = _fixed_rotation
@@ -314,11 +344,18 @@ func _set_player_paralyzed(paralyzed: bool) -> void:
 	"""Ativa/desativa movimento do player. Sincroniza com todos os clientes."""
 	if not _target_player:
 		return
+	_set_player_paralyzed_target(_target_player, paralyzed)
 
-	var peer_id := int(_target_player.name)
 
-	if _target_player.has_method("set_movement_enabled"):
-		_target_player.set_movement_enabled(not paralyzed)
+func _set_player_paralyzed_target(target: Node3D, paralyzed: bool) -> void:
+	"""Ativa/desativa movimento do player especificado. Sincroniza com todos os clientes."""
+	if not is_instance_valid(target) or not target.is_inside_tree():
+		return
+
+	var peer_id := int(target.name)
+
+	if target.has_method("set_movement_enabled"):
+		target.set_movement_enabled(not paralyzed)
 
 	if _is_multiplayer_active() and multiplayer.is_server():
 		_sync_player_paralyzed.rpc(peer_id, paralyzed)
@@ -363,13 +400,19 @@ func _start_approach() -> void:
 func _play_detection_effects() -> void:
 	if not _target_player:
 		return
+	_play_detection_effects_target(_target_player)
 
-	var peer_id := int(_target_player.name)
 
-	if _is_local_player(_target_player):
+func _play_detection_effects_target(target: Node3D) -> void:
+	if not is_instance_valid(target) or not target.is_inside_tree():
+		return
+
+	var peer_id := int(target.name)
+
+	if _is_local_player(target):
 		_apply_local_detection_effects()
 
-	if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(_target_player):
+	if _is_multiplayer_active() and multiplayer.is_server() and not _is_local_player(target):
 		_sync_detection_effects.rpc_id(peer_id)
 
 	var audio_manager := get_node_or_null("/root/AudioManager")
@@ -379,7 +422,7 @@ func _play_detection_effects() -> void:
 	var audio_player := AudioStreamPlayer.new()
 	audio_player.stream = bunny_wake_up_sound
 	audio_player.volume_db = 3.0
-	_target_player.add_child(audio_player)
+	target.add_child(audio_player)
 	audio_player.play()
 	audio_player.finished.connect(audio_player.queue_free)
 

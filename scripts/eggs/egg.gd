@@ -3,6 +3,9 @@ class_name Egg
 
 @export var is_monster: bool = false
 
+# -1 = normal egg, >0 = dead player's egg (peer_id)
+var owner_peer_id: int = -1
+
 const SHAKE_INTENSITY: float = 0.5
 const SHAKE_DURATION: float = 1.0
 const FLASHLIGHT_CHECK_INTERVAL: float = 0.1
@@ -147,3 +150,15 @@ func set_outline_active(active: bool) -> void:
 			mesh_instance.material_overlay = material
 	else:
 		mesh_instance.material_overlay = null
+
+
+# ==========================================
+# DEAD PLAYER EGG SYSTEM
+# ==========================================
+
+func is_dead_player_egg() -> bool:
+	return owner_peer_id > 0
+
+
+func set_owner_peer_id(peer_id: int) -> void:
+	owner_peer_id = peer_id

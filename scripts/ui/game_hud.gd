@@ -6,6 +6,7 @@ extends CanvasLayer
 @onready var _car_message: Label = $Control/CarMessage
 @onready var _stamina_bar: ProgressBar = $Control/StaminaContainer/StaminaBar
 @onready var _health_bar: ProgressBar = $Control/HealthContainer/HealthBar
+@onready var _currency_label: Label = $Control/CurrencyLabel
 
 var _player_panels: Dictionary = {}
 var _is_singleplayer: bool = false
@@ -23,6 +24,9 @@ func _ready() -> void:
 	MultiplayerManager.player_disconnected.connect(_on_player_disconnected)
 
 	_is_singleplayer = MultiplayerManager.current_mode == MultiplayerManager.NetworkMode.NONE
+
+	ProgressionManager.currency_changed.connect(_on_currency_changed)
+	_update_currency_display()
 
 	call_deferred("_initialize_players")
 	call_deferred("_find_local_player")
@@ -254,3 +258,32 @@ func _exit_tree() -> void:
 		MultiplayerManager.player_connected.disconnect(_on_player_connected)
 	if MultiplayerManager.player_disconnected.is_connected(_on_player_disconnected):
 		MultiplayerManager.player_disconnected.disconnect(_on_player_disconnected)
+
+
+# ==========================================
+# CURRENCY DISPLAY
+# ==========================================
+
+func _on_currency_changed(new_amount: int, delta: int) -> void:
+	_update_currency_display()
+
+	if delta != 0:
+		_show_currency_change(delta)
+
+
+func _update_currency_display() -> void:
+	if not _currency_label:
+		return
+
+	var amount = ProgressionManager.group_currency
+	_currency_label.text = "Currency: %d" % amount
+
+	if amount < 0:
+		_currency_label.add_theme_color_override("font_color", Color.RED)
+	else:
+		_currency_label.add_theme_color_override("font_color", Color(1, 0.85, 0.2, 1))
+
+
+func _show_currency_change(_delta: int) -> void:
+	# TODO: Implement floating text animation
+	pass

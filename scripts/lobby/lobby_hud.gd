@@ -5,6 +5,7 @@ extends CanvasLayer
 @onready var instruction_label: Label = $Control/InstructionLabel
 @onready var countdown_label: Label = $Control/CountdownLabel
 @onready var room_code_label: Label = $Control/RoomCodeLabel
+@onready var currency_label: Label = $Control/Gold
 
 var _player_entries: Dictionary = {}  # peer_id -> HBoxContainer
 
@@ -16,8 +17,11 @@ func _ready() -> void:
 	countdown_label.visible = false
 	instruction_label.text = "press F on car to confirm"
 
-	# Connect to VoiceManager speaking signal
 	VoiceManager.player_speaking_changed.connect(_on_player_speaking_changed)
+
+	# Connect to currency system
+	ProgressionManager.currency_changed.connect(_on_currency_changed)
+	_update_currency_display()
 
 
 func add_player(peer_id: int, is_local: bool = false) -> void:
@@ -132,6 +136,28 @@ func _on_player_speaking_changed(peer_id: int, is_speaking: bool) -> void:
 
 
 func _exit_tree() -> void:
-	# Disconnect from VoiceManager to prevent errors when scene changes
 	if VoiceManager.player_speaking_changed.is_connected(_on_player_speaking_changed):
 		VoiceManager.player_speaking_changed.disconnect(_on_player_speaking_changed)
+	if ProgressionManager.currency_changed.is_connected(_on_currency_changed):
+		ProgressionManager.currency_changed.disconnect(_on_currency_changed)
+
+
+# ==========================================
+# CURRENCY DISPLAY
+# ==========================================
+
+func _on_currency_changed(_new_amount: int, _delta: int) -> void:
+	_update_currency_display()
+
+
+func _update_currency_display() -> void:
+	if not currency_label:
+		return
+
+	var amount = ProgressionManager.group_currency
+	currency_label.text = "Currency: %d" % amount
+
+	if amount < 0:
+		currency_label.add_theme_color_override("font_color", Color.RED)
+	else:
+		currency_label.add_theme_color_override("font_color", Color(1, 0.85, 0.2, 1))

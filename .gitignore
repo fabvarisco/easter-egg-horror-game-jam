@@ -3,3 +3,5 @@
 /android/
 /build_windows
 /build_linux
+/linux_build
+/windows_build

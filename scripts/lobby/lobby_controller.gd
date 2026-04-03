@@ -40,23 +40,21 @@ func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
 	multiplayer_manager.game_starting.connect(_on_game_starting)
 
-	# Setup pause menu
 	_pause_menu = _pause_menu_scene.instantiate()
 	_pause_menu.process_mode = Node.PROCESS_MODE_ALWAYS
 	_pause_menu.visible = false
 	_pause_menu.disconnect_requested.connect(_on_pause_menu_disconnect)
 	add_child(_pause_menu)
 
-	# Register lobby camera with CameraManager
 	var camera_manager := get_node_or_null("/root/CameraManager")
 	if camera_manager and lobby_camera:
 		camera_manager.set_active_camera(lobby_camera)
 
-	# Check if we're returning from a game (still connected to multiplayer)
+	_update_progression_display()
+
 	if _is_returning_from_game():
 		_handle_return_from_game()
 	else:
-		# Initial state
 		_set_state(LobbyState.MENU)
 
 
@@ -75,7 +73,6 @@ func _process(delta: float) -> void:
 			_countdown_value = new_value
 			lobby_hud.show_countdown(_countdown_value)
 
-			# Sync countdown to clients
 			if not _is_singleplayer and multiplayer_manager.is_host:
 				_sync_countdown.rpc(_countdown_value)
 
@@ -113,7 +110,6 @@ func _set_state(new_state: LobbyState) -> void:
 
 
 func _is_returning_from_game() -> bool:
-	# Only consider returning from game if we're in an active multiplayer session
 	if multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE:
 		return false
 	if not multiplayer.has_multiplayer_peer():
@@ -124,23 +120,22 @@ func _is_returning_from_game() -> bool:
 
 
 func _handle_return_from_game() -> void:
-	# Determine if we were in singleplayer or multiplayer
 	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
 
-	# Clean up any existing players first
+	_revive_all_players()
+
 	_cleanup()
 
-	# Reset ready states for new game
 	multiplayer_manager.reset_ready_states()
 
-	# Spawn players
 	spawn_manager.reset()
 	if _is_singleplayer:
 		spawn_manager.spawn_singleplayer()
 	else:
 		spawn_manager.spawn_all_players()
 
-	# Setup HUD
+	_update_progression_display()
+
 	lobby_hud.clear_players()
 
 	if _is_singleplayer:
@@ -164,32 +159,25 @@ func _on_connection_established(is_singleplayer: bool) -> void:
 	print("[LobbyController] Connection established. Singleplayer: ", is_singleplayer, " is_host: ", multiplayer_manager.is_host)
 	_is_singleplayer = is_singleplayer
 
-	# Reset ready states
 	multiplayer_manager.reset_ready_states()
 
-	# Spawn local player
 	_spawn_local_player()
 
-	# Setup HUD
 	lobby_hud.clear_players()
 
 	if is_singleplayer:
-		# Single player mode - add just local player
 		lobby_hud.add_player(1, true)
 		lobby_hud.clear_room_code()
 	else:
-		# Multiplayer - add all connected peers
 		for peer_id in multiplayer_manager.connected_peers:
 			var is_local = multiplayer_manager.is_local_player(peer_id)
 			lobby_hud.add_player(peer_id, is_local)
 
-		# Show room code for multiplayer
 		if multiplayer_manager.is_host and not multiplayer_manager.room_code.is_empty():
 			lobby_hud.set_room_code(multiplayer_manager.room_code)
 		else:
 			lobby_hud.clear_room_code()
 
-	# Update pedestal indicators
 	_update_pedestal_indicators()
 
 	_set_state(LobbyState.WAITING)
@@ -301,28 +289,25 @@ func _load_game_scene() -> void:
 
 
 func _on_server_disconnected() -> void:
-	# Clean up and return to menu
 	_cleanup()
 	_set_state(LobbyState.MENU)
 	connection_menu.show_menu()
 
 
 func _on_game_starting() -> void:
-	# Called on clients when host broadcasts game start
 	if not multiplayer_manager.is_host:
 		_set_state(LobbyState.TRANSITIONING)
 		_start_fade_and_load_game()
 
 
 func _cleanup() -> void:
-	# Clear players using SpawnManager
 	spawn_manager.clear_all_players()
 	lobby_hud.clear_players()
 
 
 func _on_settings_requested() -> void:
 	if _pause_menu:
-		_pause_menu.show_menu(false)  # false = not in-game, hide disconnect button
+		_pause_menu.show_menu(false) 
 
 
 func _on_pause_menu_disconnect() -> void:
@@ -346,3 +331,28 @@ func _start_countdown_on_clients() -> void:
 func _sync_countdown(value: int) -> void:
 	_countdown_value = value
 	lobby_hud.show_countdown(value)
+
+
+# ==========================================
+# PROGRESSION SYSTEM
+# ==========================================
+
+func _revive_all_players() -> void:
+	"""Revives all dead players when returning to lobby"""
+	var players = get_tree().get_nodes_in_group("players")
+	for player in players:
+		if is_instance_valid(player) and player.has_method("revive"):
+			player.revive()
+
+
+func _update_progression_display() -> void:
+	"""Displays progression information in the lobby"""
+	var runs = ProgressionManager.runs_completed
+	var next_grid = ProgressionManager.get_current_grid_size()
+	var currency = ProgressionManager.group_currency
+
+	print("=== LOBBY PROGRESSION ===")
+	print("Runs completed: %d" % runs)
+	print("Next map size: %s" % next_grid)
+	print("Group currency: %d" % currency)
+	print("=========================")

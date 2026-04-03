@@ -37,6 +37,7 @@ HP2P="*res://addons/epic-online-services-godot/heos/hp2p.gd"
 HSessions="*res://addons/epic-online-services-godot/heos/hsessions.gd"
 AudioManager="*res://scripts/sounds/audio_manager.gd"
 SettingsManager="*res://scripts/settings/settings_manager.gd"
+ProgressionManager="*res://scripts/progression/progression_manager.gd"
 
 [display]
 

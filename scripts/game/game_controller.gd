@@ -1,6 +1,6 @@
 extends Node3D
 
-@export var grid_size: Vector2i = Vector2i(4, 4)
+var grid_size: Vector2i = Vector2i(4, 4)
 @export var generation_seed: int = 0
 
 @export var spawnable_items: Array[PackedScene] = []
@@ -35,6 +35,9 @@ var _car_area: Area3D = null
 
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
+
+	grid_size = ProgressionManager.get_current_grid_size()
+	print("Starting game with grid size: %s (run %d)" % [grid_size, ProgressionManager.runs_completed])
 
 	_show_loading_screen()
 
@@ -800,6 +803,9 @@ func deliver_egg(player: Node3D) -> bool:
 	egg.queue_free()
 
 	_eggs_delivered += 1
+
+	ProgressionManager.add_currency(5, "egg_delivered")
+
 	_update_hud_eggs()
 
 	if not _is_singleplayer:
@@ -849,6 +855,9 @@ func _on_all_eggs_delivered() -> void:
 
 func _on_mission_complete() -> void:
 	_game_hud.show_mission_complete()
+
+	ProgressionManager.complete_run()
+
 	await get_tree().create_timer(2.0).timeout
 	_start_fade_and_return_to_lobby()
 

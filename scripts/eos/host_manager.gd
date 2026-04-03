@@ -5,7 +5,9 @@ var _sync_timer: float = 0.0
 
 
 func _ready() -> void:
-	pass
+	if multiplayer.is_server():
+		ProgressionManager.currency_changed.connect(_on_currency_changed_host)
+		ProgressionManager.runs_completed_changed.connect(_on_runs_changed_host)
 
 
 func _exit_tree() -> void:
@@ -401,3 +403,49 @@ func sync_return_to_lobby() -> void:
 func _sync_return_to_lobby_rpc() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file("res://scenes/lobby/lobby_3d.tscn")
+
+
+# ==========================================
+# PROGRESSION SYNC
+# ==========================================
+
+func _on_currency_changed_host(amount: int, delta: int) -> void:
+	"""Called on host when currency changes"""
+	sync_currency_change(delta, "sync")
+
+
+func _on_runs_changed_host(count: int) -> void:
+	"""Called on host when runs completed changes"""
+	sync_run_completed(count)
+
+
+func sync_currency_change(amount: int, reason: String) -> void:
+	"""Syncs currency change to all clients"""
+	if not _is_multiplayer_active():
+		return
+	if not multiplayer.is_server():
+		return
+	_sync_currency.rpc(ProgressionManager.group_currency, amount, reason)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_currency(total: int, delta: int, reason: String) -> void:
+	"""Receives currency update from server"""
+	ProgressionManager.group_currency = total
+	ProgressionManager.currency_changed.emit(total, delta)
+
+
+func sync_run_completed(new_count: int) -> void:
+	"""Syncs run completion to all clients"""
+	if not _is_multiplayer_active():
+		return
+	if not multiplayer.is_server():
+		return
+	_sync_runs_completed.rpc(new_count)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_runs_completed(count: int) -> void:
+	"""Receives run completion update from server"""
+	ProgressionManager.runs_completed = count
+	ProgressionManager.runs_completed_changed.emit(count)

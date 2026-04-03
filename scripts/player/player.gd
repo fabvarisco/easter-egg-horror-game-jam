@@ -84,6 +84,7 @@ var _nearby_car: Area3D = null
 var _is_dead: bool = false
 var _is_on_floor_synced: bool = true
 var _movement_enabled: bool = true
+var _paralysis_count: int = 0  
 var _jump_anim_started: bool = false  
 
 signal player_died
@@ -584,6 +585,12 @@ func _pickup_egg(egg: Node3D) -> void:
 	if _carried_egg:
 		return
 
+	var is_dead_player_egg = egg.has_method("is_dead_player_egg") and egg.is_dead_player_egg()
+
+	if is_dead_player_egg:
+		_collect_dead_player_egg(egg)
+		return
+
 	_carried_egg = egg
 
 	if egg.has_method("on_picked_up"):
@@ -599,7 +606,6 @@ func _pickup_egg(egg: Node3D) -> void:
 		egg_parent.remove_child(egg)
 	add_child(egg)
 
-	# Sincronizar em multiplayer
 	_sync_pickup_egg(egg.name)
 
 func _drop_egg() -> void:
@@ -617,7 +623,6 @@ func _drop_egg() -> void:
 	egg.global_position = global_position + drop_offset
 	egg.global_position.y = 0.5
 
-	# Sincronizar em multiplayer
 	_sync_drop_egg(egg_name, egg.global_position)
 
 func _update_carried_egg() -> void:
@@ -633,6 +638,10 @@ func die() -> void:
 		return
 
 	_is_dead = true
+	_paralysis_count = 0 
+	_movement_enabled = false
+
+	ProgressionManager.remove_currency(10, "player_death")
 
 	set_physics_process(false)
 	set_process_input(false)
@@ -657,6 +666,9 @@ func _turn_into_egg() -> void:
 		var egg_scene := preload("res://scenes/eggs/egg.tscn")
 		var egg := egg_scene.instantiate()
 		egg.is_monster = false
+
+		egg.owner_peer_id = multiplayer.get_unique_id()
+
 		get_parent().add_child(egg)
 		egg.global_position = spawn_pos
 
@@ -675,11 +687,16 @@ func add_item_to_inventory() -> void:
 	pass
 
 func set_movement_enabled(enabled: bool) -> void:
-	_movement_enabled = enabled
 	if not enabled:
+		_paralysis_count += 1
+		_movement_enabled = false
 		velocity = Vector3.ZERO
 		_current_speed = 0.0
 		_move_direction = Vector3.ZERO
+	else:
+		_paralysis_count = max(0, _paralysis_count - 1)
+		if _paralysis_count == 0:
+			_movement_enabled = true
 
 
 func _connect_voice_detection() -> void:
@@ -766,3 +783,57 @@ func _update_footsteps(delta: float) -> void:
 		var audio_manager := get_node_or_null("/root/AudioManager")
 		if audio_manager:
 			audio_manager.play_footstep()
+
+
+# ==========================================
+# DEAD PLAYER EGG COLLECTION
+# ==========================================
+
+func _collect_dead_player_egg(egg: Node3D) -> void:
+	"""Collects a dead player's egg and awards currency"""
+	print("Collected dead player egg! (peer_id: %d)" % egg.owner_peer_id)
+
+	ProgressionManager.add_currency(5, "recovered_dead_player_egg")
+
+	if multiplayer.is_server():
+		_sync_dead_egg_collected.rpc(egg.name, egg.owner_peer_id)
+
+	egg.queue_free()
+
+
+@rpc("authority", "call_local", "reliable")
+func _sync_dead_egg_collected(egg_name: String, owner_id: int) -> void:
+	"""Syncs dead player egg collection across clients"""
+	var eggs = get_tree().get_nodes_in_group("eggs")
+	for egg in eggs:
+		if egg.name == egg_name:
+			egg.queue_free()
+			break
+
+
+# ==========================================
+# REVIVE SYSTEM
+# ==========================================
+
+func revive() -> void:
+	"""Revives the player (used when returning to lobby)"""
+	if not _is_dead:
+		return
+
+	_is_dead = false
+	_health = MAX_HEALTH
+	_paralysis_count = 0 
+	_movement_enabled = true
+
+	set_physics_process(true)
+	set_process_input(true)
+
+	if model:
+		model.visible = true
+
+	if not is_in_group("players"):
+		add_to_group("players")
+	if not is_in_group("player"):
+		add_to_group("player")
+
+	print("Player revived!")
