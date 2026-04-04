@@ -233,7 +233,7 @@ func _connect_to_player_health() -> void:
 		_player_health_connection_made = true
 
 		if _local_player.has_method("get_health"):
-			_on_player_health_changed(_local_player.get_health(), _local_player.MAX_HEALTH)
+			_on_player_health_changed(_local_player.get_health(), _local_player.max_health)
 
 
 func _on_player_health_changed(current_health: float, max_health: float) -> void:

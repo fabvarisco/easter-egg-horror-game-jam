@@ -28,7 +28,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.805298, 0)
 shape = SubResource("CylinderShape3D_lx5au")
 
 [node name="ShopLayer" type="CanvasLayer" parent="."]
-visible = false
+layer = 100
 
 [node name="HeadLamp" type="Button" parent="ShopLayer"]
 offset_left = 855.0
@@ -38,6 +38,24 @@ offset_bottom = 971.0
 size_flags_vertical = 4
 text = "Head Lamp 25"
 
+[node name="Stamina" type="Button" parent="ShopLayer"]
+offset_left = 456.0
+offset_top = 509.0
+offset_right = 682.0
+offset_bottom = 684.0
+size_flags_vertical = 4
+text = "Max Stamina +10"
+
+[node name="Health" type="Button" parent="ShopLayer"]
+offset_left = 1177.0
+offset_top = 419.0
+offset_right = 1403.0
+offset_bottom = 594.0
+size_flags_vertical = 4
+text = "Max Health +10"
+
 [connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
 [connection signal="body_exited" from="Area3D" to="." method="_on_area_3d_body_exited"]
 [connection signal="pressed" from="ShopLayer/HeadLamp" to="." method="_on_head_lamp_pressed"]
+[connection signal="pressed" from="ShopLayer/Stamina" to="." method="_on_stamina_pressed"]
+[connection signal="pressed" from="ShopLayer/Health" to="." method="_on_health_pressed"]

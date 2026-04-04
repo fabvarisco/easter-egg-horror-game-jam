@@ -11,3 +11,6 @@ texture_filter = 0
 
 [node name="Sphere" parent="." index="0"]
 surface_material_override/0 = SubResource("StandardMaterial3D_uguml")
+
+[node name="AnimationPlayer" parent="." index="1"]
+autoplay = "GoodEgg"

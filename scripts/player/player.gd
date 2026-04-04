@@ -14,14 +14,18 @@ const INTERACT_DISTANCE: float = 2.0
 const SYNC_INTERVAL: float = 0.05
 
 # Stamina
-const MAX_STAMINA: float = 100.0
+const BASE_max_stamina: float = 100.0
 const STAMINA_DRAIN_RATE: float = 25.0
 const STAMINA_REGEN_RATE: float = 8.0  # Slower default recovery
 const STAMINA_REGEN_RATE_WALKING: float = 20.0  # Faster recovery while walking
 const MIN_STAMINA_TO_SPRINT: float = 10.0
 
 # Health
-const MAX_HEALTH: float = 100.0
+const BASE_max_health: float = 100.0
+
+# Upgradeable max values
+var max_stamina: float = BASE_max_stamina
+var max_health: float = BASE_max_health
 
 # Sound radius constants
 const SOUND_RADIUS_IDLE: float = 2.0
@@ -54,8 +58,10 @@ const PLAYER_MODELS: Array[Dictionary] = [
 	{"model": "res://assets/models/player/Rabbit With pigtails.glb", "texture": "res://assets/models/player/Rabbit With pigtails_Sushi_Atlas.png"},
 ]
 
-@onready var flashlight: SpotLight3D = $SpotLight3D
+@onready var flashlight: SpotLight3D = $Flashlight
 @onready var vision_light: SpotLight3D = $VisionLight
+@onready var headlamp: MeshInstance3D = $HeadLamp
+@onready var head_flashlight: SpotLight3D = $HeadLamp/HeadFlashlight
 @onready var model: Node3D = $model
 @onready var anim_player: AnimationPlayer = $model/AnimationPlayer
 @onready var sound_area_3d: Area3D = $SoundArea3D
@@ -68,9 +74,10 @@ var _sync_timer: float = 0.0
 
 var _target_rotation: float = 0.0
 var _flashlight_on: bool = false
+var _has_headlamp: bool = false
 var _current_speed: float = 0.0
-var _stamina: float = MAX_STAMINA
-var _health: float = MAX_HEALTH
+var _stamina: float = BASE_max_stamina
+var _health: float = BASE_max_health
 var _is_sprinting: bool = false
 var _is_walking: bool = false
 var _is_speaking: bool = false
@@ -98,6 +105,12 @@ func _ready() -> void:
 	vision_light.visible = true
 	_flashlight_on = false
 
+	# Ensure headlamp starts hidden
+	if headlamp:
+		headlamp.visible = false
+	if head_flashlight:
+		head_flashlight.visible = false
+
 	_setup_random_model()
 
 	if not visible:
@@ -106,7 +119,7 @@ func _ready() -> void:
 
 	if _has_authority():
 		_connect_voice_detection()
-		health_changed.emit(_health, MAX_HEALTH)
+		health_changed.emit(_health, max_health)
 
 func _setup_random_model() -> void:
 	"""Escolhe e aplica um modelo de player (usa model_index do meta se disponível)"""
@@ -229,10 +242,10 @@ func _physics_process(_delta: float) -> void:
 			_is_sprinting = false
 	elif _is_walking:
 		# Faster stamina recovery while walking
-		_stamina = min(MAX_STAMINA, _stamina + STAMINA_REGEN_RATE_WALKING * _delta)
+		_stamina = min(max_stamina, _stamina + STAMINA_REGEN_RATE_WALKING * _delta)
 	else:
 		# Normal (slower) stamina recovery
-		_stamina = min(MAX_STAMINA, _stamina + STAMINA_REGEN_RATE * _delta)
+		_stamina = min(max_stamina, _stamina + STAMINA_REGEN_RATE * _delta)
 
 	# Determine target speed
 	var target_speed: float
@@ -480,20 +493,68 @@ func get_stamina() -> float:
 	return _stamina
 
 func get_stamina_percent() -> float:
-	return _stamina / MAX_STAMINA
+	return _stamina / max_stamina
 
 func get_health() -> float:
 	return _health
 
 func get_health_percent() -> float:
-	return _health / MAX_HEALTH
+	return _health / max_health
+
+
+# ==========================================
+# SHOP PURCHASE METHODS
+# ==========================================
+
+func add_max_health(amount: float) -> void:
+	max_health += amount
+	_health = max_health  # Fully heal when upgrading
+	health_changed.emit(_health, max_health)
+
+
+func add_max_stamina(amount: float) -> void:
+	max_stamina += amount
+	_stamina = max_stamina  # Fully restore when upgrading
+
+
+func activate_headlamp() -> void:
+	if _has_headlamp:
+		return
+	_has_headlamp = true
+	if headlamp:
+		headlamp.visible = true
+	if head_flashlight:
+		head_flashlight.visible = true
+	_sync_headlamp_state()
+
+
+func has_headlamp() -> bool:
+	return _has_headlamp
+
+
+func _sync_headlamp_state() -> void:
+	if not _is_multiplayer_connected():
+		return
+	if not is_inside_tree():
+		return
+	_receive_headlamp_state.rpc(_has_headlamp)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _receive_headlamp_state(has_lamp: bool) -> void:
+	_has_headlamp = has_lamp
+	if headlamp:
+		headlamp.visible = has_lamp
+	if head_flashlight:
+		head_flashlight.visible = has_lamp
+
 
 func take_damage(amount: float) -> void:
 	if _is_dead:
 		return
 
 	_health = max(0, _health - amount)
-	health_changed.emit(_health, MAX_HEALTH)
+	health_changed.emit(_health, max_health)
 	shake_camera(0.2, 0.3)
 
 	if _health <= 0:
@@ -821,7 +882,7 @@ func revive() -> void:
 		return
 
 	_is_dead = false
-	_health = MAX_HEALTH
+	_health = max_health
 	_paralysis_count = 0 
 	_movement_enabled = true
 

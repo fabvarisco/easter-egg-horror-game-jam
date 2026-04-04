@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://biigvp1n1fx7f"]
+[gd_scene load_steps=6 format=3 uid="uid://biigvp1n1fx7f"]
 
 [ext_resource type="Script" uid="uid://doydjtp6bwfud" path="res://scripts/player/player.gd" id="1_dovo2"]
 [ext_resource type="PackedScene" uid="uid://kjc5itj2seqh" path="res://assets/models/player/RabbitGeneric.glb" id="2_gmlin"]
@@ -8,6 +8,8 @@ radius = 0.26123047
 height = 1.3770813
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_g2els"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_dovo2"]
 
 [node name="Player" type="CharacterBody3D" groups=["players"]]
 collision_layer = 3
@@ -30,7 +32,7 @@ spot_attenuation = 0.5
 spot_angle = 180.0
 spot_angle_attenuation = 0.6
 
-[node name="SpotLight3D" type="SpotLight3D" parent="."]
+[node name="Flashlight" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.9903069, 0.13889664, 0, -0.13889664, 0.9903069, 0.017329171, 0.8, -0.030653536)
 light_color = Color(0.98440546, 0.9281615, 0.82525396, 1)
 light_energy = 16.0
@@ -46,3 +48,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1353748, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SoundArea3D"]
 shape = SubResource("CylinderShape3D_g2els")
+
+[node name="HeadLamp" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.5831654, 0, 0, 0, 0.46554494, 0, 0, 0, 0.5581728, 0, 1.6689997, 0.012811661)
+visible = false
+mesh = SubResource("BoxMesh_dovo2")
+
+[node name="HeadFlashlight" type="SpotLight3D" parent="HeadLamp"]
+transform = Transform3D(1.7147794, 0, 0, 0, 1.976024, 0.84221184, 0, -0.7024481, 1.648106, 0.05943141, 0.079187155, -0.6783839)
+light_color = Color(0.98440546, 0.9281615, 0.82525396, 1)
+light_energy = 16.0
+light_volumetric_fog_energy = 12.241
+shadow_enabled = true
+spot_range = 9.3
+spot_attenuation = 0.6
+spot_angle = 21.0
+spot_angle_attenuation = 0.09378044
