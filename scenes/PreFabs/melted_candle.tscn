@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dinlire1lm8ov"]
 
-[ext_resource type="ArrayMesh" uid="uid://wxtcab2fqk6e" path="res://assets/obj/candle_melted.obj" id="1_x5ccg"]
+[ext_resource type="ArrayMesh" uid="uid://wxtcab2fqk6e" path="res://assets/models/cemetery/obj/candle_melted.obj" id="1_x5ccg"]
 
 [node name="MeltedCandle" type="Node3D"]
 

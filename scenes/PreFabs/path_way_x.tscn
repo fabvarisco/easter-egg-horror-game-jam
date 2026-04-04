@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cm82d75qcyi3f"]
 
-[ext_resource type="ArrayMesh" uid="uid://darbc3jpnm4jt" path="res://assets/obj/path_A.obj" id="1_xjqbt"]
+[ext_resource type="ArrayMesh" uid="uid://darbc3jpnm4jt" path="res://assets/models/cemetery/obj/path_A.obj" id="1_xjqbt"]
 
 [node name="PathWayT" type="Node3D"]
 

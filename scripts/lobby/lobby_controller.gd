@@ -110,6 +110,11 @@ func _set_state(new_state: LobbyState) -> void:
 
 
 func _is_returning_from_game() -> bool:
+	# Check singleplayer returning from game flag
+	if multiplayer_manager.is_returning_from_game():
+		return true
+
+	# Check multiplayer connection status
 	if multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE:
 		return false
 	if not multiplayer.has_multiplayer_peer():

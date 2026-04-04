@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://b3tetio8tnbbd"
+path="res://.godot/imported/grave_A.obj-c1fe8defe3bd2d28688e2905874365bb.mesh"
+
+[deps]
+
+files=["res://.godot/imported/grave_A.obj-c1fe8defe3bd2d28688e2905874365bb.mesh"]
+
+source_file="res://assets/models/cemetery/obj/grave_A.obj"
+dest_files=["res://.godot/imported/grave_A.obj-c1fe8defe3bd2d28688e2905874365bb.mesh", "res://.godot/imported/grave_A.obj-c1fe8defe3bd2d28688e2905874365bb.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

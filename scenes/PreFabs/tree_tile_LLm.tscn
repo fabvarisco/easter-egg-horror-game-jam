@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://dppm8ass0kby0"]
 
-[ext_resource type="ArrayMesh" uid="uid://42pkx5yysnti" path="res://assets/obj/tree_pine_orange_large.obj" id="1_o0wkn"]
-[ext_resource type="ArrayMesh" uid="uid://d8w3ip4eofb0" path="res://assets/obj/tree_pine_yellow_large.obj" id="2_ifcbu"]
-[ext_resource type="ArrayMesh" uid="uid://uwd7qr8bfrdn" path="res://assets/obj/tree_pine_yellow_medium.obj" id="3_4fgvr"]
+[ext_resource type="ArrayMesh" uid="uid://42pkx5yysnti" path="res://assets/models/cemetery/obj/tree_pine_orange_large.obj" id="1_o0wkn"]
+[ext_resource type="ArrayMesh" uid="uid://d8w3ip4eofb0" path="res://assets/models/cemetery/obj/tree_pine_yellow_large.obj" id="2_ifcbu"]
+[ext_resource type="ArrayMesh" uid="uid://uwd7qr8bfrdn" path="res://assets/models/cemetery/obj/tree_pine_yellow_medium.obj" id="3_4fgvr"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_o0wkn"]
 height = 7.4870605

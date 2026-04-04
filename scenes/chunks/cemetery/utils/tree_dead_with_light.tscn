@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://b13fg00dd6nwb"]
 
-[ext_resource type="ArrayMesh" uid="uid://baedgmbs3tww8" path="res://assets/obj/tree_dead_large_decorated.obj" id="1_d5vq5"]
+[ext_resource type="ArrayMesh" uid="uid://baedgmbs3tww8" path="res://assets/models/cemetery/obj/tree_dead_large_decorated.obj" id="1_d5vq5"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_d5vq5"]
 height = 4.9611816

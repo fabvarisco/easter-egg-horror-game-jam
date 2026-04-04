@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://boh6j5bwlw8ul"]
 
-[ext_resource type="ArrayMesh" uid="uid://cp7f803yuby2n" path="res://assets/obj/candle_triple.obj" id="1_ov6po"]
+[ext_resource type="ArrayMesh" uid="uid://cp7f803yuby2n" path="res://assets/models/cemetery/obj/candle_triple.obj" id="1_ov6po"]
 
 [node name="TripleCandles" type="Node3D"]
 

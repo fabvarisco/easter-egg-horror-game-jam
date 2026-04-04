@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://dr6k67vp3dajy" path="res://scenes/eggs/egg.tscn" id="1_hbwja"]
 [ext_resource type="Script" uid="uid://cuqjg4btilhck" path="res://scripts/monsters/assassin_bunny/assassin_bunny_egg.gd" id="2_script"]
 [ext_resource type="Shader" uid="uid://cw7iymq7ce5m1" path="res://shaders/eye_glow.gdshader" id="3_eye_glow"]
-[ext_resource type="Texture2D" uid="uid://b16kswidynyfr" path="res://assets/bunny_eyes.png" id="4_eyes"]
+[ext_resource type="Texture2D" uid="uid://pk70vfxh7vf2" path="res://assets/models/bunny/Flare.png" id="4_bs6pu"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_detection"]
 radius = 5.0
@@ -14,7 +14,7 @@ size = Vector2(0.15, 0.15)
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_k07p1"]
 render_priority = 0
 shader = ExtResource("3_eye_glow")
-shader_parameter/eye_texture = ExtResource("4_eyes")
+shader_parameter/eye_texture = ExtResource("4_bs6pu")
 shader_parameter/eye_color = Color(1, 0, 0, 1)
 shader_parameter/intensity = 3.0
 shader_parameter/pulse_speed = 1.5

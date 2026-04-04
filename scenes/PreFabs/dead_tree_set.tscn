@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://cghu0f7r1yoef"]
 
-[ext_resource type="ArrayMesh" uid="uid://cd4xyawjg5hxl" path="res://assets/obj/tree_dead_large.obj" id="1_y1p4m"]
-[ext_resource type="ArrayMesh" uid="uid://bww05ug5j6xt2" path="res://assets/obj/tree_dead_medium.obj" id="2_3ypw3"]
+[ext_resource type="ArrayMesh" uid="uid://cd4xyawjg5hxl" path="res://assets/models/cemetery/obj/tree_dead_large.obj" id="1_y1p4m"]
+[ext_resource type="ArrayMesh" uid="uid://bww05ug5j6xt2" path="res://assets/models/cemetery/obj/tree_dead_medium.obj" id="2_3ypw3"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_5owch"]
 height = 5.039551

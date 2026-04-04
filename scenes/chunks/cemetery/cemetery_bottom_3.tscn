@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=3 uid="uid://dbxxwg1jle4wx"]
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_jskai"]
-[ext_resource type="ArrayMesh" uid="uid://darbc3jpnm4jt" path="res://assets/obj/path_A.obj" id="2_lhf1h"]
+[ext_resource type="ArrayMesh" uid="uid://darbc3jpnm4jt" path="res://assets/models/cemetery/obj/path_A.obj" id="2_lhf1h"]
 [ext_resource type="PackedScene" uid="uid://bf1in8pkddywd" path="res://scenes/PreFabs/tombs_set_S_W.tscn" id="6_mh7dp"]
 [ext_resource type="PackedScene" uid="uid://bqt4bck5yr1dl" path="res://scenes/PreFabs/tombs_set_Ws.tscn" id="7_jskai"]
 [ext_resource type="PackedScene" uid="uid://cqxcq1rjxag7p" path="res://scenes/PreFabs/tombs_set_wW.tscn" id="8_lhf1h"]
@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://jmsgfhar1vjg" path="res://scenes/PreFabs/tombs_set_sS.tscn" id="11_d6h3c"]
 [ext_resource type="PackedScene" uid="uid://cghu0f7r1yoef" path="res://scenes/PreFabs/dead_tree_set.tscn" id="12_52co2"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="12_v41cl"]
-[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="13_d8jll"]
+[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/models/cemetery/obj/fence.obj" id="13_d8jll"]
 [ext_resource type="PackedScene" uid="uid://bpmli4as5ke0s" path="res://scenes/PreFabs/raided_tomb.tscn" id="13_jskai"]
 
 [node name="CemeteryBottom" instance=ExtResource("1_jskai")]

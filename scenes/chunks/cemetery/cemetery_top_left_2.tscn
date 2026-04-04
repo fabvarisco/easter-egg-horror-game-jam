@@ -12,10 +12,10 @@
 [ext_resource type="PackedScene" uid="uid://b6nfnr4dw4lco" path="res://scenes/PreFabs/tombs_set_sw.tscn" id="10_3g74s"]
 [ext_resource type="PackedScene" uid="uid://bqt4bck5yr1dl" path="res://scenes/PreFabs/tombs_set_Ws.tscn" id="11_xg3rn"]
 [ext_resource type="PackedScene" uid="uid://bpmli4as5ke0s" path="res://scenes/PreFabs/raided_tomb.tscn" id="12_k5rqt"]
-[ext_resource type="ArrayMesh" uid="uid://daq0s5u0amdos" path="res://assets/obj/gravestone.obj" id="13_klwej"]
-[ext_resource type="ArrayMesh" uid="uid://b3tetio8tnbbd" path="res://assets/obj/grave_A.obj" id="14_cqgmg"]
-[ext_resource type="ArrayMesh" uid="uid://deodhy8jgb3cy" path="res://assets/obj/grave_A_destroyed.obj" id="15_s3n5t"]
-[ext_resource type="ArrayMesh" uid="uid://cv0husojli26m" path="res://assets/obj/grave_B.obj" id="16_x7q4w"]
+[ext_resource type="ArrayMesh" uid="uid://daq0s5u0amdos" path="res://assets/models/cemetery/obj/gravestone.obj" id="13_klwej"]
+[ext_resource type="ArrayMesh" uid="uid://b3tetio8tnbbd" path="res://assets/models/cemetery/obj/grave_A.obj" id="14_cqgmg"]
+[ext_resource type="ArrayMesh" uid="uid://deodhy8jgb3cy" path="res://assets/models/cemetery/obj/grave_A_destroyed.obj" id="15_s3n5t"]
+[ext_resource type="ArrayMesh" uid="uid://cv0husojli26m" path="res://assets/models/cemetery/obj/grave_B.obj" id="16_x7q4w"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_abu26"]
 size = Vector3(7.244995, 2.866333, 4.115082)

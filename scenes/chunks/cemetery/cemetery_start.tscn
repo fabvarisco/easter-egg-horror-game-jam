@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://1v6tvwpp3els" path="res://scenes/chunks/chunck_master.tscn" id="1_3tqts"]
 [ext_resource type="PackedScene" uid="uid://b444y86ra1rlf" path="res://scenes/chunks/cemetery/floor.tscn" id="2_6bq2s"]
-[ext_resource type="PackedScene" uid="uid://dho061ttqjmlk" path="res://assets/models/car.glb" id="2_aiw8s"]
+[ext_resource type="PackedScene" uid="uid://dho061ttqjmlk" path="res://assets/models/car/car.glb" id="2_aiw8s"]
 [ext_resource type="PackedScene" uid="uid://dbclt423kb5td" path="res://scenes/PreFabs/wall_fence_HHHHH.tscn" id="3_aiw8s"]
 [ext_resource type="PackedScene" uid="uid://dlqin3c5j0si" path="res://scenes/PreFabs/tree_tile_Lmms.tscn" id="4_24ybo"]
 [ext_resource type="PackedScene" uid="uid://bn5rqkragfj0y" path="res://scenes/PreFabs/tree_tile_mmss.tscn" id="5_lrxrd"]

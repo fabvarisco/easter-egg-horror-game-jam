@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bay0qpgj4sf75"]
 
-[ext_resource type="ArrayMesh" uid="uid://0v5oi2kwquox" path="res://assets/obj/plaque_candles.obj" id="1_iowec"]
+[ext_resource type="ArrayMesh" uid="uid://0v5oi2kwquox" path="res://assets/models/cemetery/obj/plaque_candles.obj" id="1_iowec"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_mt0jy"]
 size = Vector3(1.1804466, 1.4555969, 1.2691956)

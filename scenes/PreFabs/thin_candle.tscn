@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dx1tiocbg300a"]
 
-[ext_resource type="ArrayMesh" uid="uid://dr70bhpw1au8e" path="res://assets/obj/candle_thin.obj" id="1_7tbc5"]
+[ext_resource type="ArrayMesh" uid="uid://dr70bhpw1au8e" path="res://assets/models/cemetery/obj/candle_thin.obj" id="1_7tbc5"]
 
 [node name="ThinCandle" type="Node3D"]
 

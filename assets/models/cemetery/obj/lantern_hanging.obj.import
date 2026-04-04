@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bka5oa0s1j1tn"
+path="res://.godot/imported/lantern_hanging.obj-aabb3e2b9da2f9eabfaf90cf30e92885.mesh"
+
+[deps]
+
+files=["res://.godot/imported/lantern_hanging.obj-aabb3e2b9da2f9eabfaf90cf30e92885.mesh"]
+
+source_file="res://assets/models/cemetery/obj/lantern_hanging.obj"
+dest_files=["res://.godot/imported/lantern_hanging.obj-aabb3e2b9da2f9eabfaf90cf30e92885.mesh", "res://.godot/imported/lantern_hanging.obj-aabb3e2b9da2f9eabfaf90cf30e92885.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

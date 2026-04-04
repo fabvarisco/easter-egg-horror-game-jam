@@ -32,6 +32,9 @@ var current_mode: NetworkMode = NetworkMode.NONE
 # Ready system
 var _ready_states: Dictionary = {}  # peer_id -> bool
 
+# Track returning from game (for singleplayer lobby detection)
+var _returning_from_game: bool = false
+
 # Player model indices - assigned once per player and persisted across scenes
 var _player_model_indices: Dictionary = {}  # peer_id -> model_index
 const NUM_PLAYER_MODELS: int = 5  # Must match PLAYER_MODELS.size() in player.gd
@@ -656,6 +659,16 @@ func get_all_ready_states() -> Dictionary:
 
 func reset_ready_states() -> void:
 	_ready_states.clear()
+
+
+func set_returning_from_game(value: bool) -> void:
+	_returning_from_game = value
+
+
+func is_returning_from_game() -> bool:
+	var result := _returning_from_game
+	_returning_from_game = false  # Auto-reset after checking
+	return result
 
 
 func _check_all_ready() -> void:

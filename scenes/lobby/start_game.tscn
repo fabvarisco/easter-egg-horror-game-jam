@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://bwped3stalgo"]
 
 [ext_resource type="Script" uid="uid://dvw5vcec4ds8a" path="res://scripts/lobby/start_game.gd" id="1_pedestal"]
-[ext_resource type="PackedScene" uid="uid://dho061ttqjmlk" path="res://assets/models/car.glb" id="2_2pvg0"]
+[ext_resource type="PackedScene" uid="uid://dho061ttqjmlk" path="res://assets/models/car/car.glb" id="2_2pvg0"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_2pvg0"]
 

@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://tp173a4yxre8"]
 
-[ext_resource type="ArrayMesh" uid="uid://cqj8h61lpngme" path="res://assets/obj/bench.obj" id="1_vp5pe"]
-[ext_resource type="ArrayMesh" uid="uid://c25cvajqqu8eg" path="res://assets/obj/lantern_standing.obj" id="2_eibhd"]
+[ext_resource type="ArrayMesh" uid="uid://cqj8h61lpngme" path="res://assets/models/cemetery/obj/bench.obj" id="1_vp5pe"]
+[ext_resource type="ArrayMesh" uid="uid://c25cvajqqu8eg" path="res://assets/models/cemetery/obj/lantern_standing.obj" id="2_eibhd"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_udpal"]
 size = Vector3(2.0689697, 0.56970215, 0.79541016)

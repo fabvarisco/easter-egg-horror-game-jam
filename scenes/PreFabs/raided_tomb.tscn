@@ -1,9 +1,9 @@
 [gd_scene load_steps=7 format=3 uid="uid://bpmli4as5ke0s"]
 
-[ext_resource type="ArrayMesh" uid="uid://deodhy8jgb3cy" path="res://assets/obj/grave_A_destroyed.obj" id="1_3isb6"]
-[ext_resource type="ArrayMesh" uid="uid://cvbgjiqaaske8" path="res://assets/obj/coffin_decorated.obj" id="2_jnv5v"]
-[ext_resource type="ArrayMesh" uid="uid://h61w0ivoxym4" path="res://assets/obj/coffin_lid.obj" id="3_28wdf"]
-[ext_resource type="ArrayMesh" uid="uid://wxtcab2fqk6e" path="res://assets/obj/candle_melted.obj" id="4_r1mee"]
+[ext_resource type="ArrayMesh" uid="uid://deodhy8jgb3cy" path="res://assets/models/cemetery/obj/grave_A_destroyed.obj" id="1_3isb6"]
+[ext_resource type="ArrayMesh" uid="uid://cvbgjiqaaske8" path="res://assets/models/cemetery/obj/coffin_decorated.obj" id="2_jnv5v"]
+[ext_resource type="ArrayMesh" uid="uid://h61w0ivoxym4" path="res://assets/models/cemetery/obj/coffin_lid.obj" id="3_28wdf"]
+[ext_resource type="ArrayMesh" uid="uid://wxtcab2fqk6e" path="res://assets/models/cemetery/obj/candle_melted.obj" id="4_r1mee"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_jgnie"]
 size = Vector3(1.7084961, 1.9913025, 1)

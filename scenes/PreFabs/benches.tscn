@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b8creocdgy2c3"]
 
-[ext_resource type="ArrayMesh" uid="uid://cqj8h61lpngme" path="res://assets/obj/bench.obj" id="1_p1io5"]
+[ext_resource type="ArrayMesh" uid="uid://cqj8h61lpngme" path="res://assets/models/cemetery/obj/bench.obj" id="1_p1io5"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_udpal"]
 size = Vector3(2.0689697, 0.56970215, 0.79541016)

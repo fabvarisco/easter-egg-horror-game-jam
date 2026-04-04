@@ -13,6 +13,8 @@ var _game_hud_scene: PackedScene = preload("res://scenes/ui/game_hud.tscn")
 var _game_hud: CanvasLayer = null
 var _fade_scene: PackedScene = preload("res://scenes/ui/fade_scene.tscn")
 var _fade_instance: CanvasLayer = null
+var _dialog_scene: PackedScene = preload("res://scenes/dialog.tscn")
+var _dialog_instance: Node3D = null
 
 @onready var multiplayer_manager: Node = get_node("/root/MultiplayerManager")
 @onready var spawn_manager: Node = get_node("/root/SpawnManager")
@@ -81,6 +83,27 @@ func _hide_loading_screen() -> void:
 		_loading_screen = null
 
 
+func _show_intro_dialogue() -> void:
+	# In multiplayer, only host shows the intro dialogue
+	if not _is_singleplayer and not multiplayer.is_server():
+		return
+
+	_dialog_instance = _dialog_scene.instantiate()
+	add_child(_dialog_instance)
+
+	# TODO: Definir os textos especificos da intro
+	var dialogues: Array[String] = [
+		"Texto 1...",
+		"Texto 2...",
+		"Texto 3...",
+	]
+
+	_dialog_instance.start_dialogue(dialogues)
+	await _dialog_instance.dialogue_finished
+	_dialog_instance.queue_free()
+	_dialog_instance = null
+
+
 func _initialize_game_async() -> void:
 	await get_tree().process_frame
 
@@ -93,6 +116,9 @@ func _initialize_game_async() -> void:
 	_connect_bunny_signals()
 
 	await get_tree().process_frame
+
+	# Show intro dialogue before hiding loading screen
+	await _show_intro_dialogue()
 
 	_hide_loading_screen()
 
@@ -747,6 +773,9 @@ func _return_to_lobby() -> void:
 		audio_manager.stop_music()
 		audio_manager.stop_ambient_sounds()
 
+	# Mark that we're returning from game (for singleplayer lobby detection)
+	multiplayer_manager.set_returning_from_game(true)
+
 	_cleanup_spectator()
 
 	if _game_over_instance and is_instance_valid(_game_over_instance):
@@ -771,6 +800,14 @@ func _return_to_lobby() -> void:
 
 
 func _start_fade_and_return_to_lobby() -> void:
+	var audio_manager := get_node_or_null("/root/AudioManager")
+	if audio_manager:
+		audio_manager.stop_music()
+		audio_manager.stop_ambient_sounds()
+
+	# Mark that we're returning from game (for singleplayer lobby detection)
+	multiplayer_manager.set_returning_from_game(true)
+
 	if _fade_instance:
 		_fade_instance.queue_free()
 

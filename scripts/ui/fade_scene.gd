@@ -13,7 +13,6 @@ var _callback: Callable
 
 func _ready() -> void:
 	_animation_player.animation_finished.connect(_on_animation_finished)
-	# Start invisible
 	_color_rect.color.a = 0.0
 
 

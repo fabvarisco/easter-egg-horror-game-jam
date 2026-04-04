@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dmlp3u1ypn0hf"]
 
-[ext_resource type="ArrayMesh" uid="uid://cvbgjiqaaske8" path="res://assets/obj/coffin_decorated.obj" id="1_eb7ey"]
-[ext_resource type="ArrayMesh" uid="uid://h61w0ivoxym4" path="res://assets/obj/coffin_lid.obj" id="2_o4gmh"]
+[ext_resource type="ArrayMesh" uid="uid://cvbgjiqaaske8" path="res://assets/models/cemetery/obj/coffin_decorated.obj" id="1_eb7ey"]
+[ext_resource type="ArrayMesh" uid="uid://h61w0ivoxym4" path="res://assets/models/cemetery/obj/coffin_lid.obj" id="2_o4gmh"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lbytk"]
 size = Vector3(1.8919716, 1.0060425, 3.0818634)

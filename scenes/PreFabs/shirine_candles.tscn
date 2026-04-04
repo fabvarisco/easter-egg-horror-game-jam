@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://4k3vdbsr35ru"]
 
-[ext_resource type="ArrayMesh" uid="uid://862brfavnkvt" path="res://assets/obj/shrine_candles.obj" id="1_circf"]
+[ext_resource type="ArrayMesh" uid="uid://862brfavnkvt" path="res://assets/models/cemetery/obj/shrine_candles.obj" id="1_circf"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ctorh"]
 size = Vector3(1.2573242, 1.3276367, 1.1638184)

@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://0qnc24v2ieyq"]
 
-[ext_resource type="ArrayMesh" uid="uid://1v4nb3gshk5i" path="res://assets/obj/crypt.obj" id="1_g6ms8"]
-[ext_resource type="ArrayMesh" uid="uid://bka5oa0s1j1tn" path="res://assets/obj/lantern_hanging.obj" id="2_jeipd"]
-[ext_resource type="ArrayMesh" uid="uid://862brfavnkvt" path="res://assets/obj/shrine_candles.obj" id="3_65qqi"]
+[ext_resource type="ArrayMesh" uid="uid://1v4nb3gshk5i" path="res://assets/models/cemetery/obj/crypt.obj" id="1_g6ms8"]
+[ext_resource type="ArrayMesh" uid="uid://bka5oa0s1j1tn" path="res://assets/models/cemetery/obj/lantern_hanging.obj" id="2_jeipd"]
+[ext_resource type="ArrayMesh" uid="uid://862brfavnkvt" path="res://assets/models/cemetery/obj/shrine_candles.obj" id="3_65qqi"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7ee0y"]
 size = Vector3(6.1543274, 8.24353, 8.15033)

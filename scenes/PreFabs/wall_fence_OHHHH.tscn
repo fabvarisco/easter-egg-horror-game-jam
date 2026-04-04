@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://x8r4e08p4jl7"]
 
-[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/obj/fence.obj" id="1_3oy1p"]
-[ext_resource type="ArrayMesh" uid="uid://d2qnk1kguqiwu" path="res://assets/obj/fence_broken.obj" id="2_1covi"]
+[ext_resource type="ArrayMesh" uid="uid://bkmp5h0g0i3px" path="res://assets/models/cemetery/obj/fence.obj" id="1_3oy1p"]
+[ext_resource type="ArrayMesh" uid="uid://d2qnk1kguqiwu" path="res://assets/models/cemetery/obj/fence_broken.obj" id="2_1covi"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3oy1p"]
 size = Vector3(1.1871338, 2.3370361, 0.5560913)

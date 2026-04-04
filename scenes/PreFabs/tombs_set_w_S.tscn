@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://b5ubk6upey7n2"]
 
-[ext_resource type="ArrayMesh" uid="uid://b3tetio8tnbbd" path="res://assets/obj/grave_A.obj" id="1_s67eb"]
-[ext_resource type="ArrayMesh" uid="uid://nsik3j6pegh5" path="res://assets/obj/gravemarker_B.obj" id="2_pnqn2"]
+[ext_resource type="ArrayMesh" uid="uid://b3tetio8tnbbd" path="res://assets/models/cemetery/obj/grave_A.obj" id="1_s67eb"]
+[ext_resource type="ArrayMesh" uid="uid://nsik3j6pegh5" path="res://assets/models/cemetery/obj/gravemarker_B.obj" id="2_pnqn2"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4ndm0"]
 size = Vector3(1.5948753, 2.3137512, 0.5713501)

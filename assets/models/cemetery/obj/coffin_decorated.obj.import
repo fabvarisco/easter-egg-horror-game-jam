@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cvbgjiqaaske8"
+path="res://.godot/imported/coffin_decorated.obj-8aab596e7a7a798f7332cb63cb7ebdbf.mesh"
+
+[deps]
+
+files=["res://.godot/imported/coffin_decorated.obj-8aab596e7a7a798f7332cb63cb7ebdbf.mesh"]
+
+source_file="res://assets/models/cemetery/obj/coffin_decorated.obj"
+dest_files=["res://.godot/imported/coffin_decorated.obj-8aab596e7a7a798f7332cb63cb7ebdbf.mesh", "res://.godot/imported/coffin_decorated.obj-8aab596e7a7a798f7332cb63cb7ebdbf.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
