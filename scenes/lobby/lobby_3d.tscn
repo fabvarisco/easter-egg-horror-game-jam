@@ -1,6 +1,7 @@
-[gd_scene load_steps=13 format=3 uid="uid://clobby3dscene"]
+[gd_scene load_steps=17 format=3 uid="uid://clobby3dscene"]
 
 [ext_resource type="Script" uid="uid://bij0dpwt15tjr" path="res://scripts/lobby/lobby_controller.gd" id="1_controller"]
+[ext_resource type="Shader" uid="uid://mtbe5t7myauu" path="res://shaders/fog_shader.gdshader" id="2_lmrvh"]
 [ext_resource type="PackedScene" uid="uid://bwped3stalgo" path="res://scenes/lobby/start_game.tscn" id="2_pedestal"]
 [ext_resource type="PackedScene" uid="uid://blobbyhud123" path="res://scenes/lobby/lobby_hud.tscn" id="3_hud"]
 [ext_resource type="PackedScene" uid="uid://cconnmenu123" path="res://scenes/ui/connection_menu.tscn" id="4_connmenu"]
@@ -9,12 +10,40 @@
 [ext_resource type="PackedScene" uid="uid://dr0h3jfcqfur8" path="res://assets/models/lobby_models/Street Straight.glb" id="7_g68b3"]
 [ext_resource type="ArrayMesh" uid="uid://bfg5f582ugu6f" path="res://assets/models/cemetery/obj/floor_dirt.obj" id="8_84ek6"]
 
-[sub_resource type="Environment" id="Environment_lobby"]
-background_mode = 1
-background_color = Color(0.08, 0.08, 0.1, 1)
-ambient_light_source = 2
-ambient_light_color = Color(0.2, 0.2, 0.25, 1)
-ambient_light_energy = 0.5
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_lmrvh"]
+sky_top_color = Color(0.16565639, 0.16565642, 0.16565639, 1)
+
+[sub_resource type="Sky" id="Sky_tefeu"]
+sky_material = SubResource("ProceduralSkyMaterial_lmrvh")
+
+[sub_resource type="Environment" id="Environment_g68b3"]
+background_mode = 2
+background_color = Color(1, 1, 1, 1)
+sky = SubResource("Sky_tefeu")
+ambient_light_source = 3
+ambient_light_color = Color(0.8646751, 0.86467516, 0.8646751, 1)
+ambient_light_energy = 0.3
+tonemap_mode = 3
+sdfgi_enabled = true
+glow_enabled = true
+fog_aerial_perspective = 0.5
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0481
+volumetric_fog_albedo = Color(0.40308273, 0.26075915, 0.24595517, 1)
+volumetric_fog_emission = Color(0.2995475, 0.29954743, 0.29954734, 1)
+volumetric_fog_emission_energy = 1.95
+adjustment_enabled = true
+adjustment_brightness = 0.65
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_g68b3"]
+shader = ExtResource("2_lmrvh")
+shader_parameter/fog_color = Color(0.15938163, 0.31026572, 0.3178106, 1)
+shader_parameter/density_scale = 0.5999999865888
+shader_parameter/noise_scale = 4.99999988824
+shader_parameter/speed = 0.499999988824
+shader_parameter/height_falloff = 0.2999999932944
+shader_parameter/emission = 0.1999999955296
+shader_parameter/wind = Vector2(0, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_47rhv"]
 size = Vector3(1.7863464, 1, 1.2003174)
@@ -28,14 +57,18 @@ size = Vector3(30.476624, 1, 30.940918)
 [node name="Lobby3D" type="Node3D"]
 script = ExtResource("1_controller")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_lobby")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.8660253, -0.35355332, 0.35355374, 0, 0.70710725, 0.7071064, -0.50000024, -0.61237204, 0.61237276, 0, 10, 0)
-light_color = Color(0.3, 0.3, 0.35, 1)
-light_energy = 0.5
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8660253, -0.35355332, 0.35355377, 0, 0.7071072, 0.7071064, -0.50000024, -0.612372, 0.61237276, 0, 8.822631, 0)
+light_color = Color(0.3854925, 0.38549247, 0.38549247, 1)
 shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_g68b3")
+
+[node name="FogVolume" type="FogVolume" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4276733, 0.5373306, 1.6698608)
+size = Vector3(32.223022, 3.0746613, 22.86023)
+material = SubResource("ShaderMaterial_g68b3")
 
 [node name="StartGamePedestal" parent="." instance=ExtResource("2_pedestal")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
