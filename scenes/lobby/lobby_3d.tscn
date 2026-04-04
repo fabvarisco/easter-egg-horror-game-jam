@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://clobby3dscene"]
+[gd_scene load_steps=18 format=3 uid="uid://clobby3dscene"]
 
 [ext_resource type="Script" uid="uid://bij0dpwt15tjr" path="res://scripts/lobby/lobby_controller.gd" id="1_controller"]
 [ext_resource type="Shader" uid="uid://mtbe5t7myauu" path="res://shaders/fog_shader.gdshader" id="2_lmrvh"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://b2hwmedjtxfhr" path="res://assets/models/lobby_models/Skyscraper.glb" id="6_lmrvh"]
 [ext_resource type="PackedScene" uid="uid://dr0h3jfcqfur8" path="res://assets/models/lobby_models/Street Straight.glb" id="7_g68b3"]
 [ext_resource type="ArrayMesh" uid="uid://bfg5f582ugu6f" path="res://assets/models/cemetery/obj/floor_dirt.obj" id="8_84ek6"]
+[ext_resource type="PackedScene" uid="uid://cqyww2umx10kj" path="res://scenes/shop.tscn" id="10_g68b3"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_lmrvh"]
 sky_top_color = Color(0.16565639, 0.16565642, 0.16565639, 1)
@@ -28,7 +29,7 @@ sdfgi_enabled = true
 glow_enabled = true
 fog_aerial_perspective = 0.5
 volumetric_fog_enabled = true
-volumetric_fog_density = 0.0481
+volumetric_fog_density = 0.0234
 volumetric_fog_albedo = Color(0.40308273, 0.26075915, 0.24595517, 1)
 volumetric_fog_emission = Color(0.2995475, 0.29954743, 0.29954734, 1)
 volumetric_fog_emission_energy = 1.95
@@ -58,8 +59,9 @@ size = Vector3(30.476624, 1, 30.940918)
 script = ExtResource("1_controller")
 
 [node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.8660253, -0.35355332, 0.35355377, 0, 0.7071072, 0.7071064, -0.50000024, -0.612372, 0.61237276, 0, 8.822631, 0)
+transform = Transform3D(0.8660253, -0.35355332, 0.35355377, 0, 0.7071072, 0.7071064, -0.50000024, -0.612372, 0.61237276, 0, 6.810419, 0)
 light_color = Color(0.3854925, 0.38549247, 0.38549247, 1)
+light_energy = 2.985
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -1130,3 +1132,6 @@ skeleton = NodePath("../../..")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.252144, 0.1860857, -8.821884)
 mesh = ExtResource("8_84ek6")
 skeleton = NodePath("../../..")
+
+[node name="Shop" parent="." instance=ExtResource("10_g68b3")]
+transform = Transform3D(0.937142, 0, 0.34894827, 0, 1, 0, -0.34894827, 0, 0.937142, -6.1628013, 0.50199187, -3.8640466)

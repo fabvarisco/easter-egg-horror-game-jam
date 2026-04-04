@@ -1,3 +1,43 @@
-[gd_scene format=3 uid="uid://cqyww2umx10kj"]
+[gd_scene load_steps=5 format=3 uid="uid://cqyww2umx10kj"]
+
+[ext_resource type="PackedScene" uid="uid://de3tdunfchthr" path="res://scenes/npc/shop_bro.tscn" id="1_lx5au"]
+[ext_resource type="Script" uid="uid://djk0wfcewev4b" path="res://scripts/shop.gd" id="1_xfvoa"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lx5au"]
+size = Vector3(2.352539, 2.2608032, 1.5644531)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_lx5au"]
+radius = 4.0595703
 
 [node name="Shop" type="Node3D"]
+script = ExtResource("1_xfvoa")
+
+[node name="ShopBro" parent="." instance=ExtResource("1_lx5au")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03564453, 1.1548767, 0.040679812)
+shape = SubResource("BoxShape3D_lx5au")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.805298, 0)
+shape = SubResource("CylinderShape3D_lx5au")
+
+[node name="ShopLayer" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="HeadLamp" type="Button" parent="ShopLayer"]
+offset_left = 855.0
+offset_top = 796.0
+offset_right = 1081.0
+offset_bottom = 971.0
+size_flags_vertical = 4
+text = "Head Lamp 25"
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
+[connection signal="body_exited" from="Area3D" to="." method="_on_area_3d_body_exited"]
+[connection signal="pressed" from="ShopLayer/HeadLamp" to="." method="_on_head_lamp_pressed"]
