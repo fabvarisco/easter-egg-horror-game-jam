@@ -15,8 +15,8 @@ var _typing_timer: float = 0.0
 var _auto_advance_timer: float = 0.0
 var _waiting_for_advance: bool = false
 
-const TYPING_SPEED: float = 0.03     
-const AUTO_ADVANCE_DELAY: float = 3.0 
+const TYPING_SPEED: float = 0.03
+const AUTO_ADVANCE_DELAY: float = 3.0
 
 
 func _ready() -> void:

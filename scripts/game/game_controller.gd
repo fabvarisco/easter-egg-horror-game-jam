@@ -84,7 +84,6 @@ func _hide_loading_screen() -> void:
 
 
 func _show_intro_dialogue() -> void:
-	# In multiplayer, only host shows the intro dialogue
 	if not _is_singleplayer and not multiplayer.is_server():
 		return
 
@@ -117,10 +116,9 @@ func _initialize_game_async() -> void:
 
 	await get_tree().process_frame
 
-	# Show intro dialogue before hiding loading screen
-	await _show_intro_dialogue()
-
 	_hide_loading_screen()
+
+	await _show_intro_dialogue()
 
 
 func _generate_procedural_map() -> void:

@@ -3,7 +3,6 @@ class_name Egg
 
 @export var is_monster: bool = false
 
-# -1 = normal egg, >0 = dead player's egg (peer_id)
 var owner_peer_id: int = -1
 
 const SHAKE_INTENSITY: float = 0.5

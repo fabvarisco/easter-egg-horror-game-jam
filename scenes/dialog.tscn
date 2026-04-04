@@ -1,18 +1,36 @@
 [gd_scene load_steps=3 format=3 uid="uid://blnfxpk4cvbix"]
 
 [ext_resource type="Script" uid="uid://detr0ssda2ujf" path="res://scripts/dialog.gd" id="1_36pgd"]
-[ext_resource type="PackedScene" uid="uid://djiik3hbqv5s1" path="res://assets/models/shop_man/Bunny.glb" id="1_pkx4w"]
+[ext_resource type="PackedScene" uid="uid://de3tdunfchthr" path="res://scenes/npc/shop_bro.tscn" id="2_36pgd"]
 
 [node name="Dialog" type="Node3D"]
 script = ExtResource("1_36pgd")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.9588842, -0.053032428, 0.27879876, 0, 0.9823852, 0.18686698, -0.28379777, -0.17918378, 0.94199365, -1.6556709, 0.81861794, -0.9019761)
-
-[node name="model" parent="." instance=ExtResource("1_pkx4w")]
-transform = Transform3D(0.9345713, 0, -0.35577583, 0, 1, 0, 0.35577583, 0, 0.9345713, 0, -1.8793669, -4.911948)
-
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer"]
+offset_left = 32.0
+offset_top = 400.0
+offset_right = 432.0
+offset_bottom = 850.0
+
+[node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(400, 450)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="CanvasLayer/SubViewportContainer/SubViewport"]
+transform = Transform3D(0.9638633, 0.0455318, -0.26247746, 0, 0.98528546, 0.17091686, 0.26639736, -0.16474049, 0.9496805, 0.38034046, 106.02664, 4.373554)
+fov = 50.0
+
+[node name="ShopBro" parent="CanvasLayer/SubViewportContainer/SubViewport" instance=ExtResource("2_36pgd")]
+transform = Transform3D(2.109472, 0, 0.29500288, 0, 2.1299999, 0, -0.29500288, 0, 2.109472, 1.4589107, 100.27574, -1.70012)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="CanvasLayer/SubViewportContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 104.367905, 2)
+light_energy = 2.0
+omni_range = 10.0
 
 [node name="Panel" type="Panel" parent="CanvasLayer"]
 anchors_preset = 12
@@ -42,6 +60,3 @@ offset_top = 779.0
 offset_right = 1735.0
 offset_bottom = 869.0
 text = "Next"
-
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.46689177, -2.8584347)
