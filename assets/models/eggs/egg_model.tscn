@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://072lhqmy318e"]
+
+[ext_resource type="PackedScene" uid="uid://y8udwrmpuf1b" path="res://assets/models/eggs/Egg.glb" id="1_hnegr"]
+[ext_resource type="Texture2D" uid="uid://iib1aoy5w78o" path="res://assets/models/eggs/Material1.png" id="2_hnegr"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uguml"]
+albedo_texture = ExtResource("2_hnegr")
+texture_filter = 0
+
+[node name="EggModel" instance=ExtResource("1_hnegr")]
+
+[node name="Sphere" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_uguml")
