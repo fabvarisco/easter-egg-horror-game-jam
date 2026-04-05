@@ -25,7 +25,6 @@ func generate_map(map_def: MapTypeDefinition, grid_size: Vector2i, seed_value: i
 	rng.seed = seed_value
 
 	var chunks: Array[Node3D] = []
-	var total_chunks := validated_grid.x * validated_grid.y
 
 	for y in range(validated_grid.y):
 		for x in range(validated_grid.x):

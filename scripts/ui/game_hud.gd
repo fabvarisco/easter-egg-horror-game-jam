@@ -264,7 +264,7 @@ func _exit_tree() -> void:
 # CURRENCY DISPLAY
 # ==========================================
 
-func _on_currency_changed(new_amount: int, delta: int) -> void:
+func _on_currency_changed(_new_amount: int, delta: int) -> void:
 	_update_currency_display()
 
 	if delta != 0:

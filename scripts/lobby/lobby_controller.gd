@@ -50,7 +50,6 @@ func _ready() -> void:
 	if camera_manager and lobby_camera:
 		camera_manager.set_active_camera(lobby_camera)
 
-	_update_progression_display()
 
 	if _is_returning_from_game():
 		_handle_return_from_game()
@@ -110,11 +109,9 @@ func _set_state(new_state: LobbyState) -> void:
 
 
 func _is_returning_from_game() -> bool:
-	# Check singleplayer returning from game flag
 	if multiplayer_manager.is_returning_from_game():
 		return true
 
-	# Check multiplayer connection status
 	if multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE:
 		return false
 	if not multiplayer.has_multiplayer_peer():
@@ -139,7 +136,6 @@ func _handle_return_from_game() -> void:
 	else:
 		spawn_manager.spawn_all_players()
 
-	_update_progression_display()
 
 	lobby_hud.clear_players()
 
@@ -161,7 +157,6 @@ func _handle_return_from_game() -> void:
 
 
 func _on_connection_established(is_singleplayer: bool) -> void:
-	print("[LobbyController] Connection established. Singleplayer: ", is_singleplayer, " is_host: ", multiplayer_manager.is_host)
 	_is_singleplayer = is_singleplayer
 
 	multiplayer_manager.reset_ready_states()
@@ -192,31 +187,22 @@ func _spawn_local_player() -> void:
 	spawn_manager.reset()
 
 	if _is_singleplayer:
-		print("[LobbyController] Spawning singleplayer")
 		spawn_manager.spawn_singleplayer()
 	else:
 		if multiplayer_manager.is_host:
-			print("[LobbyController] Host spawning all players. connected_peers: ", multiplayer_manager.connected_peers)
 			spawn_manager.spawn_all_players()
 		else:
 			var my_peer_id: int = multiplayer_manager.my_peer_id
-			print("[LobbyController] Client spawning only local player: ", my_peer_id)
-			print("[LobbyController] Current connected_peers: ", multiplayer_manager.connected_peers)
 			spawn_manager.spawn_player(my_peer_id)
 
 
 func _on_player_connected(peer_id: int) -> void:
-	print("[LobbyController] player_connected: ", peer_id, " state: ", _state)
 
 	if _state == LobbyState.MENU:
-		print("[LobbyController] Ignoring player_connected in MENU state")
 		return
 
 	if not spawn_manager.is_player_spawned(peer_id):
-		print("[LobbyController] Spawning player: ", peer_id)
 		spawn_manager.spawn_player(peer_id)
-	else:
-		print("[LobbyController] Player already spawned: ", peer_id)
 
 	var is_local = multiplayer_manager.is_local_player(peer_id)
 	lobby_hud.add_player(peer_id, is_local)
@@ -350,14 +336,3 @@ func _revive_all_players() -> void:
 			player.revive()
 
 
-func _update_progression_display() -> void:
-	"""Displays progression information in the lobby"""
-	var runs = ProgressionManager.runs_completed
-	var next_grid = ProgressionManager.get_current_grid_size()
-	var currency = ProgressionManager.group_currency
-
-	print("=== LOBBY PROGRESSION ===")
-	print("Runs completed: %d" % runs)
-	print("Next map size: %s" % next_grid)
-	print("Group currency: %d" % currency)
-	print("=========================")

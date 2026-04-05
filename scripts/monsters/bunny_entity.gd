@@ -21,11 +21,10 @@ const ATTACK_RANGE: float = 4.0
 
 var _state: State = State.DORMANT
 var _target_player: Node3D = null
-var _blink_timer: float = 0.0
-var _is_blinking: bool = false
-var _blink_phase_timer: float = 0.0
-var _fixed_rotation: float = 0.0 
-var _idle_timer: float = 0.0 
+@warning_ignore("unused_private_class_variable")
+var _fixed_rotation: float = 0.0  # Used by child classes for rotation tracking
+@warning_ignore("unused_private_class_variable")
+var _idle_timer: float = 0.0  # Used by child classes for idle timing 
 
 signal player_killed(player: Node3D)
 signal all_players_dead

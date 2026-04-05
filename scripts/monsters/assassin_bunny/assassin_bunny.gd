@@ -178,7 +178,6 @@ func _process_searching(_delta: float) -> void:
 
 	_search_timer += _delta
 	if _search_timer >= SEARCH_DURATION:
-		print("[BUNNY] Tempo de search esgotado - iniciando Leave")
 		_start_leave()
 		return
 
@@ -188,7 +187,6 @@ func _process_searching(_delta: float) -> void:
 
 	var detected_player := _check_raycasts_for_player()
 	if detected_player:
-		print("[BUNNY] Detectado por VISÃO (raycast)")
 		_target_player = detected_player
 		_start_detect()
 		return
@@ -198,7 +196,6 @@ func _process_searching(_delta: float) -> void:
 		_flashlight_check_timer = 0.0
 		var illuminating_player := _detect_flashlight_on_bunny()
 		if illuminating_player:
-			print("[BUNNY] Lanterna detectada - iniciando rotação lenta")
 			_start_turning(illuminating_player)
 			return
 
@@ -207,7 +204,6 @@ func _process_searching(_delta: float) -> void:
 		_sound_check_timer = 0.0
 		var noisy_player := _detect_player_by_sound()
 		if noisy_player:
-			print("[BUNNY] Som detectado - iniciando rotação lenta")
 			_start_turning(noisy_player)
 
 func _start_detect() -> void:
@@ -287,7 +283,6 @@ func _start_detect() -> void:
 			var peer_id := int(attack_target.name)
 			_sync_player_damage.rpc_id(peer_id, BUNNY_ATTACK_DAMAGE)
 
-		print("[BUNNY] Causou %d de dano" % BUNNY_ATTACK_DAMAGE)
 
 	_play_detection_effects_target(attack_target)
 	_set_player_paralyzed_target(attack_target, false)

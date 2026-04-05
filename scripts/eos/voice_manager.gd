@@ -71,37 +71,29 @@ func _process(delta: float) -> void:
 
 
 func _on_connection_succeeded() -> void:
-	# Only activate for EOS mode
 	if MultiplayerManager.current_mode != MultiplayerManager.NetworkMode.EOS:
-		print("[VoiceManager] Not activating - not in EOS mode")
 		return
 
 	_current_lobby = MultiplayerManager.get_current_lobby()
 	if _current_lobby:
-		print("[VoiceManager] Connection succeeded - activating voice chat")
-		print("[VoiceManager] RTC Room: ", _current_lobby.rtc_room_name)
-		print("[VoiceManager] RTC Room Connected: ", _current_lobby.rtc_room_connected)
+
 		_is_active = true
 
-		# Wait for RTC room to be connected before applying mic settings
 		if _current_lobby.rtc_room_connected:
-			print("[VoiceManager] RTC already connected, applying mic settings now")
 			_apply_mic_settings()
 		else:
-			print("[VoiceManager] Waiting for RTC connection...")
 			_wait_for_rtc_connection()
 	else:
-		print("[VoiceManager] ERROR: No lobby found after connection")
+		push_error("[VoiceManager] ERROR: No lobby found after connection")
 
 
 func _wait_for_rtc_connection() -> void:
 	"""Espera até a sala RTC estar conectada antes de aplicar configurações do microfone"""
-	var max_attempts = 50  # 5 segundos no máximo (50 * 0.1s)
+	var max_attempts = 50  
 	var attempts = 0
 
 	while attempts < max_attempts:
 		if _current_lobby and _current_lobby.rtc_room_connected:
-			print("[VoiceManager] RTC connected after ", attempts * 0.1, " seconds")
 			_apply_mic_settings()
 			return
 

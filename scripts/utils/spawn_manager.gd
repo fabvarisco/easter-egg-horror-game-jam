@@ -103,7 +103,6 @@ func spawn_player(peer_id: int) -> Node3D:
 	var spawn_index := _get_deterministic_spawn_index(peer_id, spawn_points.size())
 	var spawn_point: Node3D = spawn_points[spawn_index]
 
-	print("[SpawnManager] Spawning peer ", peer_id, " at spawn point ", spawn_index)
 
 	var final_position: Vector3
 	if spawn_point.is_inside_tree():

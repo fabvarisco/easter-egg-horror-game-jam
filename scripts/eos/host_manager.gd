@@ -409,7 +409,7 @@ func _sync_return_to_lobby_rpc() -> void:
 # PROGRESSION SYNC
 # ==========================================
 
-func _on_currency_changed_host(amount: int, delta: int) -> void:
+func _on_currency_changed_host(_amount: int, delta: int) -> void:
 	"""Called on host when currency changes"""
 	sync_currency_change(delta, "sync")
 
@@ -429,7 +429,7 @@ func sync_currency_change(amount: int, reason: String) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func _sync_currency(total: int, delta: int, reason: String) -> void:
+func _sync_currency(total: int, delta: int, _reason: String) -> void:
 	"""Receives currency update from server"""
 	ProgressionManager.group_currency = total
 	ProgressionManager.currency_changed.emit(total, delta)

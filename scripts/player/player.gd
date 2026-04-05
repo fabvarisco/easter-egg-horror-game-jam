@@ -126,6 +126,8 @@ func _setup_random_model() -> void:
 	if PLAYER_MODELS.is_empty():
 		return
 
+	var peer_id: int = get_meta("peer_id", 1)
+
 	# Use model_index from meta if available (set by spawn_manager from multiplayer_manager)
 	# This ensures the same model is used across all clients and scene transitions
 	var model_index: int
@@ -134,7 +136,6 @@ func _setup_random_model() -> void:
 	else:
 		# Fallback: use peer_id as seed for deterministic model selection
 		# This ensures all clients see the same model even if sync hasn't arrived yet
-		var peer_id: int = get_meta("peer_id", 1)
 		var rng := RandomNumberGenerator.new()
 		rng.seed = peer_id
 		model_index = rng.randi() % PLAYER_MODELS.size()
@@ -165,8 +166,6 @@ func _setup_random_model() -> void:
 	# Aplicar textura
 	_apply_texture_to_model()
 
-	var peer_id: int = get_meta("peer_id", -1)
-	print("[PLAYER] peer_id=%d, model_index=%d, model=%s" % [peer_id, model_index, chosen["model"].get_file()])
 
 func _input(event: InputEvent) -> void:
 	if not _has_authority():
@@ -852,7 +851,6 @@ func _update_footsteps(delta: float) -> void:
 
 func _collect_dead_player_egg(egg: Node3D) -> void:
 	"""Collects a dead player's egg and awards currency"""
-	print("Collected dead player egg! (peer_id: %d)" % egg.owner_peer_id)
 
 	ProgressionManager.add_currency(5, "recovered_dead_player_egg")
 
@@ -863,7 +861,7 @@ func _collect_dead_player_egg(egg: Node3D) -> void:
 
 
 @rpc("authority", "call_local", "reliable")
-func _sync_dead_egg_collected(egg_name: String, owner_id: int) -> void:
+func _sync_dead_egg_collected(egg_name: String, _owner_id: int) -> void:
 	"""Syncs dead player egg collection across clients"""
 	var eggs = get_tree().get_nodes_in_group("eggs")
 	for egg in eggs:
@@ -896,5 +894,3 @@ func revive() -> void:
 		add_to_group("players")
 	if not is_in_group("player"):
 		add_to_group("player")
-
-	print("Player revived!")

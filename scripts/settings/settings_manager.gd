@@ -44,7 +44,6 @@ func _ready() -> void:
 ## Loads settings from JSON file
 func load_settings() -> void:
 	if not FileAccess.file_exists(SETTINGS_FILE_PATH):
-		print("[SettingsManager] No settings file found, using defaults")
 		current_settings = DEFAULT_SETTINGS.duplicate(true)
 		save_settings()
 		return
@@ -68,13 +67,10 @@ func load_settings() -> void:
 
 	current_settings = json.data
 
-	# Merge with defaults to ensure all keys exist
 	_merge_with_defaults()
 
-	print("[SettingsManager] Settings loaded successfully")
 
 
-## Saves current settings to JSON file
 func save_settings() -> void:
 	var file := FileAccess.open(SETTINGS_FILE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -85,10 +81,8 @@ func save_settings() -> void:
 	file.store_string(json_string)
 	file.close()
 
-	print("[SettingsManager] Settings saved to: " + SETTINGS_FILE_PATH)
 
 
-## Merges current settings with defaults to ensure all keys exist
 func _merge_with_defaults() -> void:
 	for category in DEFAULT_SETTINGS:
 		if not current_settings.has(category):
@@ -99,7 +93,6 @@ func _merge_with_defaults() -> void:
 					current_settings[category][key] = DEFAULT_SETTINGS[category][key]
 
 
-## Applies all settings to the game
 func apply_all_settings() -> void:
 	apply_display_settings()
 	apply_audio_settings()
@@ -131,17 +124,14 @@ func apply_display_settings() -> void:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
 
-	# Apply resolution
 	var resolution: Vector2i = _parse_resolution(display.get("resolution", Vector2i(1920, 1080)))
 	DisplayServer.window_set_size(resolution)
 
-	# Center window if windowed
 	if not fullscreen:
 		var screen_size := DisplayServer.screen_get_size()
 		var window_pos := (screen_size - resolution) / 2
 		DisplayServer.window_set_position(window_pos)
 
-	# Apply VSync
 	var vsync: bool = display.get("vsync", true)
 	if vsync:
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED)
@@ -189,7 +179,6 @@ func get_vsync() -> bool:
 	return current_settings.get("display", {}).get("vsync", true)
 
 
-## Helper function to parse resolution from dictionary or Vector2i
 func _parse_resolution(value) -> Vector2i:
 	if value is Vector2i:
 		return value
@@ -206,12 +195,10 @@ func _parse_resolution(value) -> Vector2i:
 func apply_audio_settings() -> void:
 	var audio: Dictionary = current_settings.get("audio", {})
 
-	# Apply master volume
 	var master_volume: float = audio.get("master_volume", 1.0)
 	var master_bus_idx := AudioServer.get_bus_index("Master")
 	AudioServer.set_bus_volume_db(master_bus_idx, linear_to_db(master_volume))
 
-	# Apply music and SFX volumes through AudioManager
 	var audio_manager := get_node_or_null("/root/AudioManager")
 	if audio_manager:
 		var music_volume: float = audio.get("music_volume", 1.0)
@@ -219,7 +206,6 @@ func apply_audio_settings() -> void:
 		audio_manager.set_music_volume(music_volume)
 		audio_manager.set_sfx_volume(sfx_volume)
 
-	# Apply audio devices
 	var output_device: String = audio.get("audio_output_device", "")
 	if not output_device.is_empty():
 		AudioServer.output_device = output_device

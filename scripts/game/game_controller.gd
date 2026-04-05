@@ -39,7 +39,6 @@ func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
 
 	grid_size = ProgressionManager.get_current_grid_size()
-	print("Starting game with grid size: %s (run %d)" % [grid_size, ProgressionManager.runs_completed])
 
 	_show_loading_screen()
 
@@ -580,7 +579,6 @@ func _generate_items_local() -> void:
 
 	const MAX_ITEMS_PER_CHUNK: int = 3
 	var chunk_item_count: Dictionary = {}
-	var spawned_count: int = 0
 
 	for i in range(items_to_spawn):
 		var item_index: int = i % total_items
@@ -605,8 +603,6 @@ func _generate_items_local() -> void:
 		var target_chunk: Node3D = chunk_for_spawn_point[selected_spawn_point]
 		target_chunk.add_child(item)
 		item.global_position = selected_spawn_point.global_position
-
-		spawned_count += 1
 
 
 func _on_player_died(dead_player: Node3D) -> void:

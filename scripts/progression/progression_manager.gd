@@ -6,14 +6,11 @@ signal runs_completed_changed(new_count: int)
 var group_currency: int = 0
 var runs_completed: int = 0
 
-func _ready() -> void:
-	print("ProgressionManager initialized")
 
 func add_currency(amount: int, reason: String = "") -> void:
 	var old = group_currency
 	group_currency += amount
 	currency_changed.emit(group_currency, amount)
-	print("Currency: %d → %d (%+d) [%s]" % [old, group_currency, amount, reason])
 
 func remove_currency(amount: int, reason: String = "") -> void:
 	add_currency(-amount, reason)
@@ -21,7 +18,6 @@ func remove_currency(amount: int, reason: String = "") -> void:
 func complete_run() -> void:
 	runs_completed += 1
 	runs_completed_changed.emit(runs_completed)
-	print("Run completed! Total runs: %d" % runs_completed)
 
 func get_current_grid_size() -> Vector2i:
 	var base_chunks = 16  
