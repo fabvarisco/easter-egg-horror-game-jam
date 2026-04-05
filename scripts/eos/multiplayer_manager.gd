@@ -170,32 +170,12 @@ func _initialize_eos() -> bool:
 
 
 func _configure_p2p_settings() -> void:
-	# Enable relay servers for NAT traversal
-	# This is critical for Windows builds where firewalls are more restrictive
 	var p2p_node = get_node_or_null("/root/HP2P")
 	if not p2p_node:
-		print("[EOS] HP2P not found, skipping P2P configuration")
 		return
 
-	# Force relay servers to ensure connection works through any firewall/NAT
-	# AllowRelays = use relay as fallback, ForceRelays = always use relay
-	if p2p_node.has_method("set_relay_control"):
-		# Use ForceRelays to guarantee connectivity (slightly higher latency but more reliable)
-		var result = p2p_node.set_relay_control(EOS.P2P.RelayControl.ForceRelays)
-		if result == EOS.Result.Success:
-			print("[EOS] Relay servers FORCED for guaranteed connectivity")
-		else:
-			# Fallback to AllowRelays if ForceRelays fails
-			result = p2p_node.set_relay_control(EOS.P2P.RelayControl.AllowRelays)
-			if result == EOS.Result.Success:
-				print("[EOS] Relay servers enabled as fallback")
-			else:
-				push_warning("[EOS] Could not configure relay servers")
-
-	# Set port range for better connectivity
 	if p2p_node.has_method("set_port_range"):
 		p2p_node.set_port_range(7777, 50)
-		print("[EOS] Port range configured: 7777-7827")
 
 
 # ==========================================
@@ -222,11 +202,10 @@ func host_game_eos(room_name: String = "Game") -> void:
 			current_mode = NetworkMode.NONE
 			return
 
-	# Create lobby using high-level API
 	var create_opts := EOS.Lobby.CreateLobbyOptions.new()
 	create_opts.bucket_id = GAME_ID
 	create_opts.max_lobby_members = MAX_PLAYERS
-	create_opts.enable_rtc_room = true  # Enable voice chat
+	create_opts.enable_rtc_room = true 
 
 	_current_lobby = await HLobbies.create_lobby_async(create_opts)
 	if not _current_lobby:
@@ -241,7 +220,6 @@ func host_game_eos(room_name: String = "Game") -> void:
 	var result := _eos_peer.create_server(GAME_ID)
 	if result != OK:
 		push_error("[EOS] Failed to create P2P server: " + str(result))
-		# Cleanup on failure
 		if _eos_peer:
 			_eos_peer.close()
 			_eos_peer = null
@@ -260,10 +238,8 @@ func host_game_eos(room_name: String = "Game") -> void:
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
 
-	# Assign model index to host
 	assign_local_model_index()
 
-	# Register own PUID for voice chat mapping
 	puid_to_peer_id[_local_product_user_id] = my_peer_id
 	peer_id_to_puid[my_peer_id] = _local_product_user_id
 
@@ -287,27 +263,21 @@ func join_game_eos(code: String) -> void:
 			current_mode = NetworkMode.NONE
 			return
 
-	# Search for lobbies by bucket_id
 	var lobbies = await HLobbies.search_by_bucket_id_async(GAME_ID)
 	if not lobbies or lobbies.size() == 0:
 		lobby_join_failed.emit("No rooms found. Check if the host is still online.")
 		current_mode = NetworkMode.NONE
 		return
 
-	# Find lobby matching the code
 	for lobby in lobbies:
 		var found_code := _generate_lobby_code(lobby.lobby_id)
 		if found_code == room_code:
-			print("[EOS] Found lobby: ", lobby.lobby_id, " with ", lobby.available_slots, " slots available")
 
-			# Check if lobby is full before trying to join
 			if lobby.available_slots <= 0:
 				lobby_join_failed.emit("Room is full. Wait for a slot to open.")
 				current_mode = NetworkMode.NONE
 				return
 
-			# Join the lobby
-			print("[EOS] Attempting to join lobby...")
 			var joined_lobby = await HLobbies.join_by_id_async(lobby.lobby_id)
 			if not joined_lobby:
 				push_error("[EOS] join_by_id_async returned null")
@@ -315,14 +285,11 @@ func join_game_eos(code: String) -> void:
 				current_mode = NetworkMode.NONE
 				return
 
-			print("[EOS] Joined lobby successfully, creating P2P client...")
 
-			# Create P2P client connection to lobby owner
 			_eos_peer = EOSGMultiplayerPeer.new()
 			var result := _eos_peer.create_client(GAME_ID, lobby.owner_product_user_id)
 			if result != OK:
 				push_error("[EOS] Failed to create P2P client: " + str(result))
-				# Cleanup on failure
 				if _eos_peer:
 					_eos_peer.close()
 					_eos_peer = null
@@ -333,7 +300,6 @@ func join_game_eos(code: String) -> void:
 				current_mode = NetworkMode.NONE
 				return
 
-			print("[EOS] P2P client created, waiting for connection...")
 			multiplayer.multiplayer_peer = _eos_peer
 			_current_lobby = joined_lobby
 			return
@@ -446,39 +412,26 @@ func _on_peer_connected(id: int) -> void:
 	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
 
-	print("[MultiplayerManager] Peer connected: ", id)
-
 	if not connected_peers.has(id):
 		connected_peers.append(id)
 
-	print("[MultiplayerManager] Host connected_peers: ", connected_peers)
 
-	# Host sends existing data to new peer
 	if is_host:
-		# Assign a deterministic model index to the new peer if not already assigned
-		# Using peer_id as seed ensures all clients generate the same fallback
 		if not _player_model_indices.has(id):
 			var rng := RandomNumberGenerator.new()
 			rng.seed = id
 			_player_model_indices[id] = rng.randi() % NUM_PLAYER_MODELS
 
-		# Send existing ready states
 		for peer_id in _ready_states:
 			_sync_ready_state.rpc_id(id, peer_id, _ready_states[peer_id])
 
-		# Send all model indices to new peer
 		for peer_id in _player_model_indices:
 			_sync_model_index.rpc_id(id, peer_id, _player_model_indices[peer_id])
 
-		# CRITICAL: Broadcast new peer's model index to ALL clients (including host)
-		# This ensures everyone sees the same model for the new player
 		_sync_model_index.rpc(id, _player_model_indices[id])
 
-		# Send list of all connected peers so new client knows about everyone
-		print("[MultiplayerManager] Sending _sync_peer_list to ", id, ": ", connected_peers)
 		_sync_peer_list.rpc_id(id, connected_peers)
 
-	print("[MultiplayerManager] Emitting player_connected for: ", id)
 	player_connected.emit(id)
 
 
@@ -494,21 +447,13 @@ func _on_connected_to_server() -> void:
 	if _is_quitting or current_mode == NetworkMode.NONE:
 		return
 	my_peer_id = multiplayer.get_unique_id()
-	print("[MultiplayerManager] Connected to server. my_peer_id: ", my_peer_id)
 
 	if not connected_peers.has(my_peer_id):
 		connected_peers.append(my_peer_id)
 
-	print("[MultiplayerManager] Initial connected_peers (only local): ", connected_peers)
-
-	# Do NOT assign local model index - wait for host to sync it
-	# This prevents race conditions where spawn happens before sync
-
-	# Register PUID mapping for voice chat (EOS only)
 	if current_mode == NetworkMode.EOS and _local_product_user_id != "":
 		_register_puid.rpc(_local_product_user_id, my_peer_id)
 
-	print("[MultiplayerManager] Emitting connection_succeeded")
 	connection_succeeded.emit()
 
 
@@ -590,7 +535,6 @@ func _remove_player(id: int) -> void:
 	if spawn_manager:
 		spawn_manager.remove_player(id)
 	else:
-		# Fallback if SpawnManager not available
 		if not players.has(id):
 			return
 		var player: Node = players[id]
@@ -704,18 +648,14 @@ func _receive_game_start() -> void:
 
 @rpc("authority", "reliable")
 func _sync_peer_list(peers: Array) -> void:
-	print("[MultiplayerManager] Received _sync_peer_list: ", peers)
-	print("[MultiplayerManager] Current connected_peers: ", connected_peers)
+
 
 	for peer_id in peers:
 		if not connected_peers.has(peer_id):
-			print("[MultiplayerManager] Adding new peer: ", peer_id)
 			connected_peers.append(peer_id)
 			player_connected.emit(peer_id)
-		else:
-			print("[MultiplayerManager] Peer already in list: ", peer_id)
 
-	print("[MultiplayerManager] Final connected_peers: ", connected_peers)
+
 
 
 # ==========================================
@@ -726,7 +666,6 @@ func _sync_peer_list(peers: Array) -> void:
 @rpc("authority", "call_local", "reliable")
 func _sync_model_index(peer_id: int, model_index: int) -> void:
 	_player_model_indices[peer_id] = model_index
-	print("[MultiplayerManager] Synced model_index for peer ", peer_id, ": model_index=", model_index)
 
 
 func get_player_model_index(peer_id: int) -> int:

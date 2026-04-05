@@ -259,10 +259,6 @@ func _set_participant_volume(puid: String, volume: float) -> void:
 	volume_opts.participant_id = puid
 	volume_opts.volume = volume
 
-	# Debug log (can be removed later)
-	var peer_id = MultiplayerManager.puid_to_peer_id.get(puid, -1)
-	if Engine.get_frames_drawn() % 60 == 0:  # Log every 60 frames to avoid spam
-		print("[VoiceManager] Setting volume for peer ", peer_id, " (", puid.substr(0, 8), "...) to ", volume)
 
 	EOS.RTCAudio.RTCAudioInterface.update_receiving_volume(volume_opts)
 
@@ -275,43 +271,29 @@ func _set_participant_volume(puid: String, volume: float) -> void:
 func _apply_mic_settings() -> void:
 	"""Apply saved mic settings to EOS RTC after connection is established"""
 	if not _current_lobby:
-		print("[VoiceManager] Cannot apply mic settings - no lobby")
 		return
 
 	var room_name: String = _current_lobby.rtc_room_name
 	if room_name.is_empty():
-		print("[VoiceManager] Cannot apply mic settings - no room name")
 		return
 
-	# CRITICAL CHECK: Verify RTC room is connected
 	if not _current_lobby.rtc_room_connected:
 		push_error("[VoiceManager] ERROR: Attempting to apply mic settings but RTC room is NOT connected!")
 		return
-
-	print("[VoiceManager] ========== APPLYING MIC SETTINGS ==========")
-	print("[VoiceManager] Room: ", room_name)
-	print("[VoiceManager] Muted: ", _mic_muted)
-	print("[VoiceManager] Volume: ", _mic_volume)
-	print("[VoiceManager] RTC Connected: ", _current_lobby.rtc_room_connected)
-	print("[VoiceManager] Local PUID: ", MultiplayerManager.get_local_puid())
 
 	var mute_opts = EOS.RTCAudio.UpdateSendingOptions.new()
 	mute_opts.room_name = room_name
 	mute_opts.audio_status = EOS.RTCAudio.AudioStatus.Disabled if _mic_muted else EOS.RTCAudio.AudioStatus.Enabled
 
-	print("[VoiceManager] Calling update_sending...")
 	EOS.RTCAudio.RTCAudioInterface.update_sending(mute_opts)
 	var ret = await IEOS.rtc_audio_interface_update_sending_callback
 
-	print("[VoiceManager] update_sending result: ", EOS.result_str(ret))
 
 	if not EOS.is_success(ret):
 		push_error("[VoiceManager] FAILED to apply mic settings: %s" % EOS.result_str(ret))
-		print("[VoiceManager] This means the EOS SDK rejected the microphone configuration!")
 		return
 
-	print("[VoiceManager] Mic settings applied successfully - audio transmission should be active")
-	print("[VoiceManager] ===========================================")
+
 	_apply_mic_volume()
 
 
@@ -372,8 +354,6 @@ func set_player_volume(peer_id: int, multiplier: float) -> void:
 	"""
 	multiplier = clamp(multiplier, 0.0, 2.0)
 	_player_volume_overrides[peer_id] = multiplier
-	print("[VoiceManager] Set volume for peer ", peer_id, " to ", multiplier)
-
 
 func get_player_volume(peer_id: int) -> float:
 	"""Retorna o multiplicador de volume atual de um jogador (1.0 = normal)"""
@@ -406,32 +386,18 @@ func _on_rtc_audio_participant_updated(data: Dictionary) -> void:
 	if not _current_lobby:
 		return
 
-	# Verify this is for our room
 	if data.room_name != _current_lobby.rtc_room_name:
 		return
 
 	var puid: String = data.participant_id
 	var is_speaking: bool = data.speaking
-	var audio_status = data.get("audio_status", -1)
 
-	# Convert PUID to peer_id
-	if not MultiplayerManager.puid_to_peer_id.has(puid):
-		# DEBUG: Se não encontrar o PUID, pode ser um problema
-		print("[VoiceManager] WARNING: RTC update for unknown PUID: ", puid.substr(0, 8), "...")
-		return
 
 	var peer_id: int = MultiplayerManager.puid_to_peer_id[puid]
-	var is_local: bool = (peer_id == MultiplayerManager.my_peer_id)
 
-	# DEBUG: Log TODOS os updates, especialmente do jogador local
-	if is_local or is_speaking:
-		print("[VoiceManager] RTC Audio Update - Peer: ", peer_id, " (", "LOCAL" if is_local else "REMOTE", ") Speaking: ", is_speaking, " Audio Status: ", audio_status)
-
-	# Check if state changed
 	var previous_state: bool = _speaking_states.get(peer_id, false)
 	if previous_state != is_speaking:
 		_speaking_states[peer_id] = is_speaking
-		print("[VoiceManager] Speaking state CHANGED for peer ", peer_id, " (", "LOCAL" if is_local else "REMOTE", "): ", is_speaking)
 		player_speaking_changed.emit(peer_id, is_speaking)
 
 

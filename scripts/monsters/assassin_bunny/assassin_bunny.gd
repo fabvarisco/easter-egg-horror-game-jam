@@ -576,14 +576,12 @@ func _process_turning(delta: float) -> void:
 
 	var detected_player := _check_raycasts_for_player()
 	if detected_player:
-		print("[BUNNY] Raycast atingiu player durante rotação - DETECTADO!")
 		_target_player = detected_player
 		_cancel_turning()
 		_start_detect()
 		return
 
 	if _turn_lerp_progress >= 1.0:
-		print("[BUNNY] Rotação completa - nenhum player encontrado")
 		_cancel_turning()
 
 func _cancel_turning() -> void:
@@ -598,7 +596,6 @@ func _show_jumpscare_local() -> void:
 	"""Mostra jumpscare no cliente local"""
 	var jumpscare_scene = load("res://scenes/monsters/jump_scare.tscn")
 	if not jumpscare_scene:
-		print("[BUNNY] Erro ao carregar cena de jumpscare")
 		return
 
 	var jumpscare_instance = jumpscare_scene.instantiate()
