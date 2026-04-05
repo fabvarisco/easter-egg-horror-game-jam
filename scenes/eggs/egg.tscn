@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dr6k67vp3dajy"]
 
 [ext_resource type="Script" uid="uid://cxvk3hja8uygw" path="res://scripts/eggs/egg.gd" id="1_3ibyd"]
-[ext_resource type="PackedScene" uid="uid://y8udwrmpuf1b" path="res://assets/models/eggs/Egg.glb" id="2_h3tpb"]
+[ext_resource type="PackedScene" uid="uid://072lhqmy318e" path="res://assets/models/eggs/egg_model.tscn" id="2_h3tpb"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_1"]
 radius = 1.5
@@ -14,5 +14,5 @@ script = ExtResource("1_3ibyd")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractArea"]
 shape = SubResource("SphereShape3D_1")
 
-[node name="eggModel" parent="." instance=ExtResource("2_h3tpb")]
-transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0.3, 0)
+[node name="EggModel" parent="." instance=ExtResource("2_h3tpb")]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, 0, 0, 0)

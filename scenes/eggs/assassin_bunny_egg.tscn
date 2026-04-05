@@ -36,12 +36,12 @@ collision_mask = 3
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" index="0"]
 shape = SubResource("SphereShape3D_detection")
 
-[node name="LeftEyeMesh" type="MeshInstance3D" parent="." index="3"]
+[node name="LeftEyeMesh" type="MeshInstance3D" parent="EggModel"]
 transform = Transform3D(0.77447414, -0.3144893, 3.69742, 0.13798167, 1.1748809, 1.2762614, -0.85756963, -0.094979845, 3.5445006, 0.13790572, 0.65047, 0.14895868)
 mesh = SubResource("QuadMesh_qjnlk")
 surface_material_override/0 = SubResource("ShaderMaterial_k07p1")
 
-[node name="RightEyeMesh" type="MeshInstance3D" parent="." index="4"]
+[node name="RightEyeMesh" type="MeshInstance3D" parent="EggModel"]
 transform = Transform3D(0.2938787, -0.026247768, 5.1062174, -0.6881814, 0.96116585, 0.90738463, -0.8912444, -0.7508268, 0.9830768, 0.203139, 0.65047, 0.014869332)
 mesh = SubResource("QuadMesh_qjnlk")
 surface_material_override/0 = SubResource("ShaderMaterial_k07p1")

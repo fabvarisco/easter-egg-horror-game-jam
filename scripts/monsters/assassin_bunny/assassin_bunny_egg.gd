@@ -8,8 +8,8 @@ extends Egg
 @export var tracking_duration: float = 1.2
 @export var tracking_speed: float = 5.0
 
-@onready var _left_eye_mesh: MeshInstance3D = $LeftEyeMesh
-@onready var _right_eye_mesh: MeshInstance3D = $RightEyeMesh
+@onready var _left_eye_mesh: MeshInstance3D = $EggModel/LeftEyeMesh
+@onready var _right_eye_mesh: MeshInstance3D = $EggModel/RightEyeMesh
 @onready var _detection_area: Area3D = $DetectionArea
 
 var _blink_timer: float = 0.0
@@ -106,7 +106,9 @@ func _look_at_nearby_player_smooth(delta: float) -> void:
 	direction.y = 0
 	if direction.length_squared() > 0.001:
 		var target_rotation := atan2(direction.x, direction.z)
-		rotation.y = lerp_angle(rotation.y, target_rotation, tracking_speed * delta)
+		# Rotate the egg_model instead of root so eyes follow along
+		if egg_model:
+			egg_model.rotation.y = lerp_angle(egg_model.rotation.y, target_rotation, tracking_speed * delta)
 
 
 func _set_eyes_on(on: bool) -> void:

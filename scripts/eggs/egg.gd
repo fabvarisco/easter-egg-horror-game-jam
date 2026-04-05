@@ -9,16 +9,35 @@ const SHAKE_INTENSITY: float = 0.5
 const SHAKE_DURATION: float = 1.0
 const FLASHLIGHT_CHECK_INTERVAL: float = 0.1
 
+const ANIM_GOOD_EGG: String = "GoodEgg"
+const ANIM_BAD_EGG: String = "BadEgg"
+
 var _was_picked_up: bool = false
 var _flashlight_check_timer: float = 0.0
 var _is_illuminated: bool = false
 
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+@onready var egg_model: Node3D = $EggModel
+@onready var mesh_instance: MeshInstance3D = $EggModel/Sphere
+@onready var anim_player: AnimationPlayer = $EggModel/AnimationPlayer
 
 signal monster_released
 
 func _ready() -> void:
 	set_outline_active(false)
+	# Aguarda um frame para garantir que is_monster foi definido
+	call_deferred("_play_egg_animation")
+
+
+func _play_egg_animation() -> void:
+	if not anim_player:
+		return
+
+	# Para o autoplay antes de tocar a animação correta
+	anim_player.stop()
+
+	var anim_name := ANIM_BAD_EGG if is_monster else ANIM_GOOD_EGG
+	if anim_player.has_animation(anim_name):
+		anim_player.play(anim_name)
 
 
 func _process(delta: float) -> void:
@@ -75,11 +94,10 @@ func _is_multiplayer_active() -> bool:
 		   multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 func _break_egg() -> void:
-	var mesh := get_node_or_null("MeshInstance3D")
-	if mesh:
+	if egg_model:
 		var tween := create_tween()
-		tween.tween_property(mesh, "scale", Vector3.ZERO, 0.2)
-		tween.tween_callback(mesh.queue_free)
+		tween.tween_property(egg_model, "scale", Vector3.ZERO, 0.2)
+		tween.tween_callback(egg_model.queue_free)
 
 
 func _activate_bunny() -> void:
@@ -108,26 +126,33 @@ func _is_illuminated_by_flashlight() -> bool:
 		if not is_instance_valid(player):
 			continue
 
-		var flashlight: SpotLight3D = player.get_node_or_null("SpotLight3D")
-		if not flashlight or not flashlight.visible:
-			continue
+		# Check handheld flashlight
+		var flashlight: SpotLight3D = player.get_node_or_null("Flashlight")
+		if flashlight and flashlight.visible and _is_in_light_cone(flashlight):
+			return true
 
-		var light_pos: Vector3 = flashlight.global_position
-		var light_dir: Vector3 = -flashlight.global_transform.basis.z
-		var light_range: float = flashlight.spot_range
-		var light_angle: float = deg_to_rad(flashlight.spot_angle)
-
-		var to_obj: Vector3 = global_position - light_pos
-		var distance: float = to_obj.length()
-
-		if distance > light_range:
-			continue
-
-		var angle_to_obj: float = light_dir.angle_to(to_obj.normalized())
-		if angle_to_obj <= light_angle:
+		# Check headlamp
+		var headlamp: SpotLight3D = player.get_node_or_null("HeadLamp/HeadFlashlight")
+		if headlamp and headlamp.visible and _is_in_light_cone(headlamp):
 			return true
 
 	return false
+
+
+func _is_in_light_cone(light: SpotLight3D) -> bool:
+	var light_pos: Vector3 = light.global_position
+	var light_dir: Vector3 = -light.global_transform.basis.z
+	var light_range: float = light.spot_range
+	var light_angle: float = deg_to_rad(light.spot_angle)
+
+	var to_obj: Vector3 = global_position - light_pos
+	var distance: float = to_obj.length()
+
+	if distance > light_range:
+		return false
+
+	var angle_to_obj: float = light_dir.angle_to(to_obj.normalized())
+	return angle_to_obj <= light_angle
 
 
 func set_outline_active(active: bool) -> void:

@@ -130,26 +130,33 @@ func _is_illuminated_by_flashlight() -> bool:
 		if not is_instance_valid(player):
 			continue
 
-		var flashlight: SpotLight3D = player.get_node_or_null("SpotLight3D")
-		if not flashlight or not flashlight.visible:
-			continue
+		# Check handheld flashlight
+		var flashlight: SpotLight3D = player.get_node_or_null("Flashlight")
+		if flashlight and flashlight.visible and _is_in_light_cone(flashlight):
+			return true
 
-		var light_pos: Vector3 = flashlight.global_position
-		var light_dir: Vector3 = -flashlight.global_transform.basis.z
-		var light_range: float = flashlight.spot_range
-		var light_angle: float = deg_to_rad(flashlight.spot_angle)
-
-		var to_obj: Vector3 = global_position - light_pos
-		var distance: float = to_obj.length()
-
-		if distance > light_range:
-			continue
-
-		var angle_to_obj: float = light_dir.angle_to(to_obj.normalized())
-		if angle_to_obj <= light_angle:
+		# Check headlamp
+		var headlamp: SpotLight3D = player.get_node_or_null("HeadLamp/HeadFlashlight")
+		if headlamp and headlamp.visible and _is_in_light_cone(headlamp):
 			return true
 
 	return false
+
+
+func _is_in_light_cone(light: SpotLight3D) -> bool:
+	var light_pos: Vector3 = light.global_position
+	var light_dir: Vector3 = -light.global_transform.basis.z
+	var light_range: float = light.spot_range
+	var light_angle: float = deg_to_rad(light.spot_angle)
+
+	var to_obj: Vector3 = global_position - light_pos
+	var distance: float = to_obj.length()
+
+	if distance > light_range:
+		return false
+
+	var angle_to_obj: float = light_dir.angle_to(to_obj.normalized())
+	return angle_to_obj <= light_angle
 
 
 func set_outline_active(active: bool) -> void:
