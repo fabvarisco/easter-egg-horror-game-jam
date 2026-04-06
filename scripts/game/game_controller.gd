@@ -38,7 +38,9 @@ var _car_area: Area3D = null
 func _ready() -> void:
 	multiplayer_manager.server_disconnected.connect(_on_server_disconnected)
 
-	grid_size = ProgressionManager.get_current_grid_size()
+	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
+
+	grid_size = ProgressionManager.get_current_grid_size(_is_singleplayer)
 
 	_show_loading_screen()
 
@@ -50,8 +52,6 @@ func _ready() -> void:
 
 	_game_hud = _game_hud_scene.instantiate()
 	add_child(_game_hud)
-
-	_is_singleplayer = multiplayer_manager.current_mode == multiplayer_manager.NetworkMode.NONE
 
 	call_deferred("_initialize_game_async")
 
@@ -291,8 +291,8 @@ func _generate_and_sync_eggs() -> int:
 		selected_spawn_points[i] = selected_spawn_points[j]
 		selected_spawn_points[j] = temp
 
-	# Determine monster eggs
-	var monster_count: int = ceili(egg_count / 2.0)
+	# Determine monster eggs (~1/3 monsters, ~2/3 good eggs)
+	var monster_count: int = maxi(1, floori(egg_count / 3.0))
 	var monster_indices: Array[int] = []
 	while monster_indices.size() < monster_count:
 		var random_index: int = rng.randi_range(0, egg_count - 1)
@@ -403,7 +403,8 @@ func _generate_eggs_local() -> int:
 		selected_spawn_points[i] = selected_spawn_points[j]
 		selected_spawn_points[j] = temp
 
-	var monster_count: int = ceili(egg_count / 2.0)
+	# ~1/3 monsters, ~2/3 good eggs (minimum 1 monster)
+	var monster_count: int = maxi(1, floori(egg_count / 3.0))
 	var monster_indices: Array[int] = []
 
 	while monster_indices.size() < monster_count:

@@ -166,7 +166,7 @@ func remove_player(peer_id: int) -> void:
 	if not _spawned_peer_ids.has(peer_id):
 		return
 
-	var player: Node = _spawned_peer_ids[peer_id]
+	var player = _spawned_peer_ids[peer_id]  # No type hint to avoid freed instance error
 	if is_instance_valid(player):
 		player.queue_free()
 
@@ -179,7 +179,7 @@ func remove_player(peer_id: int) -> void:
 func clear_all_players() -> void:
 	"""Remove all players and reset spawn state."""
 	for peer_id in _spawned_peer_ids.keys():
-		var player: Node = _spawned_peer_ids[peer_id]
+		var player = _spawned_peer_ids[peer_id]  # No type hint to avoid freed instance error
 		if is_instance_valid(player):
 			player.queue_free()
 

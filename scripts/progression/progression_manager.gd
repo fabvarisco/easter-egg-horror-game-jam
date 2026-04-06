@@ -18,13 +18,21 @@ func complete_run() -> void:
 	runs_completed += 1
 	runs_completed_changed.emit(runs_completed)
 
-func get_current_grid_size() -> Vector2i:
-	var base_chunks = 16  
-	var total_chunks = base_chunks + (runs_completed * 2)
+func get_current_grid_size(is_singleplayer: bool = false) -> Vector2i:
+	var base_chunks: int
+	var increment: int
 
+	if is_singleplayer:
+		base_chunks = 4  
+		increment = 1     
+	else:
+		base_chunks = 16  
+		increment = 2   
 
-	var width = 4
-	var height = 4
+	var total_chunks = base_chunks + (runs_completed * increment)
+
+	var width: int = 2 if is_singleplayer else 4
+	var height: int = 2 if is_singleplayer else 4
 
 	while width * height < total_chunks:
 		if height == width:
