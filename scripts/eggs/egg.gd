@@ -11,10 +11,13 @@ const FLASHLIGHT_CHECK_INTERVAL: float = 0.1
 
 const ANIM_GOOD_EGG: String = "GoodEgg"
 const ANIM_BAD_EGG: String = "BadEgg"
+const ANIM_SYNC_INTERVAL: float = 1.0
 
 var _was_picked_up: bool = false
 var _flashlight_check_timer: float = 0.0
 var _is_illuminated: bool = false
+var _anim_sync_timer: float = 0.0
+var _synced_anim_position: float = 0.0
 
 @onready var egg_model: Node3D = $EggModel
 @onready var mesh_instance: MeshInstance3D = $EggModel/Sphere
@@ -24,20 +27,29 @@ signal monster_released
 
 func _ready() -> void:
 	set_outline_active(false)
-	# Aguarda um frame para garantir que is_monster foi definido
-	call_deferred("_play_egg_animation")
+	_play_egg_animation()
 
 
 func _play_egg_animation() -> void:
+	print("ADSDSAds")
 	if not anim_player:
+		push_warning("[Egg] AnimationPlayer not found at path: EggModel/AnimationPlayer")
+		return
+	print(anim_player.name)
+	print(anim_player)
+	var anim_name := ANIM_BAD_EGG if is_monster else ANIM_GOOD_EGG
+	print("ADSDSAds")
+
+	if not anim_player.has_animation(anim_name):
+		push_warning("[Egg] Animation '%s' not found. Available: %s" % [anim_name, anim_player.get_animation_list()])
 		return
 
-	# Para o autoplay antes de tocar a animação correta
 	anim_player.stop()
+	anim_player.play(anim_name)
 
-	var anim_name := ANIM_BAD_EGG if is_monster else ANIM_GOOD_EGG
-	if anim_player.has_animation(anim_name):
-		anim_player.play(anim_name)
+	if _is_multiplayer_active() and multiplayer.is_server():
+		await get_tree().process_frame
+		_sync_start_animation.rpc(anim_name, 0.0)
 
 
 func _process(delta: float) -> void:
@@ -48,6 +60,10 @@ func _process(delta: float) -> void:
 		if illuminated != _is_illuminated:
 			_is_illuminated = illuminated
 			set_outline_active(illuminated)
+
+	# Sincronização de animação em multiplayer
+	if _is_multiplayer_active():
+		_sync_animation_process(delta)
 
 func on_picked_up() -> void:
 	is_multiplayer_authority()
@@ -186,3 +202,37 @@ func is_dead_player_egg() -> bool:
 
 func set_owner_peer_id(peer_id: int) -> void:
 	owner_peer_id = peer_id
+
+
+# ==========================================
+# ANIMATION SYNC (MULTIPLAYER)
+# ==========================================
+
+func _sync_animation_process(delta: float) -> void:
+	if not anim_player or not anim_player.is_playing():
+		return
+
+	if multiplayer.is_server():
+		_anim_sync_timer += delta
+		if _anim_sync_timer >= ANIM_SYNC_INTERVAL:
+			_anim_sync_timer = 0.0
+			_sync_animation_position.rpc(anim_player.current_animation_position)
+	else:
+		# Cliente aplica a posição sincronizada com interpolação suave
+		if abs(anim_player.current_animation_position - _synced_anim_position) > 0.1:
+			anim_player.seek(_synced_anim_position, true)
+
+
+@rpc("authority", "call_remote", "unreliable")
+func _sync_animation_position(anim_pos: float) -> void:
+	_synced_anim_position = anim_pos
+
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_start_animation(anim_name: String, start_position: float) -> void:
+	if not anim_player:
+		return
+	if anim_player.has_animation(anim_name):
+		anim_player.stop()
+		anim_player.play(anim_name)
+		anim_player.seek(start_position, true)

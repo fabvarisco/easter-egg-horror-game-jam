@@ -1,6 +1,5 @@
 extends Egg
 
-
 @export var min_blink_interval: float = 3.0
 @export var max_blink_interval: float = 8.0
 @export var blink_duration: float = 0.15
@@ -18,6 +17,11 @@ var _is_blinking: bool = false
 var _is_tracking: bool = false
 var _tracking_timer: float = 0.0
 
+var _eyes_visible: bool = false
+var _synced_rotation_y: float = 0.0
+const SYNC_INTERVAL: float = 0.05
+var _sync_timer: float = 0.0
+
 
 func _ready() -> void:
 	super._ready()
@@ -31,6 +35,15 @@ func _process(delta: float) -> void:
 	if _was_picked_up:
 		return
 
+	# Em multiplayer, apenas o servidor controla a lógica
+	if _is_multiplayer_active():
+		if multiplayer.is_server():
+			_process_server_logic(delta)
+		else:
+			_apply_synced_state(delta)
+		return
+
+	# Modo singleplayer - lógica normal
 	_blink_timer += delta
 
 	if _blink_timer >= _next_blink_time and not _is_blinking:
@@ -38,6 +51,27 @@ func _process(delta: float) -> void:
 
 	if _is_tracking:
 		_track_player(delta)
+
+
+func _process_server_logic(delta: float) -> void:
+	_blink_timer += delta
+
+	if _blink_timer >= _next_blink_time and not _is_blinking:
+		_start_tracking()
+		_sync_eye_state.rpc(true)
+
+	if _is_tracking:
+		_track_player(delta)
+		_sync_timer += delta
+		if _sync_timer >= SYNC_INTERVAL:
+			_sync_timer = 0.0
+			var rot_y: float = egg_model.rotation.y if egg_model else 0.0
+			_sync_rotation.rpc(rot_y)
+
+
+func _apply_synced_state(_delta: float) -> void:
+	if egg_model and _is_tracking:
+		egg_model.rotation.y = lerp_angle(egg_model.rotation.y, _synced_rotation_y, 0.3)
 
 
 func _start_tracking() -> void:
@@ -59,6 +93,9 @@ func _end_tracking() -> void:
 	_is_tracking = false
 	_set_eyes_on(false)
 
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_eye_state.rpc(false)
+
 	if randf() < double_blink_chance:
 		_do_double_blink()
 	else:
@@ -68,8 +105,12 @@ func _end_tracking() -> void:
 func _do_double_blink() -> void:
 	await get_tree().create_timer(blink_duration * 0.5).timeout
 	_set_eyes_on(true)
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_eye_state.rpc(true)
 	await get_tree().create_timer(blink_duration).timeout
 	_set_eyes_on(false)
+	if _is_multiplayer_active() and multiplayer.is_server():
+		_sync_eye_state.rpc(false)
 	_reset_blink_timer()
 
 
@@ -112,7 +153,24 @@ func _look_at_nearby_player_smooth(delta: float) -> void:
 
 
 func _set_eyes_on(on: bool) -> void:
+	_eyes_visible = on
 	if _left_eye_mesh:
 		_left_eye_mesh.visible = on
 	if _right_eye_mesh:
 		_right_eye_mesh.visible = on
+
+
+# ==========================================
+# MULTIPLAYER SYNC
+# ==========================================
+
+@rpc("authority", "call_remote", "reliable")
+func _sync_eye_state(eyes_on: bool) -> void:
+	_eyes_visible = eyes_on
+	_is_tracking = eyes_on
+	_set_eyes_on(eyes_on)
+
+
+@rpc("authority", "call_remote", "unreliable")
+func _sync_rotation(rot_y: float) -> void:
+	_synced_rotation_y = rot_y

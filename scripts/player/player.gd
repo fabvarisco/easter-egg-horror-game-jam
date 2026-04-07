@@ -119,6 +119,7 @@ func _ready() -> void:
 
 	if _has_authority():
 		_connect_voice_detection()
+		_restore_upgrades_from_progression()
 		health_changed.emit(_health, max_health)
 
 func _setup_random_model() -> void:
@@ -508,23 +509,44 @@ func get_health_percent() -> float:
 func add_max_health(amount: float) -> void:
 	max_health += amount
 	_health = max_health  # Fully heal when upgrading
+	ProgressionManager.player_max_health_bonus += amount
 	health_changed.emit(_health, max_health)
 
 
 func add_max_stamina(amount: float) -> void:
 	max_stamina += amount
 	_stamina = max_stamina  # Fully restore when upgrading
+	ProgressionManager.player_max_stamina_bonus += amount
 
 
 func activate_headlamp() -> void:
 	if _has_headlamp:
 		return
 	_has_headlamp = true
+	ProgressionManager.player_has_headlamp = true
 	if headlamp:
 		headlamp.visible = true
 	if head_flashlight:
 		head_flashlight.visible = true
 	_sync_headlamp_state()
+
+
+func _restore_upgrades_from_progression() -> void:
+	if ProgressionManager.player_has_headlamp and not _has_headlamp:
+		_has_headlamp = true
+		if headlamp:
+			headlamp.visible = true
+		if head_flashlight:
+			head_flashlight.visible = true
+		call_deferred("_sync_headlamp_state")
+
+	if ProgressionManager.player_max_stamina_bonus > 0:
+		max_stamina = BASE_max_stamina + ProgressionManager.player_max_stamina_bonus
+		_stamina = max_stamina
+
+	if ProgressionManager.player_max_health_bonus > 0:
+		max_health = BASE_max_health + ProgressionManager.player_max_health_bonus
+		_health = max_health
 
 
 func has_headlamp() -> bool:

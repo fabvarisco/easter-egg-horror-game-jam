@@ -15,4 +15,4 @@ script = ExtResource("1_3ibyd")
 shape = SubResource("SphereShape3D_1")
 
 [node name="EggModel" parent="." instance=ExtResource("2_h3tpb")]
-transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, 0, 0, 0)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)

@@ -41,8 +41,7 @@ func _update_button_states() -> void:
 
 	var currency: int = ProgressionManager.group_currency
 
-	# HeadLamp button
-	if _local_player.has_headlamp():
+	if _local_player.has_headlamp() or ProgressionManager.player_has_headlamp:
 		headlamp_button.text = "Head Lamp (Owned)"
 		headlamp_button.disabled = true
 		headlamp_button.modulate = COLOR_OWNED
@@ -92,7 +91,7 @@ func _on_area_3d_body_exited(body: Node3D) -> void:
 func _on_head_lamp_pressed() -> void:
 	if not _local_player:
 		return
-	if _local_player.has_headlamp():
+	if _local_player.has_headlamp() or ProgressionManager.player_has_headlamp:
 		return
 	if ProgressionManager.group_currency < HEADLAMP_COST:
 		return

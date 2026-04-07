@@ -242,15 +242,12 @@ func _connect_bunny_signals() -> void:
 
 
 func spawn_eggs() -> int:
-	# In multiplayer, only server generates egg data and syncs to clients
 	if not _is_singleplayer:
 		if multiplayer.is_server():
 			return _generate_and_sync_eggs()
 		else:
-			# Clients wait for server to sync eggs
 			return 0
 
-	# Singleplayer: generate locally
 	return _generate_eggs_local()
 
 
@@ -403,7 +400,6 @@ func _generate_eggs_local() -> int:
 		selected_spawn_points[i] = selected_spawn_points[j]
 		selected_spawn_points[j] = temp
 
-	# ~1/3 monsters, ~2/3 good eggs (minimum 1 monster)
 	var monster_count: int = maxi(1, floori(egg_count / 3.0))
 	var monster_indices: Array[int] = []
 
