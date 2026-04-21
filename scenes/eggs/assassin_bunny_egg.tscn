@@ -12,10 +12,10 @@ size = Vector2(0.15, 0.15)
 render_priority = 0
 shader = ExtResource("3_eye_glow")
 shader_parameter/eye_texture = ExtResource("4_bs6pu")
-shader_parameter/eye_color = Color(1, 0, 0, 1)
-shader_parameter/intensity = 3.0
-shader_parameter/pulse_speed = 1.5
-shader_parameter/pulse_amount = 0.2
+shader_parameter/eye_color = Color(1, 0.1, 0.05, 1)
+shader_parameter/intensity = 8.0
+shader_parameter/pulse_speed = 2.0
+shader_parameter/pulse_amount = 0.4
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_detection"]
 radius = 5.0

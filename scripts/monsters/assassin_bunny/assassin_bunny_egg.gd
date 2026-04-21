@@ -24,8 +24,8 @@ var _sync_timer: float = 0.0
 
 
 func _ready() -> void:
-	super._ready()
 	is_monster = true
+	super._ready()
 	_next_blink_time = randf_range(min_blink_interval, max_blink_interval)
 
 

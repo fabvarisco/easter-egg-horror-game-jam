@@ -27,22 +27,24 @@ signal monster_released
 
 func _ready() -> void:
 	set_outline_active(false)
-	_play_egg_animation()
+	call_deferred("_play_egg_animation")
 
 
 func _play_egg_animation() -> void:
-	print("ADSDSAds")
 	if not anim_player:
 		push_warning("[Egg] AnimationPlayer not found at path: EggModel/AnimationPlayer")
 		return
-	print(anim_player.name)
-	print(anim_player)
+
 	var anim_name := ANIM_BAD_EGG if is_monster else ANIM_GOOD_EGG
-	print("ADSDSAds")
 
 	if not anim_player.has_animation(anim_name):
 		push_warning("[Egg] Animation '%s' not found. Available: %s" % [anim_name, anim_player.get_animation_list()])
 		return
+
+	# Set animation to loop
+	var anim: Animation = anim_player.get_animation(anim_name)
+	if anim:
+		anim.loop_mode = Animation.LOOP_LINEAR
 
 	anim_player.stop()
 	anim_player.play(anim_name)
