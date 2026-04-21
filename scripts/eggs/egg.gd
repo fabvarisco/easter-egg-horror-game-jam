@@ -46,12 +46,19 @@ func _play_egg_animation() -> void:
 	if anim:
 		anim.loop_mode = Animation.LOOP_LINEAR
 
+	# In multiplayer, only server starts animation and syncs to clients
+	if _is_multiplayer_active():
+		if multiplayer.is_server():
+			anim_player.stop()
+			anim_player.play(anim_name)
+			await get_tree().process_frame
+			_sync_start_animation.rpc(anim_name, 0.0)
+		# Clients wait for sync from server
+		return
+
+	# Single player - just play locally
 	anim_player.stop()
 	anim_player.play(anim_name)
-
-	if _is_multiplayer_active() and multiplayer.is_server():
-		await get_tree().process_frame
-		_sync_start_animation.rpc(anim_name, 0.0)
 
 
 func _process(delta: float) -> void:
@@ -235,6 +242,10 @@ func _sync_start_animation(anim_name: String, start_position: float) -> void:
 	if not anim_player:
 		return
 	if anim_player.has_animation(anim_name):
+		# Set animation to loop (same as server)
+		var anim: Animation = anim_player.get_animation(anim_name)
+		if anim:
+			anim.loop_mode = Animation.LOOP_LINEAR
 		anim_player.stop()
 		anim_player.play(anim_name)
 		anim_player.seek(start_position, true)
