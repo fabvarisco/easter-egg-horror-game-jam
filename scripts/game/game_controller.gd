@@ -83,17 +83,21 @@ func _hide_loading_screen() -> void:
 
 
 func _show_intro_dialogue() -> void:
+	if ProgressionManager.runs_completed > 0:
+		return
 	if not _is_singleplayer and not multiplayer.is_server():
 		return
 
 	_dialog_instance = _dialog_scene.instantiate()
 	add_child(_dialog_instance)
 
-	# TODO: Definir os textos especificos da intro
 	var dialogues: Array[String] = [
-		"Texto 1...",
-		"Texto 2...",
-		"Texto 3...",
+		"Listen up. This isn't a simple job.",
+		"A dozen mercenaries went into that cemetery before you. Not one came back.",
+		"We don't know what's in there. We don't want to know.",
+		"Your only objective: find the eggs and get back to the car.",
+		"Don't stop. Don't look around. Just grab them and go.",
+		"Whatever you hear in there... keep moving.",
 	]
 
 	_dialog_instance.start_dialogue(dialogues)
