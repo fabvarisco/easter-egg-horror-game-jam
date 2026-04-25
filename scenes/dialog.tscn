@@ -1,7 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://blnfxpk4cvbix"]
+[gd_scene load_steps=4 format=3 uid="uid://blnfxpk4cvbix"]
 
-[ext_resource type="Script" uid="uid://detr0ssda2ujf" path="res://scripts/dialog.gd" id="1_36pgd"]
+[ext_resource type="Script" path="res://scripts/dialog.gd" id="1_36pgd"]
 [ext_resource type="PackedScene" uid="uid://de3tdunfchthr" path="res://scenes/npc/shop_bro.tscn" id="2_36pgd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_36pgd"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
 
 [node name="Dialog" type="Node3D"]
 script = ExtResource("1_36pgd")
@@ -9,10 +15,10 @@ script = ExtResource("1_36pgd")
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer"]
-offset_left = 32.0
-offset_top = 400.0
-offset_right = 432.0
-offset_bottom = 850.0
+offset_left = 3.0
+offset_top = 421.0
+offset_right = 403.0
+offset_bottom = 871.0
 
 [node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer"]
 transparent_bg = true
@@ -37,7 +43,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -213.0
+offset_top = -209.0
 grow_horizontal = 2
 grow_vertical = 0
 size_flags_vertical = 8
@@ -46,6 +52,8 @@ size_flags_vertical = 8
 layout_mode = 0
 offset_right = 1919.0
 offset_bottom = 208.0
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxEmpty_36pgd")
 
 [node name="Skip" type="Button" parent="CanvasLayer"]
 offset_left = 1734.0

@@ -108,7 +108,7 @@ func _play_music(stream: AudioStream) -> void:
 	var tween := create_tween()
 	tween.set_parallel(true)
 
-	tween.tween_property(_active_player, "volume_db", linear_to_db(_music_volume), CROSSFADE_DURATION)
+	tween.tween_property(_active_player, "volume_db", _vol_to_db(_music_volume), CROSSFADE_DURATION)
 
 	if _inactive_player.playing:
 		tween.tween_property(_inactive_player, "volume_db", -80.0, CROSSFADE_DURATION)
@@ -172,7 +172,7 @@ func _play_sfx(stream: AudioStream) -> void:
 	var player := AudioStreamPlayer.new()
 	player.stream = stream
 	player.bus = "SFX"
-	player.volume_db = linear_to_db(_sfx_volume)
+	player.volume_db = _vol_to_db(_sfx_volume)
 	add_child(player)
 	player.play()
 	player.finished.connect(player.queue_free)
@@ -186,7 +186,7 @@ func set_music_volume(volume: float) -> void:
 	_music_volume = clamp(volume, 0.0, 1.0)
 	var music_bus_idx := AudioServer.get_bus_index("Music")
 	if music_bus_idx >= 0:
-		AudioServer.set_bus_volume_db(music_bus_idx, linear_to_db(_music_volume))
+		AudioServer.set_bus_volume_db(music_bus_idx, _vol_to_db(_music_volume))
 
 
 func get_music_volume() -> float:
@@ -197,11 +197,15 @@ func set_sfx_volume(volume: float) -> void:
 	_sfx_volume = clamp(volume, 0.0, 1.0)
 	var sfx_bus_idx := AudioServer.get_bus_index("SFX")
 	if sfx_bus_idx >= 0:
-		AudioServer.set_bus_volume_db(sfx_bus_idx, linear_to_db(_sfx_volume))
+		AudioServer.set_bus_volume_db(sfx_bus_idx, _vol_to_db(_sfx_volume))
 
 
 func get_sfx_volume() -> float:
 	return _sfx_volume
+
+
+func _vol_to_db(volume: float) -> float:
+	return -80.0 if volume <= 0.0 else linear_to_db(volume)
 
 
 # ==========================================
@@ -251,7 +255,7 @@ func _play_random_ambient_sound() -> void:
 	if sound:
 		# Variação de pitch ±5% para evitar repetição
 		_ambient_player.pitch_scale = randf_range(0.95, 1.05)
-		_ambient_player.volume_db = linear_to_db(_sfx_volume)
+		_ambient_player.volume_db = _vol_to_db(_sfx_volume)
 		_ambient_player.stream = sound
 		_ambient_player.play()
 

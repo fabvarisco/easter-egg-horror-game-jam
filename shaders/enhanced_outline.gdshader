@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode cull_front, unshaded, blend_add;
+render_mode cull_front, unshaded, blend_add, depth_test_disabled;
 
 uniform vec4 outline_color : source_color = vec4(1.0, 0.5, 0.0, 1.0);
 uniform float outline_width = 0.05;
